@@ -10,6 +10,7 @@ import { ChangeDetectionStrategy, Component, output } from '@angular/core';
   changeDetection: ChangeDetectionStrategy.OnPush,
   template: `
     <section class="stage">
+      <img class="stage__rings" src="images/wedding-rings.png" alt="" />
       <p class="stage__hint">Tap the envelope to open</p>
       <button
         type="button"
