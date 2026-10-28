@@ -57,7 +57,7 @@ const STAGE_ORDER: readonly Stage[] = ['sealed', 'open', 'reading'];
             <img class="scene__invite-rings" src="images/wedding-rings.png" alt="" />
             <span class="scene__invite-line">You're</span>
             <span class="scene__invite-line">Invited</span>
-            <span class="scene__invite-kicker">December 19, 2026</span>
+            <span class="scene__invite-kicker">{{ inviteDate }}</span>
           </h1>
           <div class="scene__fg">
             @switch (stage()) {
@@ -128,6 +128,7 @@ const STAGE_ORDER: readonly Stage[] = ['sealed', 'open', 'reading'];
 })
 export class LetterExperience {
   protected readonly envelopePhoto = WEDDING.envelopePhoto;
+  protected readonly inviteDate = `${WEDDING.dateLong.month} ${WEDDING.dateLong.day}, ${WEDDING.dateLong.year}`;
   private readonly audio = inject(AudioService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly stage = signal<Stage>('sealed');

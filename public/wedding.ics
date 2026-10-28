@@ -4,13 +4,13 @@ PRODID:-//GW Moments//Wedding//EN
 CALSCALE:GREGORIAN
 METHOD:PUBLISH
 BEGIN:VEVENT
-UID:20261219-gandk@gwmoments
-DTSTAMP:20260101T000000Z
-DTSTART:20261219T003000Z
-DTEND:20261219T053000Z
-SUMMARY:John Gilfred & Karyle Ann Wedding
-LOCATION:Santa Rosa de Lima Parish Church, Santa Rosa, Laguna
-DESCRIPTION:Celebrate the wedding of John Gilfred & Karyle Ann.
+UID:20261205-edward-rowie@gwmoments
+DTSTAMP:20261028T000000Z
+DTSTART:20261205T020000Z
+DTEND:20261205T070000Z
+SUMMARY:Edward & Rowie Wedding
+LOCATION:San Pablo Cathedral, A. Mabini Avenue, San Pablo City, Laguna
+DESCRIPTION:Celebrate the wedding of Edward & Rowie. Ceremony at 10:00 AM.
 STATUS:CONFIRMED
 TRANSP:OPAQUE
 END:VEVENT
