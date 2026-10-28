@@ -144,6 +144,7 @@
     max-width: 100%;
     box-sizing: border-box;
     padding: calc(env(safe-area-inset-top, 0px) + 0.15rem) clamp(0.85rem, 4vw, var(--space-6)) var(--space-4);
+    margin-top: 1.75rem;
     text-align: center;
     color: #e8d5a0;
     overflow-x: hidden;
@@ -151,16 +152,6 @@
     text-shadow:
       0 1px 1px rgba(7, 26, 20, 0.55),
       0 8px 28px rgba(7, 26, 20, 0.45);
-
-    &-rings {
-      display: block;
-      width: 5.85rem;
-      height: auto;
-      margin: 0 auto 0.4rem;
-      background: transparent;
-      filter: drop-shadow(0 4px 10px rgba(14, 61, 50, 0.4));
-      animation: invite-fade 0.9s ease 0.05s both;
-    }
 
     &-kicker {
       display: block;
@@ -210,12 +201,8 @@
     }
 
     @media (max-width: 768px) {
+      margin-top: 2.15rem;
       padding-top: calc(env(safe-area-inset-top, 0px) + 0.35rem);
-
-      .scene__invite-rings {
-        width: 4.15rem;
-        margin-bottom: 0.15rem;
-      }
     }
 
     @media (min-width: 769px) {
@@ -238,12 +225,6 @@
       .scene__invite-kicker::before {
         margin: 0.7rem auto 0.75rem;
       }
-
-      .scene__invite-rings {
-        width: 8.1rem;
-        margin-bottom: 0.85rem;
-        filter: drop-shadow(0 6px 12px rgba(14, 61, 50, 0.35));
-      }
     }
 
     @media (orientation: landscape) and (max-height: 540px) {
@@ -256,11 +237,6 @@
       transform: none;
       padding: 0 1rem 0 0;
       margin: 0;
-
-      .scene__invite-rings {
-        width: 4.35rem;
-        margin-bottom: 0.2rem;
-      }
 
       .scene__invite-line {
         font-size: clamp(1.4rem, 6.2vh, 2.05rem);
@@ -379,7 +355,7 @@
     overflow-y: visible;
     width: 100%;
     max-width: 100%;
-    background: #f4f7f3;
+    background: var(--wash);
 
     /* Keep invitation above the footer so parallax/footer layers never cover content. */
     .scene__content {
@@ -391,7 +367,7 @@
       max-width: 100%;
       overflow-x: hidden;
       overflow-x: clip;
-      background: #f4f7f3;
+      background: var(--wash);
 
       &:has(.qr-modal, .lightbox, .map-modal, .invite-preview) {
         z-index: 80;
@@ -462,12 +438,7 @@
   gap: clamp(0.1rem, 1.5vw, 0.75rem);
   isolation: isolate;
   overflow: hidden;
-  background: linear-gradient(
-    180deg,
-    rgba(244, 247, 243, 0.78) 0%,
-    rgba(228, 238, 232, 0.9) 52%,
-    rgba(201, 162, 39, 0.28) 100%
-  );
+  background: linear-gradient(180deg, #145c48 0%, #0e3d32 100%);
   backdrop-filter: blur(28px) saturate(1.45);
   -webkit-backdrop-filter: blur(28px) saturate(1.45);
   border-top: 1px solid rgba(201, 162, 39, 0.55);
@@ -537,7 +508,7 @@
     align-items: center;
     justify-content: center;
     gap: 3px;
-    color: #0e3d32;
+    color: #f3e6c4;
     font-family: var(--font-ui);
     text-transform: uppercase;
     letter-spacing: 0.08em;
@@ -550,7 +521,7 @@
 
     &:hover,
     &:active {
-      color: #8d6a18;
+      color: #e8d5a0;
       transform: translateY(-2px);
       text-shadow: none;
     }
@@ -581,17 +552,17 @@
 
 .scene[data-stage='reading'] .overscroll-hint {
   color: #0e3d32;
-  background: #e4eee8;
+  background: linear-gradient(180deg, #f3e6c4 0%, #e8d5a0 58%, #d4b45c 100%);
   border-top: 1px solid rgba(201, 162, 39, 0.45);
 }
 
 .scene[data-stage='reading'] .tabbar {
   .tabbar__item {
-    color: #0e3d32;
+    color: #f3e6c4;
 
     &:hover,
     &:active {
-      color: #8d6a18;
+      color: #e8d5a0;
     }
   }
 }
@@ -657,7 +628,6 @@
     transform: none;
   }
 
-  .scene__invite-rings,
   .scene__invite-line,
   .scene__invite-kicker {
     animation: none;

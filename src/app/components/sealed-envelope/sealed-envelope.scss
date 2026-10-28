@@ -14,9 +14,10 @@
     display: block;
     width: 3.7rem;
     height: auto;
-    margin: 0 auto;
+    margin: 0 auto 0.15rem;
     pointer-events: none;
     filter: drop-shadow(0 4px 8px rgba(14, 61, 50, 0.4));
+    animation: sealed-hint-fade 0.85s ease 2.15s both;
   }
 
   &__hint {
@@ -113,7 +114,8 @@
     transition: none;
   }
 
-  .stage__hint {
+  .stage__hint,
+  .stage__rings {
     animation: none;
     opacity: 1;
   }

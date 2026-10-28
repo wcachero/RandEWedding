@@ -19,13 +19,7 @@
   box-sizing: border-box;
   padding: clamp(3.5rem, 8vw, 6rem) var(--space-6) clamp(2.5rem, 5vw, 3.5rem);
   border-top: 1px solid rgba(201, 162, 39, 0.55);
-  background:
-    linear-gradient(
-      180deg,
-      #f4f7f3 0%,
-      #e4eee8 48%,
-      #d5e6dc 100%
-    );
+  background: linear-gradient(180deg, #e7f4ea 0%, #d5ead8 42%, #f3e6c4 78%, #e4c56a 100%);
 
   &__wash {
     position: absolute;
@@ -33,8 +27,8 @@
     z-index: 0;
     pointer-events: none;
     background:
-      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(251, 250, 246, 0.7), transparent 62%),
-      radial-gradient(ellipse 70% 40% at 50% 100%, rgba(14, 61, 50, 0.28), transparent 70%);
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(255, 255, 255, 0.45), transparent 62%),
+      radial-gradient(ellipse 70% 40% at 50% 100%, rgba(212, 180, 92, 0.35), transparent 70%);
   }
 
   &__floral {

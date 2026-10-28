@@ -54,7 +54,6 @@ const STAGE_ORDER: readonly Stage[] = ['sealed', 'open', 'reading'];
           <app-wedding-invitation />
         } @else {
           <h1 class="scene__invite">
-            <img class="scene__invite-rings" src="images/wedding-rings.png" alt="" />
             <span class="scene__invite-line">You're</span>
             <span class="scene__invite-line">Invited</span>
             <span class="scene__invite-kicker">{{ inviteDate }}</span>

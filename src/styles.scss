@@ -7,9 +7,10 @@
 /* ----- Design tokens ------------------------------------------------------ */
 :root {
   /* Colors — emerald primary, antique gold secondary */
-  --color-bg: #f4f7f3;              /* ivory with a sage wash */
-  --color-bg-deep: #e4eee8;
-  --color-surface: #fbfaf6;         /* ivory cards */
+  --color-bg: #e7f4ea;              /* light green */
+  --color-bg-deep: #d5e8d6;
+  --color-surface: #f7f3e6;
+  --wash: linear-gradient(180deg, #e7f4ea 0%, #d5ead8 48%, #f3e6c4 100%);
   --color-text: #1a322c;            /* forest ink */
   --color-text-muted: #4d635b;
   --color-maroon: #0e3d32;          /* emerald headings (legacy token name) */
@@ -100,7 +101,7 @@ body {
   font-size: 1.2rem; /* Cormorant reads small, so bump the base size */
   line-height: 1.65;
   color: var(--color-text);
-  background: var(--color-bg);
+  background: var(--wash);
   -webkit-font-smoothing: antialiased;
   text-rendering: optimizeLegibility;
   position: relative;

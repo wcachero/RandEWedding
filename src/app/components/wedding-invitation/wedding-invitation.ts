@@ -938,9 +938,9 @@ export class WeddingInvitation {
     }
 
     const bg = ctx.createLinearGradient(0, 0, 0, height);
-    bg.addColorStop(0, '#eef5f0');
-    bg.addColorStop(0.35, '#f7faf7');
-    bg.addColorStop(1, '#d5e6dc');
+    bg.addColorStop(0, '#f4ead8');
+    bg.addColorStop(0.35, '#fbf6ec');
+    bg.addColorStop(1, '#ead9c4');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, width, height);
 
@@ -1361,11 +1361,10 @@ export class WeddingInvitation {
       throw new Error('Canvas unavailable');
     }
 
-    // Ivory sage wash
     const bg = ctx.createLinearGradient(0, 0, 0, height);
-    bg.addColorStop(0, '#eef5f0');
-    bg.addColorStop(0.45, '#f7faf7');
-    bg.addColorStop(1, '#d5e6dc');
+    bg.addColorStop(0, '#f4ead8');
+    bg.addColorStop(0.45, '#fbf6ec');
+    bg.addColorStop(1, '#ead9c4');
     ctx.fillStyle = bg;
     ctx.fillRect(0, 0, width, height);
 

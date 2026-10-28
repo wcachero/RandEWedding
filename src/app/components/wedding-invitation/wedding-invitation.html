@@ -46,7 +46,7 @@
   <!-- Parallax hero -->
   <header class="hero">
     <div class="hero__bg" [appParallax]="0.07">
-      <div class="hero__bg-img" [style.background-image]="'url(' + wedding.heroPhoto + ')'"></div>
+      <img class="hero__photo" [src]="wedding.heroPhoto" alt="" />
     </div>
     <div class="hero__scrim"></div>
     <div class="hero__frame" aria-hidden="true"></div>
@@ -113,60 +113,65 @@
   <!-- Countdown -->
   <section class="section countdown">
     <div class="container">
-      <span class="countdown__rule" aria-hidden="true"></span>
       <img class="countdown__rings" src="images/wedding-rings.png" alt="" appReveal />
       <p class="script-accent" appReveal>Until we say I do</p>
       @if (countdown().passed) {
-        <p class="countdown__married" appReveal>Happily Married 💍</p>
+        <p class="countdown__married" appReveal>Happily married</p>
       } @else {
-        <ul class="countdown__grid" appReveal>
-          <li><span class="countdown__num">{{ pad(countdown().days) }}</span><span class="countdown__unit">Days</span></li>
-          <li><span class="countdown__num">{{ pad(countdown().hours) }}</span><span class="countdown__unit">Hours</span></li>
-          <li><span class="countdown__num">{{ pad(countdown().minutes) }}</span><span class="countdown__unit">Minutes</span></li>
-          <li><span class="countdown__num">{{ pad(countdown().seconds) }}</span><span class="countdown__unit">Seconds</span></li>
-        </ul>
+        <ol class="countdown__line" appReveal>
+          <li>
+            <span class="countdown__num">{{ pad(countdown().days) }}</span>
+            <span class="countdown__unit">Days</span>
+          </li>
+          <li>
+            <span class="countdown__num">{{ pad(countdown().hours) }}</span>
+            <span class="countdown__unit">Hours</span>
+          </li>
+          <li>
+            <span class="countdown__num">{{ pad(countdown().minutes) }}</span>
+            <span class="countdown__unit">Minutes</span>
+          </li>
+          <li>
+            <span class="countdown__num">{{ pad(countdown().seconds) }}</span>
+            <span class="countdown__unit">Seconds</span>
+          </li>
+        </ol>
       }
-      <span class="countdown__rule countdown__rule--end" aria-hidden="true"></span>
     </div>
   </section>
 
   <!-- Venues -->
-  <section class="venue section" id="venue">
-    <div class="venue__bloom venue__bloom--tr" aria-hidden="true">
-      <span class="venue__bloom-layer" [appParallax]="0.35"></span>
-    </div>
+  <section class="venue" id="venue">
     <div class="venue__heading">
-      <div class="container">
-        <h2 class="section__title" appReveal>The Celebration</h2>
-      </div>
+      <p class="section__label">Where we gather</p>
+      <h2 class="section__title">The Celebration</h2>
     </div>
 
-    <!-- Ceremony: full-width parallax band with the church -->
-    <div class="venue-parallax venue-parallax--ceremony">
-      <div class="venue-parallax__bg" [appParallax]="0.16"
-           [style.background-image]="ceremony.photo ? 'url(' + ceremony.photo + ')' : null"></div>
-      <div class="venue-parallax__scrim"></div>
-      <div class="venue-parallax__content" appReveal>
-        <p class="venue__kicker venue__kicker--light">{{ ceremony.kicker }}</p>
-        <h3 class="venue-parallax__name">{{ ceremony.venue }}</h3>
-        <p class="venue-parallax__meta">{{ ceremony.address }}</p>
+    <article class="place">
+      <img class="place__photo place__photo--ceremony" [src]="ceremony.photo" alt="" />
+      <div class="place__scrim"></div>
+      <div class="place__frame" aria-hidden="true"></div>
+      <div class="place__content" appReveal>
+        <p class="place__kicker">{{ ceremony.kicker }}</p>
+        <h3 class="place__name place__name--long">{{ ceremony.venue }}</h3>
+        <p class="place__time">{{ ceremony.time }}</p>
+        <p class="place__meta">{{ ceremony.address }}</p>
         <button type="button" class="btn" (click)="openMap(ceremony)">View Map</button>
       </div>
-    </div>
+    </article>
 
-    <!-- Reception: full-width parallax band -->
-    <div class="venue-parallax venue-parallax--reception">
-      <div class="venue-parallax__bg" [appParallax]="0.16"
-           [style.background-image]="reception.photo ? 'url(' + reception.photo + ')' : null"></div>
-      <div class="venue-parallax__scrim"></div>
-      <div class="venue-parallax__content" appReveal>
-        <p class="venue__kicker venue__kicker--light">{{ reception.kicker }}</p>
-        <h3 class="venue-parallax__name">{{ reception.venue }}</h3>
-        <p class="venue-parallax__meta">{{ reception.time }}</p>
-        <p class="venue-parallax__meta">{{ reception.address }}</p>
+    <article class="place">
+      <img class="place__photo place__photo--reception" [src]="reception.photo" alt="" />
+      <div class="place__scrim"></div>
+      <div class="place__frame" aria-hidden="true"></div>
+      <div class="place__content" appReveal>
+        <p class="place__kicker">{{ reception.kicker }}</p>
+        <h3 class="place__name">{{ reception.venue }}</h3>
+        <p class="place__time">{{ reception.time }}</p>
+        <p class="place__meta">{{ reception.address }}</p>
         <button type="button" class="btn" (click)="openMap(reception)">View Map</button>
       </div>
-    </div>
+    </article>
   </section>
 
   <div class="divider" aria-hidden="true"></div>
@@ -225,99 +230,91 @@
 
   <!-- Entourage -->
   <section class="section entourage" id="entourage">
-    <div class="entourage__bloom entourage__bloom--tr" aria-hidden="true">
-      <span class="entourage__bloom-layer" [appParallax]="0.35"></span>
-    </div>
-    <div class="entourage__bloom entourage__bloom--bl" aria-hidden="true">
-      <span class="entourage__bloom-layer" [appParallax]="0.35"></span>
-    </div>
     <div class="container">
       <p class="section__label" appReveal>With grateful hearts</p>
       <h2 class="section__title" [appReveal]="60">The Entourage</h2>
 
-      <div class="entourage__card" appReveal>
-        <div class="entourage__frame">
-          <div class="entourage__cols">
-            <div class="entourage__block">
-              <p class="entourage__role">Parents of the Groom</p>
-              @for (name of wedding.entourage.parentsOfGroom; track name) {
-                <p class="entourage__name">{{ name }}</p>
-              }
-            </div>
-            <div class="entourage__block">
-              <p class="entourage__role">Parents of the Bride</p>
-              @for (name of wedding.entourage.parentsOfBride; track name) {
-                <p class="entourage__name">{{ name }}</p>
-              }
-            </div>
+      <div class="court">
+        <div class="court__split" appReveal>
+          <div class="court__col">
+            <p class="court__role">Parents of the Groom</p>
+            @for (name of wedding.entourage.parentsOfGroom; track name) {
+              <p class="court__name">{{ name }}</p>
+            }
           </div>
-
-          <div class="entourage__block entourage__block--full">
-            <p class="entourage__role">Principal Sponsors</p>
-            <div class="entourage__names">
-              @for (pair of wedding.entourage.principalSponsors; track pair.gentlemen) {
-                <p class="entourage__name">{{ pair.gentlemen }}</p>
-                <p class="entourage__name">{{ pair.ladies }}</p>
-              }
-            </div>
+          <div class="court__col">
+            <p class="court__role">Parents of the Bride</p>
+            @for (name of wedding.entourage.parentsOfBride; track name) {
+              <p class="court__name">{{ name }}</p>
+            }
           </div>
+        </div>
 
-          <div class="entourage__block entourage__block--full entourage__block--pair">
-            <div class="entourage__names entourage__names--pair-roles">
-              <p class="entourage__role">Best Man</p>
-              <p class="entourage__role">Maid of Honor</p>
-            </div>
-            <div class="entourage__names">
-              <p class="entourage__name">{{ wedding.entourage.bestMan }}</p>
-              <p class="entourage__name">{{ wedding.entourage.maidOfHonor }}</p>
-            </div>
-          </div>
-
-          @for (s of wedding.entourage.secondarySponsors; track s.role) {
-            <div class="entourage__block entourage__block--full entourage__block--secondary">
-              <p class="entourage__role">{{ s.role }}</p>
-              <div class="entourage__names">
-                @for (name of s.pair.split(' & '); track name) {
-                  <p class="entourage__name">{{ name }}</p>
-                }
-              </div>
-            </div>
+        <h3 class="court__banner">Principal Sponsors</h3>
+        <ul class="court__couples">
+          @for (pair of wedding.entourage.principalSponsors; track pair.gentlemen) {
+            <li>
+              <span>{{ pair.gentlemen }}</span>
+              <span>{{ pair.ladies }}</span>
+            </li>
           }
+        </ul>
 
-          <div class="entourage__block entourage__block--full">
-            <p class="entourage__role">Bearers</p>
-            <div class="entourage__names entourage__names--bearers">
-              @for (b of wedding.entourage.bearers; track b.role) {
-                <div class="entourage__bearer">
-                  <span class="entourage__subrole">{{ b.role }}</span>
-                  <p class="entourage__name">{{ b.name }}</p>
-                </div>
-              }
-            </div>
+        <div class="court__split" appReveal>
+          <div class="court__col">
+            <p class="court__role">Best Man</p>
+            <p class="court__name court__name--attend">{{ wedding.entourage.bestMan }}</p>
           </div>
+          <div class="court__col">
+            <p class="court__role">Maid of Honor</p>
+            <p class="court__name court__name--attend">{{ wedding.entourage.maidOfHonor }}</p>
+          </div>
+        </div>
 
-          @if (wedding.entourage.flowerGirls.length) {
-            <div class="entourage__block entourage__block--full entourage__block--flower-girls">
-              <p class="entourage__role">Flower Girl</p>
-              <div class="entourage__names">
-                @for (name of wedding.entourage.flowerGirls; track name) {
-                  <p class="entourage__name">{{ name }}</p>
-                }
-              </div>
+        <div class="court__roles">
+          @for (s of wedding.entourage.secondarySponsors; track s.role) {
+            <div class="court__col">
+              <p class="court__role">{{ s.role }}</p>
+              @for (person of s.pair.split(' & '); track person) {
+                <p class="court__name">{{ person }}</p>
+              }
             </div>
           }
         </div>
+
+        <h3 class="court__banner">Bearers</h3>
+        <div class="court__roles">
+          @for (b of wedding.entourage.bearers; track b.role) {
+            <div class="court__col">
+              <p class="court__role">{{ b.role }}</p>
+              <p class="court__name">{{ b.name }}</p>
+            </div>
+          }
+        </div>
+
+        @if (wedding.entourage.flowerGirls.length) {
+          <h3 class="court__banner">Flower Girls</h3>
+          <div class="court__split court__split--script">
+            @for (name of wedding.entourage.flowerGirls; track name) {
+              <p class="court__name court__name--lead">{{ name }}</p>
+            }
+          </div>
+        }
       </div>
     </div>
   </section>
 
-  <!-- Save the date parallax -->
-  <section class="save">
-    <div class="save__bg" [appParallax]="0.16" [style.background-image]="'url(' + wedding.saveTheDatePhoto + ')'"></div>
+  <!-- Save the date -->
+  <section class="save" aria-label="Save the date">
+    <img class="save__photo" [src]="wedding.saveTheDatePhoto" alt="" />
     <div class="save__scrim"></div>
+    <div class="save__frame" aria-hidden="true"></div>
     <div class="save__content" appReveal>
+      <p class="save__who">{{ wedding.groom }} &amp; {{ wedding.bride }}</p>
       <p class="save__script">Save the Date</p>
-      <p class="save__date">{{ wedding.dateShort }}</p>
+      <span class="save__rule" aria-hidden="true"></span>
+      <p class="save__full">{{ wedding.dateLong.month }} {{ wedding.dateLong.day }}, {{ wedding.dateLong.year }}</p>
+      <p class="save__time">{{ wedding.ceremony.time }}</p>
     </div>
   </section>
 
