@@ -404,9 +404,10 @@
   &__bg-img {
     position: absolute;
     inset: 0;
+    background-repeat: no-repeat;
+    /* Wide screens: cover, biased low so the faces clear the script names. */
     background-size: cover;
-    /* Crop the portrait to the couple, slightly above center so faces lead. */
-    background-position: 50% 84%;
+    background-position: 50% 76%;
     animation: kenburns 28s ease-in-out infinite alternate;
   }
 
@@ -563,7 +564,11 @@
 
     &__bg-img {
       animation: none;
-      background-size: 148% auto;
+      /*
+       * Tall phone frame: zoom into the couple and pin the bottom of the
+       * portrait so only a thin band of leaves sits under the names.
+       */
+      background-size: auto 186%;
       background-position: center 100%;
     }
 
