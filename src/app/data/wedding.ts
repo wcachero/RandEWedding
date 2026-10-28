@@ -73,7 +73,7 @@ export const WEDDING: Wedding = {
   groom: 'Edward',
   bride: 'Rowie',
   monogram: 'E & R',
-  dateIso: '2026-12-05T10:00:00+010:00',
+  dateIso: '2026-12-05T10:00:00+08:00',
   dateShort: '12.05.26',
   dateLong: { month: 'December', monthShort: 'Dec', day: '05', year: '2026', weekday: 'Saturday' },
   ceremonyTime: 'Ceremony',
