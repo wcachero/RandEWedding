@@ -49,7 +49,6 @@ export interface Wedding {
     readonly note: string;
   };
   readonly rsvp: {
-    readonly url: string;
     readonly note: string;
     /** Soft deadline shown on the invitation (e.g. November 8, 2026). */
     readonly deadline: string;
@@ -134,7 +133,6 @@ export const WEDDING: Wedding = {
     note: 'Emerald, beige, gold, and champagne. The wedding party wears one shared look each — champagne for the men, emerald for the women.',
   },
   rsvp: {
-    url: 'https://script.google.com/macros/s/AKfycbzJQmmnqci0N9stgHUoOX-v8p6mzRAyy82rrWXM1H-_45GBf2OdveebLXvxQTR9WKeJ/exec',
     note: 'Every seat is reserved with love and intention. Kindly confirm your attendance below.',
     deadline: 'November 8, 2026',
     contacts: [

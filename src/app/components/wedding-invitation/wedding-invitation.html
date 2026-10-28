@@ -375,16 +375,95 @@
       </p>
 
       <div class="rsvp__form" appReveal>
-        <iframe
-          [src]="rsvpEmbed"
-          title="RSVP form"
-          loading="lazy"
-        ></iframe>
+        @if (rsvpSent()) {
+          <div class="rsvp__done" role="status">
+            <p class="rsvp__done-kicker">Reply noted</p>
+            <p class="rsvp__done-name">Thank you, {{ rsvpName() }}</p>
+            @if (rsvpAttend() === 'yes') {
+              <p class="rsvp__done-line">
+                We have reserved {{ rsvpSeats() }}
+                {{ rsvpSeats() === 1 ? 'seat' : 'seats' }} for you.
+              </p>
+            } @else {
+              <p class="rsvp__done-line">We will miss you, and we are grateful you let us know.</p>
+            }
+            <button type="button" class="btn btn--ghost" (click)="resetRsvp()">Edit reply</button>
+          </div>
+        } @else {
+          <form class="rsvp__card" (submit)="submitRsvp($event)">
+            <label class="rsvp__field">
+              <span class="rsvp__label">Your name</span>
+              <input
+                class="rsvp__input"
+                type="text"
+                name="name"
+                autocomplete="name"
+                maxlength="80"
+                placeholder="Full name"
+                [value]="rsvpName()"
+                (input)="onRsvpName($event)"
+              />
+            </label>
+
+            <fieldset class="rsvp__field">
+              <legend class="rsvp__label">Will you attend?</legend>
+              <div class="rsvp__choices">
+                <button
+                  type="button"
+                  class="rsvp__choice"
+                  [class.rsvp__choice--on]="rsvpAttend() === 'yes'"
+                  (click)="setRsvpAttend('yes')">
+                  Joyfully accept
+                </button>
+                <button
+                  type="button"
+                  class="rsvp__choice"
+                  [class.rsvp__choice--on]="rsvpAttend() === 'no'"
+                  (click)="setRsvpAttend('no')">
+                  Regretfully decline
+                </button>
+              </div>
+            </fieldset>
+
+            @if (rsvpAttend() === 'yes') {
+              <fieldset class="rsvp__field">
+                <legend class="rsvp__label">Reserved seats</legend>
+                <div class="rsvp__seats">
+                  @for (count of rsvpSeatChoices; track count) {
+                    <button
+                      type="button"
+                      class="rsvp__seat"
+                      [class.rsvp__seat--on]="rsvpSeats() === count"
+                      (click)="setRsvpSeats(count)">
+                      {{ count }}
+                    </button>
+                  }
+                </div>
+              </fieldset>
+            }
+
+            <label class="rsvp__field">
+              <span class="rsvp__label">A note <span class="rsvp__optional">optional</span></span>
+              <textarea
+                class="rsvp__input rsvp__note"
+                name="note"
+                rows="3"
+                maxlength="240"
+                placeholder="Song requests, dietary notes, or a wish"
+                [value]="rsvpNote()"
+                (input)="onRsvpNote($event)"
+              ></textarea>
+            </label>
+
+            @if (rsvpError()) {
+              <p class="rsvp__error" role="alert">{{ rsvpError() }}</p>
+            }
+
+            <button type="submit" class="btn rsvp__submit">Send reply</button>
+            <p class="rsvp__preview">Preview only. Replies stay on this page for now.</p>
+          </form>
+        }
       </div>
-      <p class="rsvp__fallback" appReveal>
-        Form not loading?
-        <a [href]="wedding.rsvp.url" target="_blank" rel="noopener">Open the RSVP form here</a>.
-      </p>
 
       <p class="rsvp__or" appReveal>— or —</p>
       <p class="rsvp__assist" appReveal>Need assistance? You may also contact us directly.</p>

@@ -53,10 +53,14 @@ export class WeddingInvitation {
   protected readonly ceremony = this.toEventView(WEDDING.ceremony);
   protected readonly reception = this.toEventView(WEDDING.reception);
 
-  /** Inline embed of the Google Script RSVP page. */
-  protected readonly rsvpEmbed: SafeResourceUrl = this.sanitizer.bypassSecurityTrustResourceUrl(
-    WEDDING.rsvp.url,
-  );
+  /** Mock RSVP — kept on the page until a real form is connected. */
+  protected readonly rsvpName = signal('');
+  protected readonly rsvpAttend = signal<'yes' | 'no' | ''>('');
+  protected readonly rsvpSeats = signal(1);
+  protected readonly rsvpNote = signal('');
+  protected readonly rsvpSent = signal(false);
+  protected readonly rsvpError = signal('');
+  protected readonly rsvpSeatChoices = [1, 2, 3, 4] as const;
 
   /** Current time, ticked every second to drive the countdown. */
   private readonly now = signal(Date.now());
@@ -465,6 +469,46 @@ export class WeddingInvitation {
         void this.prepareChromeSave(save);
       }
     });
+  }
+
+  protected onRsvpName(event: Event): void {
+    this.rsvpName.set((event.target as HTMLInputElement).value);
+    if (this.rsvpError()) {
+      this.rsvpError.set('');
+    }
+  }
+
+  protected onRsvpNote(event: Event): void {
+    this.rsvpNote.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  protected setRsvpAttend(value: 'yes' | 'no'): void {
+    this.rsvpAttend.set(value);
+    this.rsvpError.set('');
+  }
+
+  protected setRsvpSeats(count: number): void {
+    this.rsvpSeats.set(count);
+  }
+
+  protected submitRsvp(event: Event): void {
+    event.preventDefault();
+    const name = this.rsvpName().trim();
+    if (!name) {
+      this.rsvpError.set('Please tell us your name.');
+      return;
+    }
+    if (!this.rsvpAttend()) {
+      this.rsvpError.set('Please let us know if you can attend.');
+      return;
+    }
+    this.rsvpName.set(name);
+    this.rsvpError.set('');
+    this.rsvpSent.set(true);
+  }
+
+  protected resetRsvp(): void {
+    this.rsvpSent.set(false);
   }
 
   /** Bottom-of-page RSVP deadline warning — shown once per visit. */

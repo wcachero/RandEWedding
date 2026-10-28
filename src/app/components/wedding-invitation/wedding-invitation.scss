@@ -1734,38 +1734,155 @@
   }
 
   &__form {
-    max-width: min(720px, 100%);
+    max-width: 34rem;
     margin: 0 auto var(--space-6);
+    padding: clamp(1.25rem, 3vw, 2rem);
     border-radius: 14px;
-    overflow: hidden;
     border: 1px solid var(--color-border);
     background: var(--color-surface);
     box-shadow: var(--shadow-sm);
+    text-align: left;
+  }
 
-    /*
-     * The embedded form uses min-height: 100vh of the iframe, so an oversized
-     * frame creates empty cream space. Keep height close to the form content.
-     */
-    iframe {
-      display: block;
-      width: 100%;
-      max-width: 100%;
-      height: clamp(920px, 118vh, 1100px);
-      border: 0;
+  &__card,
+  &__done {
+    display: flex;
+    flex-direction: column;
+    gap: 1.05rem;
+  }
+
+  &__field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-inline-size: 0;
+  }
+
+  &__label {
+    font-family: var(--font-ui);
+    text-transform: uppercase;
+    letter-spacing: 0.16em;
+    font-size: 0.62rem;
+    font-weight: 500;
+    color: #8d6a18;
+  }
+
+  &__optional {
+    letter-spacing: 0.12em;
+    color: var(--color-text-muted);
+  }
+
+  &__input {
+    width: 100%;
+    padding: 0.75rem 0.9rem;
+    border: 1px solid rgba(201, 162, 39, 0.45);
+    border-radius: 8px;
+    background: #fff;
+    color: var(--color-text);
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    line-height: 1.4;
+
+    &::placeholder {
+      color: #8aa096;
     }
 
-    @media (max-width: 680px) {
-      border-radius: 10px;
-
-      iframe {
-        height: clamp(860px, 130vh, 1040px);
-      }
+    &:focus {
+      outline: 2px solid #c9a227;
+      outline-offset: 1px;
     }
   }
-  &__fallback {
+
+  &__note {
+    resize: vertical;
+    min-height: 5.5rem;
+  }
+
+  &__choices,
+  &__seats {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+  }
+
+  &__choice,
+  &__seat {
+    border: 1px solid rgba(201, 162, 39, 0.55);
+    border-radius: 999px;
+    background: #fff;
+    color: #0e3d32;
+    font-family: var(--font-heading);
+    font-size: 1.05rem;
+    line-height: 1.2;
+    padding: 0.65rem 1rem;
+    cursor: pointer;
+
+    &:focus-visible {
+      outline: 2px solid #c9a227;
+      outline-offset: 2px;
+    }
+  }
+
+  &__choice--on,
+  &__seat--on {
+    background: #0e3d32;
+    border-color: #c9a227;
+    color: #fbfaf6;
+  }
+
+  &__seat {
+    min-width: 2.75rem;
+    padding-inline: 0.85rem;
+    font-variant-numeric: tabular-nums;
+  }
+
+  &__error {
+    margin: 0;
+    color: #8d3b2a;
+    font-size: 1rem;
+  }
+
+  &__submit {
+    align-self: center;
+    margin-top: 0.2rem;
+  }
+
+  &__preview {
+    margin: 0;
+    text-align: center;
     font-size: 0.95rem;
+    font-style: italic;
     color: var(--color-text-muted);
-    a { color: var(--color-accent-deep); text-decoration: underline; }
+  }
+
+  &__done {
+    align-items: center;
+    text-align: center;
+    padding: 0.6rem 0.2rem 0.2rem;
+  }
+
+  &__done-kicker {
+    font-family: var(--font-ui);
+    text-transform: uppercase;
+    letter-spacing: 0.2em;
+    font-size: 0.62rem;
+    color: #b8943a;
+  }
+
+  &__done-name {
+    font-family: var(--font-script);
+    font-size: clamp(2rem, 1.6rem + 1.4vw, 2.6rem);
+    line-height: 1.1;
+    color: #0e3d32;
+  }
+
+  &__done-line {
+    max-width: 24rem;
+    font-size: 1.2rem;
+    color: var(--color-text);
   }
 
   &__or { margin: var(--space-6) 0 var(--space-2); font-family: var(--font-ui); letter-spacing: 0.2em; color: var(--color-text-muted); }
