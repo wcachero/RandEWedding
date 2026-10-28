@@ -1,0 +1,2 @@
+# Keep calendar files byte-for-byte (CRLF required by iOS/Apple Calendar)
+*.ics -text

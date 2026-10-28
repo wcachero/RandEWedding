@@ -1,0 +1,687 @@
+:host {
+  display: block;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+  overflow-x: clip;
+}
+
+.scene {
+  position: relative;
+  min-height: 100dvh;
+  display: grid;
+  grid-template-rows: 1fr auto;
+  place-items: center;
+  padding: var(--space-16) var(--space-6) var(--space-8);
+  background:
+    radial-gradient(120% 90% at 50% 0%, var(--color-bg) 0%, var(--color-bg-deep) 100%);
+  overflow-x: hidden;
+  overflow-x: clip;
+  overflow-y: hidden;
+  width: 100%;
+  max-width: 100%;
+
+  /* Photo backdrop for the sealed + opened envelope steps */
+  &[data-stage='sealed'],
+  &[data-stage='open'] {
+    display: block;
+    padding: 0;
+    place-items: initial;
+    /* Never leave X open — Messenger WebView expands document from scaled bg */
+    overflow-x: hidden;
+    overflow-x: clip;
+    overflow-y: hidden;
+    background: #071a14;
+    min-height: 100vh;
+    min-height: 100dvh;
+    width: 100%;
+    max-width: 100%;
+
+    .scene__content {
+      position: relative;
+      z-index: 1;
+      align-self: auto;
+      width: 100%;
+      max-width: 100%;
+      min-height: 100vh;
+      min-height: 100dvh;
+      display: flex;
+      flex-direction: column;
+      align-items: stretch;
+      overflow-x: hidden;
+      overflow-x: clip;
+    }
+
+    .scene__stage-bg {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      max-width: 100%;
+      height: 100vh;
+      height: 100dvh;
+      overflow: hidden;
+    }
+
+    .scene__stage-bg-photo {
+      object-fit: cover;
+      /* Anchor above their heads so the headline stays in the foliage. */
+      object-position: 32% 42%;
+      transform: scale(1.16);
+      transform-origin: 30% 24%;
+      filter: contrast(1.06) saturate(0.95) brightness(0.94);
+      max-width: none;
+    }
+
+    @media (max-width: 768px) {
+      .scene__stage-bg-photo {
+        object-position: 20% 42%;
+        transform: scale(1.35);
+        transform-origin: 24% 22%;
+      }
+    }
+  }
+
+  &__stage-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
+  }
+
+  &[data-stage='sealed'] .scene__stage-bg::after,
+  &[data-stage='open'] .scene__stage-bg::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    opacity: 0.12;
+    mix-blend-mode: overlay;
+    pointer-events: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='180' height='180'><filter id='n'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0 0 0 0.55 0'/></filter><rect width='100%' height='100%' filter='url(%23n)'/></svg>");
+    background-size: 180px 180px;
+  }
+
+  &__stage-bg-photo {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    max-width: none;
+    object-fit: contain;
+    object-position: center;
+  }
+
+  &__stage-bg-scrim {
+    position: absolute;
+    inset: 0;
+    z-index: 1;
+    background:
+      linear-gradient(
+        180deg,
+        rgba(7, 26, 20, 0.52) 0%,
+        rgba(7, 26, 20, 0.08) 32%,
+        rgba(7, 26, 20, 0.04) 52%,
+        rgba(7, 26, 20, 0.22) 78%,
+        rgba(7, 26, 20, 0.5) 100%
+      ),
+      radial-gradient(
+        ellipse 80% 70% at 50% 42%,
+        transparent 18%,
+        rgba(7, 26, 20, 0.28) 100%
+      );
+  }
+
+  &__invite {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0;
+    margin: 0;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    padding: calc(env(safe-area-inset-top, 0px) + 0.15rem) clamp(0.85rem, 4vw, var(--space-6)) var(--space-4);
+    text-align: center;
+    color: #e8d5a0;
+    overflow-x: hidden;
+    overflow-x: clip;
+    text-shadow:
+      0 1px 1px rgba(7, 26, 20, 0.55),
+      0 8px 28px rgba(7, 26, 20, 0.45);
+
+    &-rings {
+      display: block;
+      width: 5.85rem;
+      height: auto;
+      margin: 0 auto 0.4rem;
+      background: transparent;
+      filter: drop-shadow(0 4px 10px rgba(14, 61, 50, 0.4));
+      animation: invite-fade 0.9s ease 0.05s both;
+    }
+
+    &-kicker {
+      display: block;
+      margin-top: 0.08rem;
+      margin-bottom: 0;
+      font-family: var(--font-ui);
+      font-size: clamp(0.62rem, 0.5rem + 0.4vw, 0.78rem);
+      font-weight: 500;
+      letter-spacing: 0.42em;
+      text-transform: uppercase;
+      color: #e8d5a0;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      animation: invite-fade-up 0.9s ease 1.15s both;
+
+      @media (max-width: 420px) {
+        letter-spacing: 0.22em;
+      }
+    }
+
+    &-kicker::before {
+      content: "";
+      display: block;
+      width: 3.5rem;
+      height: 1px;
+      margin: 0.28rem auto 0.32rem;
+      background: linear-gradient(90deg, transparent, #c9a84c, transparent);
+    }
+
+    &-line {
+      display: block;
+      font-family: var(--font-ui);
+      font-size: clamp(2.1rem, 1.05rem + 4.6vw, 4.35rem);
+      font-weight: 500;
+      letter-spacing: 0.14em;
+      line-height: 1.08;
+      text-transform: uppercase;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      animation: invite-fade-up 0.9s ease 0.22s both;
+
+      @media (max-width: 768px) {
+        letter-spacing: 0.1em;
+        font-size: clamp(1.65rem, 7.4vw, 2.05rem);
+        line-height: 0.98;
+      }
+    }
+
+    @media (max-width: 768px) {
+      padding-top: calc(env(safe-area-inset-top, 0px) + 0.35rem);
+
+      .scene__invite-rings {
+        width: 4.15rem;
+        margin-bottom: 0.15rem;
+      }
+    }
+
+    @media (min-width: 769px) {
+      position: absolute;
+      top: calc(env(safe-area-inset-top, 0px) + 3.25rem);
+      right: 0;
+      left: auto;
+      width: var(--invite-col, min(46vw, 30rem));
+      max-width: none;
+      transform: none;
+      align-items: center;
+      text-align: center;
+      padding: 0 var(--invite-pad-right, clamp(1.75rem, 4vw, 3.5rem)) 0 0;
+      margin: 0;
+
+      .scene__invite-kicker {
+        margin-top: 0.35rem;
+      }
+
+      .scene__invite-kicker::before {
+        margin: 0.7rem auto 0.75rem;
+      }
+
+      .scene__invite-rings {
+        width: 8.1rem;
+        margin-bottom: 0.85rem;
+        filter: drop-shadow(0 6px 12px rgba(14, 61, 50, 0.35));
+      }
+    }
+
+    @media (orientation: landscape) and (max-height: 540px) {
+      position: absolute;
+      top: calc(env(safe-area-inset-top, 0px) + 0.35rem);
+      right: 0;
+      left: auto;
+      width: min(48vw, 22rem);
+      max-width: none;
+      transform: none;
+      padding: 0 1rem 0 0;
+      margin: 0;
+
+      .scene__invite-rings {
+        width: 4.35rem;
+        margin-bottom: 0.2rem;
+      }
+
+      .scene__invite-line {
+        font-size: clamp(1.4rem, 6.2vh, 2.05rem);
+        letter-spacing: 0.12em;
+        line-height: 1.05;
+      }
+
+      .scene__invite-kicker {
+        font-size: 0.62rem;
+        letter-spacing: 0.28em;
+        margin-top: 0.1rem;
+      }
+
+      .scene__invite-kicker::before {
+        width: 2.75rem;
+        margin: 0.28rem auto 0.32rem;
+      }
+    }
+  }
+
+  &__fg {
+    position: fixed;
+    z-index: 3;
+    left: auto;
+    right: clamp(var(--space-4), 3vw, var(--space-8));
+    bottom: calc(env(safe-area-inset-bottom, 0px) + var(--space-6));
+    width: max-content;
+    max-width: calc(100% - clamp(var(--space-4), 3vw, var(--space-8)) * 2);
+    display: flex;
+    justify-content: flex-end;
+    pointer-events: none;
+
+    > * {
+      pointer-events: auto;
+    }
+  }
+
+  &[data-stage='sealed'] .scene__fg {
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 0.2rem);
+  }
+
+  &[data-stage='open'] .scene__fg {
+    top: auto;
+    left: auto;
+    right: clamp(0.75rem, 3vw, var(--space-6));
+    bottom: calc(env(safe-area-inset-bottom, 0px) + 0.5rem + 3px);
+    width: max-content;
+    margin: 0;
+    justify-self: end;
+    align-self: end;
+  }
+
+  @media (min-width: 769px) {
+    --invite-col: min(46vw, 30rem);
+    --invite-pad-right: clamp(1.75rem, 4vw, 3.5rem);
+
+    &[data-stage='sealed'] .scene__fg,
+    &[data-stage='open'] .scene__fg {
+      right: 0;
+      left: auto;
+      width: var(--invite-col);
+      max-width: none;
+      justify-content: center;
+      padding: 0 var(--invite-pad-right) 0 0;
+      box-sizing: border-box;
+    }
+  }
+
+  @media (max-width: 768px) {
+    &[data-stage='open'] .scene__fg {
+      top: auto;
+      left: auto;
+      right: 1rem;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 0.55rem + 3px);
+      max-width: calc(100% - 2rem);
+    }
+  }
+
+  @media (orientation: landscape) and (max-height: 540px) {
+    &[data-stage='sealed'] .scene__fg,
+    &[data-stage='open'] .scene__fg {
+      top: auto;
+      right: 0;
+      left: auto;
+      width: min(48vw, 22rem);
+      max-width: none;
+      padding: 0 1rem 0 0;
+      justify-content: center;
+      box-sizing: border-box;
+      bottom: calc(env(safe-area-inset-bottom, 0px) + 0.3rem);
+    }
+  }
+
+  &__content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    display: grid;
+    place-items: center;
+  }
+
+  &__footer {
+    position: relative;
+    z-index: 1;
+    margin-top: var(--space-8);
+    width: 100%;
+  }
+
+  /* The invitation is a full-width scrolling page — no padding, no centering box. */
+  &[data-stage='reading'] {
+    display: block;
+    place-items: initial;
+    padding: 0;
+    overflow-x: hidden;
+    overflow-x: clip;
+    overflow-y: visible;
+    width: 100%;
+    max-width: 100%;
+    background: #f4f7f3;
+
+    /* Keep invitation above the footer so parallax/footer layers never cover content. */
+    .scene__content {
+      display: block;
+      position: relative;
+      z-index: 2;
+      isolation: isolate;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      overflow-x: clip;
+      background: #f4f7f3;
+
+      &:has(.qr-modal, .lightbox, .map-modal, .invite-preview) {
+        z-index: 80;
+      }
+    }
+
+    .scene__footer {
+      position: relative;
+      z-index: 1;
+      margin-top: 0;
+      display: block;
+      width: 100%;
+      max-width: 100%;
+      overflow-x: hidden;
+      overflow-x: clip;
+    }
+  }
+}
+
+.scene__music {
+  position: fixed;
+  bottom: clamp(var(--space-4), 3vw, var(--space-8));
+  right: clamp(var(--space-4), 3vw, var(--space-8));
+  z-index: 35;
+  max-width: calc(100% - 1rem);
+  /* Prevent drag/transform from widening the document in Messenger WebView */
+  contain: layout;
+}
+
+.scene[data-stage='open'] .scene__music {
+  top: calc(env(safe-area-inset-top, 0px) + var(--space-4));
+  right: var(--space-4);
+  bottom: auto;
+  left: auto;
+}
+
+/* When the invitation is open, lift the disc above the bottom tab bar. */
+.scene[data-stage='reading'] .scene__music {
+  bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px) + 0.85rem);
+}
+
+/* Full-screen overlays live inside the invitation; tuck chrome behind them. */
+.scene:has(.qr-modal, .lightbox, .map-modal, .invite-preview) {
+  .scene__music,
+  .tabbar {
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0;
+  }
+}
+
+/* ----- Bottom tab bar (Home / RSVP / Gallery) ----------------------------- */
+.tabbar {
+  --tabbar-h: 62px;
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  z-index: 30;
+  height: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(0.1rem, 1.5vw, 0.75rem);
+  isolation: isolate;
+  overflow: hidden;
+  background: linear-gradient(
+    180deg,
+    rgba(244, 247, 243, 0.78) 0%,
+    rgba(228, 238, 232, 0.9) 52%,
+    rgba(201, 162, 39, 0.28) 100%
+  );
+  backdrop-filter: blur(28px) saturate(1.45);
+  -webkit-backdrop-filter: blur(28px) saturate(1.45);
+  border-top: 1px solid rgba(201, 162, 39, 0.55);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 -16px 36px rgba(7, 26, 20, 0.18);
+
+  /* Soft emerald fade rising above the footer nav */
+  &::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: clamp(2.75rem, 8vw, 4.25rem);
+    z-index: 0;
+    pointer-events: none;
+    background: linear-gradient(
+      180deg,
+      transparent 0%,
+      rgba(14, 61, 50, 0.12) 35%,
+      rgba(14, 61, 50, 0.32) 70%,
+      rgba(14, 61, 50, 0.5) 100%
+    );
+  }
+
+  /* Inner liquid sheen (kept above the emerald edge fade) */
+  &::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      linear-gradient(
+        115deg,
+        rgba(255, 255, 255, 0.45) 0%,
+        rgba(255, 255, 255, 0.12) 24%,
+        transparent 50%,
+        rgba(201, 162, 39, 0.16) 100%
+      ),
+      linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255, 255, 255, 0.28) 42%,
+        rgba(251, 250, 246, 0.1) 50%,
+        transparent 58%
+      ),
+      linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.72),
+        transparent
+      );
+    background-size: 100% 100%, 220% 100%, 76% 1px;
+    background-repeat: no-repeat;
+    background-position: 0 0, 0 0, center 0;
+    animation: tabbar-liquid 8s ease-in-out infinite;
+  }
+
+  &__item {
+    flex: 1 1 0;
+    min-width: 0;
+    max-width: 92px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    color: #0e3d32;
+    font-family: var(--font-ui);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    font-size: 0.58rem;
+    font-weight: 700;
+    text-shadow: none;
+    transition: color 0.25s ease, transform 0.25s ease, text-shadow 0.25s ease;
+
+    svg { display: block; width: 22px; height: 22px; }
+
+    &:hover,
+    &:active {
+      color: #8d6a18;
+      transform: translateY(-2px);
+      text-shadow: none;
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--color-accent);
+      outline-offset: 2px;
+      border-radius: 8px;
+    }
+  }
+}
+
+/* Hint shown under the footer inviting the pull-up-to-restart gesture. */
+.overscroll-hint {
+  margin: 0;
+  padding: var(--space-6) var(--space-6) var(--space-4);
+  text-align: center;
+  font-family: var(--font-ui);
+  text-transform: uppercase;
+  letter-spacing: 0.16em;
+  font-size: 0.62rem;
+  color: var(--color-text-muted);
+  background: var(--color-bg-deep);
+  max-width: 100%;
+  box-sizing: border-box;
+  overflow-wrap: anywhere;
+}
+
+.scene[data-stage='reading'] .overscroll-hint {
+  color: #0e3d32;
+  background: #e4eee8;
+  border-top: 1px solid rgba(201, 162, 39, 0.45);
+}
+
+.scene[data-stage='reading'] .tabbar {
+  .tabbar__item {
+    color: #0e3d32;
+
+    &:hover,
+    &:active {
+      color: #8d6a18;
+    }
+  }
+}
+
+/* Reserve space so the tab bar never covers the end of the footer. */
+.scene[data-stage='reading'] {
+  --tabbar-h: 62px;
+  padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tabbar__item { transition: none; }
+  .tabbar::after { animation: none; }
+}
+
+@keyframes tabbar-liquid {
+  0%, 100% { background-position: 0% 0%, 0% 0%; }
+  50% { background-position: 0% 0%, 100% 0%; }
+}
+
+.scene[data-stage='open'] .back {
+  position: fixed;
+}
+
+.back {
+  position: absolute;
+  top: clamp(var(--space-4), 3vw, var(--space-8));
+  left: clamp(var(--space-4), 3vw, var(--space-8));
+  z-index: 2;
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-4) var(--space-2) var(--space-3);
+  font-family: var(--font-ui);
+  font-size: 0.62rem;
+  font-weight: 500;
+  letter-spacing: 0.22em;
+  text-transform: uppercase;
+  color: #e8d5a0;
+  background: rgba(12, 10, 8, 0.42);
+  border: 1px solid rgba(232, 213, 160, 0.28);
+  border-radius: 999px;
+  backdrop-filter: blur(10px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.28);
+  transition: transform 0.2s ease, background 0.2s ease;
+
+  svg { display: block; }
+
+  &:hover {
+    transform: translateX(-2px);
+    background: rgba(12, 10, 8, 0.62);
+  }
+
+  &:focus-visible {
+    outline: 3px solid var(--color-maroon);
+    outline-offset: 3px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .scene[data-stage='sealed'] .scene__stage-bg-photo,
+  .scene[data-stage='open'] .scene__stage-bg-photo {
+    transform: none;
+  }
+
+  .scene__invite-rings,
+  .scene__invite-line,
+  .scene__invite-kicker {
+    animation: none;
+    opacity: 1;
+    transform: none;
+  }
+
+  .back {
+    transition: none;
+  }
+}
+
+@keyframes invite-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes invite-fade-up {
+  from {
+    opacity: 0;
+    transform: translateY(0.65rem);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

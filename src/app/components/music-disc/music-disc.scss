@@ -1,0 +1,136 @@
+:host {
+  display: block;
+  position: relative;
+  z-index: 6;
+  will-change: transform;
+  max-width: 100%;
+  /* Keep marquee/drag transforms from expanding Messenger document width */
+  contain: layout style;
+}
+
+:host(.music-disc--dragging) {
+  z-index: 40;
+}
+
+.player {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.35rem;
+  touch-action: none;
+  user-select: none;
+  cursor: grab;
+
+  :host(.music-disc--dragging) & {
+    cursor: grabbing;
+  }
+
+  &__disc {
+    padding: 0;
+    border: 0;
+    background: transparent;
+    line-height: 0;
+    border-radius: 50%;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s ease;
+    cursor: inherit;
+
+    img {
+      width: clamp(40px, 7.5vw, 52px);
+      height: auto;
+      border-radius: 50%;
+      pointer-events: none;
+    }
+
+    &:hover {
+      transform: scale(1.05);
+    }
+
+    &:focus-visible {
+      outline: 3px solid var(--color-maroon);
+      outline-offset: 4px;
+    }
+
+    &--spinning img {
+      animation: spin 3.2s linear infinite;
+    }
+  }
+
+  /* One-line marquee for both states; nav/footer bronze type. */
+  &__label {
+    position: relative;
+    overflow: hidden;
+    text-align: center;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: 0.68rem;
+    font-weight: 500;
+    font-style: normal;
+    letter-spacing: 0.02em;
+    text-transform: none;
+    color: #fff;
+    line-height: 1.2;
+    width: calc(clamp(40px, 7.5vw, 52px) + 30px);
+    max-width: calc(clamp(40px, 7.5vw, 52px) + 30px);
+    white-space: nowrap;
+    padding: 0.25rem 0.3rem;
+    border-radius: 6px;
+    background: radial-gradient(
+      ellipse 82% 78% at 50% 50%,
+      rgba(14, 61, 50, 0.3) 0%,
+      rgba(14, 61, 50, 0.18) 48%,
+      rgba(14, 61, 50, 0.06) 70%,
+      rgba(14, 61, 50, 0) 100%
+    );
+    box-shadow: none;
+  }
+
+  &__marquee {
+    display: inline-flex;
+    width: max-content;
+    gap: 2.25rem;
+    animation: player-marquee 9s linear infinite;
+    will-change: transform;
+
+    span {
+      flex: 0 0 auto;
+    }
+  }
+}
+
+@keyframes spin {
+  from { transform: rotate(0deg); }
+  to   { transform: rotate(360deg); }
+}
+
+@keyframes player-marquee {
+  from { transform: translateX(0); }
+  to   { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .player__disc--spinning img {
+    animation: none;
+  }
+
+  .player__marquee {
+    animation: none;
+    display: block;
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+
+:host-context(.scene[data-stage='open']) .player__disc img {
+  width: clamp(32px, 5.5vw, 40px);
+}
+
+:host-context(.scene[data-stage='open']) .player__label {
+  width: calc(clamp(32px, 5.5vw, 40px) + 30px);
+  max-width: calc(clamp(32px, 5.5vw, 40px) + 30px);
+}
+
+:host-context(.scene[data-stage='reading']) .player__label {
+  color: #fff;
+  text-shadow: none;
+}

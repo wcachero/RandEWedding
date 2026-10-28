@@ -1,0 +1,666 @@
+<!-- Sticky navigation -->
+<nav class="nav"
+     [class.nav--open]="menuOpen()"
+     [class.nav--hidden]="navHidden() || overlayOpen()"
+     [attr.aria-hidden]="navHidden() || overlayOpen() ? true : null">
+  <a class="nav__brand" href="#top" (click)="closeMenu()">
+    <span class="nav__monogram" aria-hidden="true">
+      <span class="nav__initial">E</span>
+      <span class="nav__amp">&amp;</span>
+      <span class="nav__initial">R</span>
+    </span>
+    <span class="nav__date">{{ wedding.dateShort }}</span>
+    <span class="visually-hidden">{{ wedding.groom }} &amp; {{ wedding.bride }} — {{ wedding.dateShort }}</span>
+  </a>
+
+  <button type="button" class="nav__toggle" [attr.aria-expanded]="menuOpen()"
+          aria-label="Toggle menu" (click)="toggleMenu()">
+    <span></span><span></span><span></span>
+  </button>
+
+  <ul class="nav__links">
+    <li><a href="#details" (click)="closeMenu()">Details</a></li>
+    <li><a href="#venue" (click)="closeMenu()">Venue</a></li>
+    <li><a href="#attire" (click)="closeMenu()">Attire</a></li>
+    <li><a href="#entourage" (click)="closeMenu()">Entourage</a></li>
+    <li><a href="#gallery" (click)="closeMenu()">Gallery</a></li>
+    <li><a href="#rsvp" (click)="closeMenu()">RSVP</a></li>
+    <li>
+      <button
+        type="button"
+        class="nav__download"
+        (click)="downloadFromMenu()"
+        [disabled]="inviteDownloading()">
+        {{ inviteDownloading() ? 'Preparing…' : 'Download Invitation' }}
+      </button>
+    </li>
+  </ul>
+</nav>
+
+<!-- Soft emerald wash that appears at the top while the sticky nav is collapsed -->
+<div class="scroll-top-fade"
+     [class.scroll-top-fade--on]="navHidden()"
+     aria-hidden="true"></div>
+
+<article class="invite" id="top">
+  <!-- Parallax hero -->
+  <header class="hero">
+    <div class="hero__bg" [appParallax]="0.07">
+      <div class="hero__bg-img" [style.background-image]="'url(' + wedding.heroPhoto + ')'"></div>
+    </div>
+    <div class="hero__scrim"></div>
+    <div class="hero__frame" aria-hidden="true"></div>
+    <p class="hero__kicker">Together with their families</p>
+    <div class="hero__content">
+      <h1 class="hero__names">
+        <span class="hero__name hero__name--groom"><span class="hero__name-in">{{ wedding.groom }}</span></span>
+        <span class="hero__amp"><span class="hero__name-in">&amp;</span></span>
+        <span class="hero__name hero__name--bride"><span class="hero__name-in">{{ wedding.bride }}</span></span>
+      </h1>
+    </div>
+    <div class="hero__when">
+      <span class="hero__rule" aria-hidden="true"></span>
+      <p class="hero__date">{{ wedding.dateShort }}</p>
+      <p class="hero__place">The Wedding</p>
+      <span class="hero__rule" aria-hidden="true"></span>
+    </div>
+    <a class="hero__scroll" href="#details" aria-label="Scroll to details">
+      <span></span>
+    </a>
+  </header>
+
+  <!-- Intro / date -->
+  <section class="section intro" id="details">
+    <div class="intro__florals" aria-hidden="true">
+      <span class="intro__floral intro__floral--left" [appParallax]="0.12">
+        <span class="intro__floral-img" style="background-image: url('images/floral-border.png')"></span>
+      </span>
+      <span class="intro__floral intro__floral--right" [appParallax]="0.12">
+        <span class="intro__floral-img" style="background-image: url('images/floral-border.png')"></span>
+      </span>
+    </div>
+    <div class="container">
+      <p class="script-accent" appReveal>Dear Family &amp; Friends</p>
+      <p class="intro__lead" [appReveal]="80">We are getting married, and we would be honored to have you with us as we begin our forever.</p>
+      <div class="datebar" [appReveal]="160">
+        <div class="datebar__cell">
+          <span class="datebar__big">
+            <span class="datebar__month-full">{{ wedding.dateLong.month }}</span>
+            <span class="datebar__month-abbr">{{ wedding.dateLong.monthShort }}</span>
+          </span>
+          <span class="datebar__small">{{ wedding.dateLong.year }}</span>
+        </div>
+        <div class="datebar__cell datebar__cell--day">
+          <span class="datebar__day">{{ wedding.dateLong.day }}</span>
+          <span class="datebar__small">{{ wedding.dateLong.weekday }}</span>
+        </div>
+        <div class="datebar__cell">
+          <span class="datebar__big">8:30am</span>
+          <span class="datebar__small">{{ wedding.ceremonyTime }}</span>
+        </div>
+      </div>
+
+      <button type="button" class="btn intro__calendar" (click)="openCal()" [appReveal]="220">
+        <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
+          <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
+                stroke-linejoin="round" d="M7 3v3M17 3v3M4 8h16M5 6h14a1 1 0 0 1 1 1v12a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1ZM12 12v4M10 14h4"/>
+        </svg>
+        Add to Calendar
+      </button>
+    </div>
+  </section>
+
+  <!-- Countdown -->
+  <section class="section countdown">
+    <div class="container">
+      <span class="countdown__rule" aria-hidden="true"></span>
+      <img class="countdown__rings" src="images/wedding-rings.png" alt="" appReveal />
+      <p class="script-accent" appReveal>Until we say I do</p>
+      @if (countdown().passed) {
+        <p class="countdown__married" appReveal>Happily Married 💍</p>
+      } @else {
+        <ul class="countdown__grid" appReveal>
+          <li><span class="countdown__num">{{ pad(countdown().days) }}</span><span class="countdown__unit">Days</span></li>
+          <li><span class="countdown__num">{{ pad(countdown().hours) }}</span><span class="countdown__unit">Hours</span></li>
+          <li><span class="countdown__num">{{ pad(countdown().minutes) }}</span><span class="countdown__unit">Minutes</span></li>
+          <li><span class="countdown__num">{{ pad(countdown().seconds) }}</span><span class="countdown__unit">Seconds</span></li>
+        </ul>
+      }
+      <span class="countdown__rule countdown__rule--end" aria-hidden="true"></span>
+    </div>
+  </section>
+
+  <!-- Venues -->
+  <section class="venue section" id="venue">
+    <div class="venue__bloom venue__bloom--tr" aria-hidden="true">
+      <span class="venue__bloom-layer" [appParallax]="0.35"></span>
+    </div>
+    <div class="venue__heading">
+      <div class="container">
+        <h2 class="section__title" appReveal>The Celebration</h2>
+      </div>
+    </div>
+
+    <!-- Ceremony: full-width parallax band with the church -->
+    <div class="venue-parallax venue-parallax--ceremony">
+      <div class="venue-parallax__bg" [appParallax]="0.16"
+           [style.background-image]="ceremony.photo ? 'url(' + ceremony.photo + ')' : null"></div>
+      <div class="venue-parallax__scrim"></div>
+      <div class="venue-parallax__content" appReveal>
+        <p class="venue__kicker venue__kicker--light">{{ ceremony.kicker }}</p>
+        <h3 class="venue-parallax__name">{{ ceremony.venue }}</h3>
+        <p class="venue-parallax__meta">{{ ceremony.address }}</p>
+        <button type="button" class="btn" (click)="openMap(ceremony)">View Map</button>
+      </div>
+    </div>
+
+    <!-- Reception: full-width parallax band -->
+    <div class="venue-parallax venue-parallax--reception">
+      <div class="venue-parallax__bg" [appParallax]="0.16"
+           [style.background-image]="reception.photo ? 'url(' + reception.photo + ')' : null"></div>
+      <div class="venue-parallax__scrim"></div>
+      <div class="venue-parallax__content" appReveal>
+        <p class="venue__kicker venue__kicker--light">{{ reception.kicker }}</p>
+        <h3 class="venue-parallax__name">{{ reception.venue }}</h3>
+        <p class="venue-parallax__meta">{{ reception.time }}</p>
+        <p class="venue-parallax__meta">{{ reception.address }}</p>
+        <button type="button" class="btn" (click)="openMap(reception)">View Map</button>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"></div>
+
+  <!-- Dress code -->
+  <section class="section attire" id="attire">
+    <div class="container">
+      <p class="section__label" appReveal>Dress Code</p>
+      <h2 class="section__title" [appReveal]="60">{{ wedding.dressCode.title }}</h2>
+      <p class="attire__note" appReveal>{{ wedding.dressCode.note }}</p>
+
+      <ul class="swatches" appReveal>
+        @for (s of wedding.dressCode.swatches; track s.name; let i = $index) {
+          <li class="swatch" [appReveal]="i * 90">
+            <span class="swatch__chip" [style.background]="s.color"></span>
+            <span class="swatch__name">{{ s.name }}</span>
+          </li>
+        }
+      </ul>
+
+      <div class="attire__boards">
+        @for (look of wedding.dressCode.boards; track look.image) {
+          <figure class="attire__panel" appReveal>
+            <p class="attire__kicker">{{ look.kicker }}</p>
+            <figcaption class="attire__caption">{{ look.title }}</figcaption>
+            <button type="button" class="attire__card"
+                    (click)="openLightbox(look.image)"
+                    [attr.aria-label]="'Enlarge ' + look.kicker + ' ' + look.title + ' attire guide'">
+              <img class="attire__image" [src]="look.image"
+                   [alt]="look.kicker + ' — ' + look.title + ' attire'" loading="lazy" />
+            </button>
+          </figure>
+        }
+      </div>
+
+      <p class="attire__party-label" appReveal>The Wedding Party</p>
+      <div class="attire__party">
+        @for (look of wedding.dressCode.party; track look.image) {
+          <figure class="party-card" [class.party-card--lay]="look.fit === 'contain'" appReveal>
+            <button type="button" class="party-card__hit"
+                    (click)="openLightbox(look.image)"
+                    [attr.aria-label]="'Enlarge ' + look.title + ' attire'">
+              <img [src]="look.image" [alt]="look.title + ' attire'" loading="lazy" />
+              <span class="party-card__meta">
+                <span class="party-card__kicker">{{ look.kicker }}</span>
+                <span class="party-card__title">{{ look.title }}</span>
+              </span>
+            </button>
+          </figure>
+        }
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" aria-hidden="true"></div>
+
+  <!-- Entourage -->
+  <section class="section entourage" id="entourage">
+    <div class="entourage__bloom entourage__bloom--tr" aria-hidden="true">
+      <span class="entourage__bloom-layer" [appParallax]="0.35"></span>
+    </div>
+    <div class="entourage__bloom entourage__bloom--bl" aria-hidden="true">
+      <span class="entourage__bloom-layer" [appParallax]="0.35"></span>
+    </div>
+    <div class="container">
+      <p class="section__label" appReveal>With grateful hearts</p>
+      <h2 class="section__title" [appReveal]="60">The Entourage</h2>
+
+      <div class="entourage__card" appReveal>
+        <div class="entourage__frame">
+          <div class="entourage__cols">
+            <div class="entourage__block">
+              <p class="entourage__role">Parents of the Groom</p>
+              @for (name of wedding.entourage.parentsOfGroom; track name) {
+                <p class="entourage__name">{{ name }}</p>
+              }
+            </div>
+            <div class="entourage__block">
+              <p class="entourage__role">Parents of the Bride</p>
+              @for (name of wedding.entourage.parentsOfBride; track name) {
+                <p class="entourage__name">{{ name }}</p>
+              }
+            </div>
+          </div>
+
+          <div class="entourage__block entourage__block--full">
+            <p class="entourage__role">Principal Sponsors</p>
+            <div class="entourage__names">
+              @for (pair of wedding.entourage.principalSponsors; track pair.gentlemen) {
+                <p class="entourage__name">{{ pair.gentlemen }}</p>
+                <p class="entourage__name">{{ pair.ladies }}</p>
+              }
+            </div>
+          </div>
+
+          <div class="entourage__block entourage__block--full entourage__block--pair">
+            <div class="entourage__names entourage__names--pair-roles">
+              <p class="entourage__role">Best Man</p>
+              <p class="entourage__role">Maid of Honor</p>
+            </div>
+            <div class="entourage__names">
+              <p class="entourage__name">{{ wedding.entourage.bestMan }}</p>
+              <p class="entourage__name">{{ wedding.entourage.maidOfHonor }}</p>
+            </div>
+          </div>
+
+          @for (s of wedding.entourage.secondarySponsors; track s.role) {
+            <div class="entourage__block entourage__block--full entourage__block--secondary">
+              <p class="entourage__role">{{ s.role }}</p>
+              <div class="entourage__names">
+                @for (name of s.pair.split(' & '); track name) {
+                  <p class="entourage__name">{{ name }}</p>
+                }
+              </div>
+            </div>
+          }
+
+          <div class="entourage__block entourage__block--full">
+            <p class="entourage__role">Bearers</p>
+            <div class="entourage__names entourage__names--bearers">
+              @for (b of wedding.entourage.bearers; track b.role) {
+                <div class="entourage__bearer">
+                  <span class="entourage__subrole">{{ b.role }}</span>
+                  <p class="entourage__name">{{ b.name }}</p>
+                </div>
+              }
+            </div>
+          </div>
+
+          @if (wedding.entourage.flowerGirls.length) {
+            <div class="entourage__block entourage__block--full entourage__block--flower-girls">
+              <p class="entourage__role">Flower Girl</p>
+              <div class="entourage__names">
+                @for (name of wedding.entourage.flowerGirls; track name) {
+                  <p class="entourage__name">{{ name }}</p>
+                }
+              </div>
+            </div>
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Save the date parallax -->
+  <section class="save">
+    <div class="save__bg" [appParallax]="0.16" [style.background-image]="'url(' + wedding.saveTheDatePhoto + ')'"></div>
+    <div class="save__scrim"></div>
+    <div class="save__content" appReveal>
+      <p class="save__script">Save the Date</p>
+      <p class="save__date">{{ wedding.dateShort }}</p>
+    </div>
+  </section>
+
+  <!-- Gallery -->
+  <section class="section gallery" id="gallery">
+    <div class="container">
+      <p class="section__label" appReveal>A glimpse of our story</p>
+      <h2 class="section__title" [appReveal]="60">Our Moments</h2>
+
+      <div class="gallery__tiles" appReveal>
+        @for (photo of gallerySlides(); track photo; let i = $index) {
+          <button type="button"
+                  class="gallery__tile"
+                  [class.gallery__tile--loading]="!galleryImageReady(photo)"
+                  [attr.data-tile]="(i % 8) + 1"
+                  [attr.aria-busy]="!galleryImageReady(photo)"
+                  (click)="openGalleryPhoto(photo)">
+            <span class="gallery__skeleton" aria-hidden="true"></span>
+            <img [src]="photo"
+                 alt="Edward and Rowelyn"
+                 loading="lazy"
+                 decoding="async"
+                 [class.gallery__img--ready]="galleryImageReady(photo)"
+                 [style.object-position]="galleryObjectPosition(photo)"
+                 [style.transform-origin]="galleryObjectPosition(photo)"
+                 (load)="onGalleryImageLoad(photo, $event)"
+                 (error)="onGalleryImageError(photo)" />
+          </button>
+        }
+      </div>
+
+      <div class="gallery__actions">
+        @if (galleryHasMore()) {
+          <button type="button" class="btn gallery__more" (click)="expandGallery()">
+            See more
+          </button>
+        }
+        @if (galleryCanCollapse()) {
+          <button type="button" class="btn gallery__more gallery__more--ghost" (click)="collapseGallery()">
+            Show less
+          </button>
+        }
+      </div>
+    </div>
+  </section>
+
+  <!-- RSVP -->
+  <section class="section rsvp" id="rsvp">
+    <div class="container">
+      <p class="script-accent" appReveal>R S V P</p>
+      <p class="rsvp__lead" [appReveal]="80">{{ wedding.rsvp.note }}</p>
+      <p class="rsvp__deadline" [appReveal]="100">
+        <span class="rsvp__deadline-label">Kindly reply on or before</span>
+        <span class="rsvp__deadline-date">{{ wedding.rsvp.deadline }}</span>
+      </p>
+
+      <div class="rsvp__form" appReveal>
+        <iframe
+          [src]="rsvpEmbed"
+          title="RSVP form"
+          loading="lazy"
+        ></iframe>
+      </div>
+      <p class="rsvp__fallback" appReveal>
+        Form not loading?
+        <a [href]="wedding.rsvp.url" target="_blank" rel="noopener">Open the RSVP form here</a>.
+      </p>
+
+      <p class="rsvp__or" appReveal>— or —</p>
+      <p class="rsvp__assist" appReveal>Need assistance? You may also contact us directly.</p>
+      <div class="rsvp__contacts" appReveal>
+        @for (c of wedding.rsvp.contacts; track c.name) {
+          <a class="rsvp__contact" [href]="'tel:' + c.phone.split(' ').join('')">
+            <span class="rsvp__contact-name">{{ c.name }}</span>
+            <span class="rsvp__contact-phone">{{ c.phone }}</span>
+          </a>
+        }
+      </div>
+
+      <p class="rsvp__reserved" appReveal>{{ wedding.rsvp.reservedNote }}</p>
+      <p class="rsvp__thanks" appReveal>
+        Thank you for your kind understanding
+        <span class="rsvp__heart" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="18" height="18" focusable="false">
+            <path fill="currentColor" d="M12 21.35 10.55 20C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/>
+          </svg>
+        </span>
+      </p>
+    </div>
+  </section>
+
+  <!-- Share the invitation: QR code + share link -->
+  <section class="section share">
+    <div class="container">
+      <p class="section__label" appReveal>Spread the joy</p>
+      <h2 class="section__title" [appReveal]="60">Share Our Invitation</h2>
+      <div class="share__grid" appReveal>
+        <!-- QR column -->
+        <button type="button" class="share__card" (click)="openQr()"
+                aria-label="Show the QR code for this invitation">
+          <span class="share__qr">
+            @if (qrDataUrl(); as qr) {
+              <img class="share__qr-code" [src]="qr" alt="QR code linking to this invitation" />
+            } @else {
+              <span class="share__qr-skeleton"></span>
+            }
+          </span>
+          <span class="share__card-title">Scan QR Code</span>
+          <span class="share__card-hint">Tap to enlarge</span>
+        </button>
+
+        <!-- Share column -->
+        <button type="button" class="share__card" (click)="openShare()"
+                aria-label="Share this invitation">
+          <span class="share__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" width="40" height="40">
+              <path fill="none" stroke="currentColor" stroke-width="1.8"
+                    stroke-linecap="round" stroke-linejoin="round"
+                    d="M18 8a3 3 0 1 0-2.83-4M18 8a3 3 0 0 1-2.83-2M18 8l-9 4m9 8a3 3 0 1 0-2.83-4M18 20a3 3 0 0 1-2.83-2M18 20l-9-4M9 12a3 3 0 1 0-6 0 3 3 0 0 0 6 0Z"/>
+            </svg>
+          </span>
+          <span class="share__card-title">Share Link</span>
+          <span class="share__card-hint">{{ shareHint() }}</span>
+        </button>
+      </div>
+
+      <div class="share__download" appReveal>
+        <p class="share__download-label">Download Invitation</p>
+        <p class="share__download-hint">Save or share a keepsake card (works in Messenger too)</p>
+        <button
+          type="button"
+          class="btn share__download-btn"
+          (click)="downloadInvitationImage()"
+          [disabled]="inviteDownloading()">
+          {{ inviteDownloading() ? 'Preparing…' : 'Save / Share Image' }}
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Triggers the RSVP deadline notice when the guest reaches the bottom -->
+  <div class="invite__end" aria-hidden="true"></div>
+</article>
+
+<!-- Invitation image preview — fallback when Messenger / in-app browsers block downloads -->
+@if (invitePreviewUrl(); as preview) {
+  <div class="invite-preview" (click)="closeInvitePreview()" role="dialog" aria-modal="true"
+       aria-labelledby="invite-preview-title">
+    <div class="invite-preview__card" (click)="$event.stopPropagation()">
+      <button type="button" class="invite-preview__close" aria-label="Close"
+              (click)="closeInvitePreview()">&times;</button>
+      <h3 class="invite-preview__title" id="invite-preview-title">Save image</h3>
+      <p class="invite-preview__hint">
+        @if (invitePreviewIsMessenger()) {
+          Tap <strong>Save image</strong> and choose Photos, Gallery, or Drive.
+          If Messenger blocks it, tap <strong>Open in Chrome</strong> and save once there.
+        } @else {
+          Press and hold the image to Save Image, or tap Save image below.
+        }
+      </p>
+      @if (inviteSaveBlocked()) {
+        <p class="invite-preview__hint">This app blocked the save. Open in Chrome, then tap Save image.</p>
+      }
+      <div class="invite-preview__frame">
+        <img class="invite-preview__img" [src]="preview" alt="Wedding invitation card" />
+      </div>
+      <div class="invite-preview__actions">
+        <button type="button" class="btn invite-preview__share" (click)="saveInvitePreview()">
+          Save image
+        </button>
+        <a
+          class="btn invite-preview__download"
+          [href]="invitePreviewBlobUrl() || preview"
+          [attr.download]="invitePreviewFilename()"
+          target="_blank"
+          rel="noopener">
+          Download
+        </a>
+        @if (invitePreviewIsMessenger()) {
+          <button type="button" class="btn invite-preview__download" (click)="openSaveInChrome()">
+            Open in Chrome
+          </button>
+        }
+      </div>
+    </div>
+  </div>
+}
+
+@if (chromeSaveKind(); as kind) {
+  <div class="invite-preview" role="dialog" aria-modal="true" aria-labelledby="chrome-save-title">
+    <div class="invite-preview__card">
+      <h3 class="invite-preview__title" id="chrome-save-title">
+        {{ kind === 'qr' ? 'Save QR code' : 'Save invitation' }}
+      </h3>
+      <p class="invite-preview__hint">Tap below to save the image to your phone.</p>
+      <button
+        type="button"
+        class="btn invite-preview__share"
+        (click)="confirmChromeSave()"
+        [disabled]="!chromeSaveReady()">
+        {{ chromeSaveReady() ? 'Save image' : 'Preparing…' }}
+      </button>
+    </div>
+  </div>
+}
+
+<!-- RSVP deadline notice (shows once after scrolling to the bottom) -->
+@if (rsvpDeadlineOpen()) {
+  <div class="rsvp-notice" (click)="dismissRsvpDeadline()" role="dialog" aria-modal="true"
+       aria-labelledby="rsvp-notice-title">
+    <div class="rsvp-notice__card" (click)="$event.stopPropagation()">
+      <button type="button" class="rsvp-notice__close" aria-label="Close"
+              (click)="dismissRsvpDeadline()">&times;</button>
+      <p class="rsvp-notice__kicker">Kind reminder</p>
+      <h3 class="rsvp-notice__title" id="rsvp-notice-title">RSVP Deadline</h3>
+      <p class="rsvp-notice__date">{{ wedding.rsvp.deadline }}</p>
+      <p class="rsvp-notice__body">
+        Please confirm your attendance on or before this date so we can reserve your seat with care.
+      </p>
+      <button type="button" class="btn rsvp-notice__cta" (click)="goToRsvpFromNotice()">
+        Go to RSVP
+      </button>
+    </div>
+  </div>
+}
+
+<!-- Share chooser -->
+@if (shareOpen()) {
+  <div class="cal-modal" (click)="closeShare()">
+    <div class="cal-modal__card" (click)="$event.stopPropagation()">
+      <button type="button" class="cal-modal__close" aria-label="Close" (click)="closeShare()">&times;</button>
+      <p class="cal-modal__title">Share Invitation</p>
+      <button type="button" class="btn cal-modal__opt" (click)="copyShareLink()">
+        {{ copied() ? 'Link Copied!' : 'Copy Link' }}
+      </button>
+      <a class="btn cal-modal__opt cal-modal__opt--ghost" [href]="messengerShareUrl()" rel="noopener" (click)="pickShare()">
+        Share on Messenger
+      </a>
+      <a class="btn cal-modal__opt cal-modal__opt--ghost" [href]="waShareUrl()" target="_blank" rel="noopener" (click)="pickShare()">
+        Share on WhatsApp
+      </a>
+      @if (canNativeShare()) {
+        <button type="button" class="btn cal-modal__opt cal-modal__opt--ghost" (click)="shareSite()">
+          More apps&hellip;
+        </button>
+      }
+      <p class="cal-modal__url">{{ shareUrl() }}</p>
+    </div>
+  </div>
+}
+
+<!-- Add-to-calendar chooser -->
+@if (calOpen()) {
+  <div class="cal-modal" (click)="closeCal()">
+    <div class="cal-modal__card" (click)="$event.stopPropagation()">
+      <button type="button" class="cal-modal__close" aria-label="Close" (click)="closeCal()">&times;</button>
+      <p class="cal-modal__title">Add to Calendar</p>
+      <a class="btn cal-modal__opt" [href]="googleCalUrl" target="_blank" rel="noopener" (click)="pickCal()">
+        Google Calendar
+      </a>
+      <a class="btn cal-modal__opt cal-modal__opt--ghost" href="wedding.ics" rel="noopener" (click)="pickCal()">
+        Apple Calendar (.ics)
+      </a>
+      <p class="cal-modal__hint">
+        <strong>Google Calendar</strong> works in one tap.<br>
+        For <strong>Apple Calendar</strong> on iPhone: if it opens as text,
+        press &amp; hold the button and choose &ldquo;Add to Calendar&rdquo;
+        (or open this page in Safari).
+      </p>
+    </div>
+  </div>
+}
+
+<!-- Map modal -->
+@if (activeMap(); as map) {
+  <div class="map-modal" (click)="closeMap()">
+    <div class="map-modal__card" (click)="$event.stopPropagation()">
+      <button type="button" class="map-modal__close" aria-label="Close" (click)="closeMap()">&times;</button>
+      <h3 class="map-modal__title">{{ map.name }}</h3>
+      <div class="map-modal__frame">
+        <iframe [src]="map.embed" [title]="map.name + ' map'"
+                loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
+      </div>
+      <a class="btn" [href]="map.link" target="_blank" rel="noopener">Open in Google Maps</a>
+    </div>
+  </div>
+}
+
+<!-- QR modal -->
+@if (qrOpen()) {
+  <div class="qr-modal" (click)="closeQr()">
+    <div class="qr-modal__card" (click)="$event.stopPropagation()">
+      <button type="button" class="qr-modal__close" aria-label="Close" (click)="closeQr()">&times;</button>
+      <p class="qr-modal__names">{{ wedding.groom }} &amp; {{ wedding.bride }}</p>
+      <div class="qr-modal__qr">
+        @if (qrDataUrl(); as qr) {
+          <img class="qr-modal__code" [src]="qr" alt="QR code linking to this invitation" />
+        }
+      </div>
+      <p class="qr-modal__hint">Scan to open this invitation</p>
+      <p class="qr-modal__url">{{ shareUrl() }}</p>
+      <button
+        type="button"
+        class="btn qr-modal__download"
+        (click)="downloadQr()"
+        [disabled]="!qrDataUrl() || qrDownloading()">
+        {{ qrDownloading() ? 'Preparing…' : 'Save / Share QR' }}
+      </button>
+    </div>
+  </div>
+}
+
+<!-- Lightbox -->
+@if (lightboxPhoto(); as photo) {
+  <div class="lightbox"
+       (click)="onLightboxBackdropClick()"
+       (pointerdown)="onPointerDown($event)"
+       (pointerup)="onLightboxPointerUp($event)">
+    <button type="button" class="lightbox__close" aria-label="Close photo"
+            (click)="$event.stopPropagation(); closeLightbox()">&times;</button>
+    @if (lightboxCanBrowse()) {
+      <button type="button" class="lightbox__nav lightbox__nav--prev"
+              aria-label="Previous photo"
+              (click)="$event.stopPropagation(); lightboxPrev()">
+        <span aria-hidden="true">‹</span>
+      </button>
+      <button type="button" class="lightbox__nav lightbox__nav--next"
+              aria-label="Next photo"
+              (click)="$event.stopPropagation(); lightboxNext()">
+        <span aria-hidden="true">›</span>
+      </button>
+    }
+    <div class="lightbox__stage" (click)="$event.stopPropagation()">
+      <img class="lightbox__img"
+           [class.lightbox__img--zoomed]="lightboxZoom() > 1"
+           [src]="photo"
+           alt="Engagement photo enlarged"
+           [style.transform]="lightboxImageTransform()"
+           (click)="onLightboxImageTap($event)"
+           (pointerdown)="onLightboxImagePointerDown($event)"
+           (pointermove)="onLightboxImagePointerMove($event)"
+           (pointerup)="onLightboxImagePointerUp($event)"
+           (pointercancel)="onLightboxImagePointerUp($event)" />
+    </div>
+  </div>
+}
