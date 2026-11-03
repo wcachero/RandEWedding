@@ -16,7 +16,7 @@
     {
       "binding": "DB",
       "database_name": "randewedding-rsvp",
-      "database_id": "0227c10e-9fde-4e93-bd5b-9149dbd80d06",
+      "database_id": "4f2253b1-3fd5-417f-b83b-6293bbc8656e",
       "migrations_dir": "migrations"
     }
   ],
