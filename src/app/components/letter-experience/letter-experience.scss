@@ -153,6 +153,21 @@
       0 1px 1px rgba(7, 26, 20, 0.55),
       0 8px 28px rgba(7, 26, 20, 0.45);
 
+    &-dear {
+      display: block;
+      margin: 0 0 0.35rem;
+      font-family: var(--font-script);
+      font-size: clamp(1.55rem, 1.05rem + 1.8vw, 2.25rem);
+      font-weight: 400;
+      letter-spacing: 0.02em;
+      line-height: 1.15;
+      text-transform: none;
+      color: #f3e6c4;
+      max-width: 100%;
+      overflow-wrap: anywhere;
+      animation: invite-fade-up 0.9s ease 0.05s both;
+    }
+
     &-kicker {
       display: block;
       margin-top: 0.08rem;
@@ -419,7 +434,7 @@
   }
 }
 
-/* ----- Bottom tab bar (Home / RSVP / Gallery) ----------------------------- */
+/* ----- Bottom tab bar (Home / RSVP / Moments) ----------------------------- */
 .tabbar {
   --tabbar-h: 62px;
   position: fixed;
@@ -634,7 +649,8 @@
   }
 
   .scene__invite-line,
-  .scene__invite-kicker {
+  .scene__invite-kicker,
+  .scene__invite-dear {
     animation: none;
     opacity: 1;
     transform: none;

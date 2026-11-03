@@ -23,7 +23,7 @@
     <li><a href="#venue" (click)="closeMenu()" [class.is-active]="activeSection() === 'venue'" [attr.aria-current]="activeSection() === 'venue' ? 'true' : null">Venue</a></li>
     <li><a href="#attire" (click)="closeMenu()" [class.is-active]="activeSection() === 'attire'" [attr.aria-current]="activeSection() === 'attire' ? 'true' : null">Attire</a></li>
     <li><a href="#entourage" (click)="closeMenu()" [class.is-active]="activeSection() === 'entourage'" [attr.aria-current]="activeSection() === 'entourage' ? 'true' : null">Entourage</a></li>
-    <li><a href="#gallery" (click)="closeMenu()" [class.is-active]="activeSection() === 'gallery'" [attr.aria-current]="activeSection() === 'gallery' ? 'true' : null">Gallery</a></li>
+    <li><a href="#moments" (click)="closeMenu()" [class.is-active]="activeSection() === 'moments'" [attr.aria-current]="activeSection() === 'moments' ? 'true' : null">Moments</a></li>
     <li><a href="#rsvp" (click)="closeMenu()" [class.is-active]="activeSection() === 'rsvp'" [attr.aria-current]="activeSection() === 'rsvp' ? 'true' : null">RSVP</a></li>
     <li>
       <button
@@ -37,11 +37,6 @@
   </ul>
   <span class="nav__progress" [style.transform]="'scaleX(' + scrollProgress() + ')'" aria-hidden="true"></span>
 </nav>
-
-<!-- Soft emerald wash that appears at the top while the sticky nav is collapsed -->
-<div class="scroll-top-fade"
-     [class.scroll-top-fade--on]="navHidden()"
-     aria-hidden="true"></div>
 
 <article class="invite" id="top">
   <!-- Parallax hero -->
@@ -81,7 +76,7 @@
       </span>
     </div>
     <div class="container">
-      <p class="script-accent" appReveal>Dear Family &amp; Friends</p>
+      <p class="script-accent" appReveal>Dear {{ guestName() || 'Family & Friends' }}</p>
       <p class="intro__lead" [appReveal]="80">We are getting married, and we would be honored to have you with us as we begin our forever.</p>
       <div class="datebar" [appReveal]="160">
         <div class="datebar__cell">
@@ -101,6 +96,8 @@
         </div>
       </div>
 
+      <p class="intro__weather" [appReveal]="200">{{ wedding.weather }}</p>
+
       <button type="button" class="btn intro__calendar" (click)="openCal()" [appReveal]="220">
         <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true">
           <path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"
@@ -117,7 +114,13 @@
       <img class="countdown__rings" src="images/wedding-rings.png" alt="" appReveal />
       <p class="script-accent" appReveal>Until we say I do</p>
       @if (countdown().passed) {
-        <p class="countdown__married" appReveal>Happily married</p>
+        <div class="countdown__after" appReveal>
+          <img class="countdown__after-photo" [src]="wedding.saveTheDatePhoto" alt="" />
+          <p class="countdown__married">Happily married</p>
+          <p class="countdown__after-lead">Thank you for celebrating with us.</p>
+          <a class="btn" href="#moments">See our moments</a>
+          <p class="countdown__after-tag">{{ wedding.hashtags[0] }}</p>
+        </div>
       } @else {
         <ol class="countdown__line" appReveal>
           <li>
@@ -165,7 +168,10 @@
         <h3 class="place__name place__name--long">{{ ceremony.venue }}</h3>
         <p class="place__time">{{ ceremony.time }}</p>
         <p class="place__meta">{{ ceremony.address }}</p>
-        <button type="button" class="btn" (click)="openMap(ceremony)">View Map</button>
+        <div class="place__actions">
+          <button type="button" class="btn" (click)="openMap(ceremony)">View Map</button>
+          <a class="btn btn--ghost" [href]="ceremony.mapLink" target="_blank" rel="noopener">Google Maps</a>
+        </div>
       </div>
     </article>
 
@@ -178,9 +184,47 @@
         <h3 class="place__name">{{ reception.venue }}</h3>
         <p class="place__time">{{ reception.time }}</p>
         <p class="place__meta">{{ reception.address }}</p>
-        <button type="button" class="btn" (click)="openMap(reception)">View Map</button>
+        <div class="place__actions">
+          <button type="button" class="btn" (click)="openMap(reception)">View Map</button>
+          <a class="btn btn--ghost" [href]="reception.mapLink" target="_blank" rel="noopener">Google Maps</a>
+        </div>
       </div>
     </article>
+  </section>
+
+  <section class="section day" id="day">
+    <div class="container">
+      <p class="section__label" appReveal>The day at a glance</p>
+      <h2 class="section__title" [appReveal]="60">Order of the Day</h2>
+
+      <ol class="day__timeline" appReveal>
+        @for (beat of wedding.schedule; track beat.title) {
+          <li>
+            <span class="day__time">{{ beat.time }}</span>
+            <h3 class="day__name">{{ beat.title }}</h3>
+            <p class="day__detail">{{ beat.detail }}</p>
+          </li>
+        }
+      </ol>
+
+      <p class="section__label day__travel-label" appReveal>Getting there</p>
+      <div class="day__travel">
+        @for (place of [ceremony, reception]; track place.venue) {
+          <article class="day__card" appReveal>
+            <p class="day__card-kicker">{{ place.kicker }}</p>
+            <h3 class="day__card-title">{{ place.venue }}</h3>
+            <p class="day__card-line"><span>Landmark</span>{{ place.landmark }}</p>
+            <p class="day__card-line"><span>Parking</span>{{ place.parking }}</p>
+            <div class="day__card-actions">
+              <button type="button" class="btn" (click)="openMap(place)">View Map</button>
+              <a class="btn btn--ghost" [href]="place.mapLink" target="_blank" rel="noopener">Google Maps</a>
+            </div>
+          </article>
+        }
+      </div>
+
+      <p class="day__gifts" appReveal>{{ wedding.gifts }}</p>
+    </div>
   </section>
 
   <div class="divider" appReveal aria-hidden="true"></div>
@@ -203,23 +247,21 @@
 
       <div class="attire__groups">
         @for (row of wedding.dressCode.rows; track row.title) {
-          @if (row.title === 'Parents') {
-            <figure class="attire__group" appReveal>
-              <p class="attire__kicker">{{ row.kicker }}</p>
-              <figcaption class="attire__caption">{{ row.title }}</figcaption>
-              <div class="attire__row">
-                @for (side of row.sides; track side.image) {
-                  <button type="button" class="attire__card"
-                          (click)="openLightbox(side.image)"
-                          [attr.aria-label]="'Enlarge ' + row.title + ' ' + side.label + ' attire'">
-                    <span class="attire__side">{{ side.label }}</span>
-                    <img class="attire__image" [src]="side.image"
-                         [alt]="row.title + ' — ' + side.label + ' attire'" loading="lazy" />
-                  </button>
-                }
-              </div>
-            </figure>
-          }
+          <figure class="attire__group" appReveal>
+            <p class="attire__kicker">{{ row.kicker }}</p>
+            <figcaption class="attire__caption">{{ row.title }}</figcaption>
+            <div class="attire__row">
+              @for (side of row.sides; track side.image) {
+                <button type="button" class="attire__card"
+                        (click)="openLightbox(side.image)"
+                        [attr.aria-label]="'Enlarge ' + row.title + ' ' + side.label + ' attire'">
+                  <span class="attire__side">{{ side.label }}</span>
+                  <img class="attire__image" [src]="side.image"
+                       [alt]="row.title + ' — ' + side.label + ' attire'" loading="lazy" />
+                </button>
+              }
+            </div>
+          </figure>
         }
 
         <figure class="attire__group" appReveal>
@@ -251,28 +293,6 @@
           </figure>
         }
       </div>
-
-      <div class="attire__groups">
-        @for (row of wedding.dressCode.rows; track row.title) {
-          @if (row.title === 'Guests') {
-            <figure class="attire__group" appReveal>
-              <p class="attire__kicker">{{ row.kicker }}</p>
-              <figcaption class="attire__caption">{{ row.title }}</figcaption>
-              <div class="attire__row">
-                @for (side of row.sides; track side.image) {
-                  <button type="button" class="attire__card"
-                          (click)="openLightbox(side.image)"
-                          [attr.aria-label]="'Enlarge ' + row.title + ' ' + side.label + ' attire'">
-                    <span class="attire__side">{{ side.label }}</span>
-                    <img class="attire__image" [src]="side.image"
-                         [alt]="row.title + ' — ' + side.label + ' attire'" loading="lazy" />
-                  </button>
-                }
-              </div>
-            </figure>
-          }
-        }
-      </div>
     </div>
   </section>
 
@@ -283,6 +303,15 @@
     <div class="container">
       <p class="section__label" appReveal>With grateful hearts</p>
       <h2 class="section__title" [appReveal]="60">The Entourage</h2>
+
+      <ul class="court__rites" appReveal>
+        @for (rite of wedding.rites; track rite.name) {
+          <li>
+            <span class="court__rite-name">{{ rite.name }}</span>
+            <span class="court__rite-meaning">{{ rite.meaning }}</span>
+          </li>
+        }
+      </ul>
 
       <div class="court">
         <div class="court__split" appReveal>
@@ -321,7 +350,7 @@
           </div>
         </div>
 
-        <div class="court__roles">
+        <div class="court__roles court__roles--trio">
           @for (s of wedding.entourage.secondarySponsors; track s.role) {
             <div class="court__col">
               <p class="court__role">{{ s.role }}</p>
@@ -354,22 +383,24 @@
     </div>
   </section>
 
-  <!-- Save the date -->
-  <section class="save" aria-label="Save the date">
-    <img class="save__photo" [src]="wedding.saveTheDatePhoto" alt="" />
+  <!-- Second portrait hero -->
+  <section class="save" aria-label="Edward and Rowie">
+    <div class="save__bg" [appParallax]="0.18">
+      <img class="save__photo" [src]="wedding.saveTheDatePhoto" alt="" />
+    </div>
     <div class="save__scrim"></div>
     <div class="save__frame" aria-hidden="true"></div>
     <div class="save__content" appReveal>
       <p class="save__who">{{ wedding.groom }} &amp; {{ wedding.bride }}</p>
-      <p class="save__script">Save the Date</p>
+      <p class="save__script">Together</p>
       <span class="save__rule" aria-hidden="true"></span>
       <p class="save__full">{{ wedding.dateLong.month }} {{ wedding.dateLong.day }}, {{ wedding.dateLong.year }}</p>
       <p class="save__time">{{ wedding.ceremony.time }}</p>
     </div>
   </section>
 
-  <!-- Gallery -->
-  <section class="section gallery" id="gallery">
+  <!-- Moments -->
+  <section class="section gallery" id="moments">
     <div class="container">
       <p class="section__label" appReveal>A glimpse of our story</p>
       <h2 class="section__title" [appReveal]="60">Our Moments</h2>
@@ -431,6 +462,9 @@
                 We have reserved {{ rsvpSeats() }}
                 {{ rsvpSeats() === 1 ? 'seat' : 'seats' }} for you.
               </p>
+              @if (rsvpSong().trim()) {
+                <p class="rsvp__done-line">We'll keep {{ rsvpSong().trim() }} in mind.</p>
+              }
             } @else {
               <p class="rsvp__done-line">We will miss you, and we are grateful you let us know.</p>
             }
@@ -474,9 +508,11 @@
 
             @if (rsvpAttend() === 'yes') {
               <fieldset class="rsvp__field">
-                <legend class="rsvp__label">Reserved seats</legend>
+                <legend class="rsvp__label">
+                  {{ reservedSeats() ? 'Reserved seats' : 'Number of seats' }}
+                </legend>
                 <div class="rsvp__seats">
-                  @for (count of rsvpSeatChoices; track count) {
+                  @for (count of rsvpSeatChoices(); track count) {
                     <button
                       type="button"
                       class="rsvp__seat"
@@ -487,6 +523,19 @@
                   }
                 </div>
               </fieldset>
+
+              <label class="rsvp__field">
+                <span class="rsvp__label">Song request <span class="rsvp__optional">optional</span></span>
+                <input
+                  class="rsvp__input"
+                  type="text"
+                  name="song"
+                  maxlength="80"
+                  placeholder="A song for the celebration"
+                  [value]="rsvpSong()"
+                  (input)="onRsvpSong($event)"
+                />
+              </label>
             }
 
             <label class="rsvp__field">
@@ -496,7 +545,7 @@
                 name="note"
                 rows="3"
                 maxlength="240"
-                placeholder="Song requests, dietary notes, or a wish"
+                placeholder="Dietary notes or a wish"
                 [value]="rsvpNote()"
                 (input)="onRsvpNote($event)"
               ></textarea>
@@ -523,7 +572,13 @@
         }
       </div>
 
-      <p class="rsvp__reserved" appReveal>{{ wedding.rsvp.reservedNote }}</p>
+      <p class="rsvp__reserved" appReveal>
+        @if (reservedSeats(); as seats) {
+          Your invitation holds {{ seats }} reserved {{ seats === 1 ? 'seat' : 'seats' }}.
+        } @else {
+          {{ wedding.rsvp.reservedNote }}
+        }
+      </p>
       <p class="rsvp__thanks" appReveal>
         Thank you for your kind understanding
         <span class="rsvp__heart" aria-hidden="true">
@@ -540,6 +595,23 @@
     <div class="container">
       <p class="section__label" appReveal>Spread the joy</p>
       <h2 class="section__title" [appReveal]="60">Share Our Invitation</h2>
+      <div class="share__tags" appReveal>
+        <p class="share__tags-label">Share your photos with</p>
+        <p class="share__tag-primary">{{ wedding.hashtags[0] }}</p>
+        <ul class="share__tag-list">
+          @for (tag of wedding.hashtags; track tag) {
+            <li>
+              <button
+                type="button"
+                class="share__tag"
+                (click)="copyHashtag(tag)"
+                [attr.aria-label]="'Copy ' + tag">
+                {{ hashtagCopied() === tag ? 'Copied' : tag }}
+              </button>
+            </li>
+          }
+        </ul>
+      </div>
       <div class="share__grid" appReveal>
         <!-- QR column -->
         <button type="button" class="share__card" (click)="openQr()"
@@ -727,7 +799,9 @@
         <iframe [src]="map.embed" [title]="map.name + ' map'"
                 loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>
       </div>
-      <a class="btn" [href]="map.link" target="_blank" rel="noopener">Open in Google Maps</a>
+      <div class="map-modal__actions">
+        <a class="btn" [href]="map.link" target="_blank" rel="noopener">Open in Google Maps</a>
+      </div>
     </div>
   </div>
 }

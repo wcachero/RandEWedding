@@ -13,6 +13,7 @@ import {
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import QRCode from 'qrcode';
 import { GALLERY_FOCUS, WEDDING, WeddingEvent } from '../../data/wedding';
+import { readGuestInvite } from '../../data/invite-guest';
 import { Reveal } from '../../directives/reveal';
 import { Parallax } from '../../directives/parallax';
 
@@ -54,13 +55,21 @@ export class WeddingInvitation {
   protected readonly reception = this.toEventView(WEDDING.reception);
 
   /** Mock RSVP — kept on the page until a real form is connected. */
+  protected readonly guestName = signal('');
+  protected readonly reservedSeats = signal<number | null>(null);
   protected readonly rsvpName = signal('');
   protected readonly rsvpAttend = signal<'yes' | 'no' | ''>('');
   protected readonly rsvpSeats = signal(1);
   protected readonly rsvpNote = signal('');
+  protected readonly rsvpSong = signal('');
   protected readonly rsvpSent = signal(false);
   protected readonly rsvpError = signal('');
-  protected readonly rsvpSeatChoices = [1, 2, 3, 4] as const;
+  protected readonly rsvpSeatChoices = computed(() => {
+    const reserved = this.reservedSeats();
+    const max = reserved ?? 4;
+    return Array.from({ length: max }, (_, i) => i + 1);
+  });
+  protected readonly hashtagCopied = signal('');
 
   /** Current time, ticked every second to drive the countdown. */
   private readonly now = signal(Date.now());
@@ -466,6 +475,16 @@ export class WeddingInvitation {
         .catch(() => this.qrDataUrl.set(null));
 
       // Opened from Messenger's "Open in Chrome" so a real tap can save the file.
+      const guest = readGuestInvite(window.location.search);
+      this.guestName.set(guest.name);
+      this.reservedSeats.set(guest.seats);
+      if (guest.name) {
+        this.rsvpName.set(guest.name);
+      }
+      if (guest.seats) {
+        this.rsvpSeats.set(guest.seats);
+      }
+
       const save = new URLSearchParams(window.location.search).get('save');
       if ((save === 'invite' || save === 'qr') && !this.isRestrictedInAppBrowser()) {
         this.chromeSaveKind.set(save);
@@ -486,6 +505,10 @@ export class WeddingInvitation {
 
   protected onRsvpNote(event: Event): void {
     this.rsvpNote.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  protected onRsvpSong(event: Event): void {
+    this.rsvpSong.set((event.target as HTMLInputElement).value);
   }
 
   protected setRsvpAttend(value: 'yes' | 'no'): void {
@@ -1527,6 +1550,19 @@ export class WeddingInvitation {
     setTimeout(() => this.shareOpen.set(false), 600);
   }
 
+  /** Copy a wedding hashtag for guests posting photos. */
+  protected async copyHashtag(tag: string): Promise<void> {
+    const ok = await this.copyLink(tag);
+    this.hashtagCopied.set(ok ? tag : '');
+    if (ok) {
+      window.setTimeout(() => {
+        if (this.hashtagCopied() === tag) {
+          this.hashtagCopied.set('');
+        }
+      }, 1800);
+    }
+  }
+
   /** Copy the invitation link and reflect it in the chooser. */
   protected async copyShareLink(): Promise<void> {
     const ok = await this.copyLink(this.shareUrl() || window.location.href);
@@ -1603,7 +1639,7 @@ export class WeddingInvitation {
     let idleId: ReturnType<typeof setTimeout> | null = null;
 
     const showNav = () => this.navHidden.set(false);
-    const sectionIds = ['details', 'venue', 'attire', 'entourage', 'gallery', 'rsvp'];
+    const sectionIds = ['details', 'venue', 'day', 'attire', 'entourage', 'moments', 'rsvp'];
     let lastTab = '';
 
     const onScroll = () => {
@@ -1631,9 +1667,9 @@ export class WeddingInvitation {
 
       const tabHref =
         section === 'details' ? '#details'
-        : section === 'gallery' ? '#gallery'
+        : section === 'moments' ? '#moments'
         : section === 'rsvp' ? '#rsvp'
-        : section === 'venue' || section === 'attire' || section === 'entourage' ? '#venue'
+        : section === 'venue' || section === 'day' || section === 'attire' || section === 'entourage' ? '#venue'
         : '#top';
       if (tabHref !== lastTab) {
         lastTab = tabHref;
@@ -1686,7 +1722,11 @@ export class WeddingInvitation {
   }
 
   protected openMap(event: EventView): void {
-    this.activeMap.set({ name: event.venue, embed: event.mapEmbed, link: event.mapLink });
+    this.activeMap.set({
+      name: event.venue,
+      embed: event.mapEmbed,
+      link: event.mapLink,
+    });
   }
 
   protected closeMap(): void {

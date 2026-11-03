@@ -11,6 +11,19 @@ export interface WeddingEvent {
   readonly mapQuery: string;
   /** Optional venue photo (path under /public). Shown only if the file loads. */
   readonly photo?: string;
+  readonly landmark: string;
+  readonly parking: string;
+}
+
+export interface DayBeat {
+  readonly time: string;
+  readonly title: string;
+  readonly detail: string;
+}
+
+export interface WeddingRite {
+  readonly name: string;
+  readonly meaning: string;
 }
 
 export interface DressSwatch {
@@ -52,6 +65,11 @@ export interface Wedding {
   readonly gallery: readonly string[];
   readonly ceremony: WeddingEvent;
   readonly reception: WeddingEvent;
+  readonly weather: string;
+  readonly gifts: string;
+  readonly hashtags: readonly string[];
+  readonly schedule: readonly DayBeat[];
+  readonly rites: readonly WeddingRite[];
   readonly dressCode: {
     readonly title: string;
     readonly rows: readonly DressRow[];
@@ -113,6 +131,8 @@ export const WEDDING: Wedding = {
     address: 'Brgy. Del Remedio, San Pablo City',
     mapQuery: 'Nuestra Señora delos Remedios Parish, Brgy. Del Remedio, San Pablo City, Laguna',
     photo: 'images/church.jpg',
+    landmark: 'Brgy. Del Remedio, on the approach into San Pablo City',
+    parking: 'Parking is available at the church grounds and along the approach road.',
   },
   reception: {
     title: 'Marino Residence',
@@ -122,24 +142,65 @@ export const WEDDING: Wedding = {
     address: 'San Pablo City, Laguna',
     mapQuery: 'Marino Residence, San Pablo City, Laguna',
     photo: 'images/moments/06.jpg',
+    landmark: 'Private residence, San Pablo City, Laguna',
+    parking: 'Limited parking at the residence. Please carpool if you can.',
   },
+  weather:
+    'December mornings in San Pablo are typically dry and mild. A light wrap is welcome in the church.',
+  gifts:
+    'Your presence is the gift we hope for. Should you wish to bless us further, a monetary gift would be warmly received at the reception.',
+  hashtags: [
+    '#RandEWedding',
+    '#EdwardAndRowie',
+    '#RowieAndEdward',
+    '#EdwardRowie2026',
+    '#EandR1205',
+  ],
+  schedule: [
+    {
+      time: '9:30 AM',
+      title: 'Guests seated',
+      detail: 'Nuestra Señora delos Remedios Parish',
+    },
+    {
+      time: '10:00 AM',
+      title: 'Holy Mass',
+      detail: 'The ceremony begins',
+    },
+    {
+      time: 'After Mass',
+      title: 'Photographs',
+      detail: 'A few portraits with family and the entourage',
+    },
+    {
+      time: 'Lunch',
+      title: 'Reception',
+      detail: 'Marino Residence, San Pablo City',
+    },
+  ],
+  rites: [
+    { name: 'Candle', meaning: 'The light of faith' },
+    { name: 'Veil', meaning: 'Clothed as one' },
+    { name: 'Cord', meaning: 'The marriage bond' },
+    { name: 'Arrhae', meaning: 'Coins of provision' },
+  ],
   dressCode: {
     title: 'Semi-Formal Attire',
     rows: [
-      {
-        kicker: 'The Families',
-        title: 'Parents',
-        sides: [
-          { label: 'Gentlemen', image: 'images/attire/parents-gentlemen.png' },
-          { label: 'Ladies', image: 'images/attire/parents-ladies.png' },
-        ],
-      },
       {
         kicker: 'For Everyone',
         title: 'Guests',
         sides: [
           { label: 'Gentlemen', image: 'images/attire/guests-gentlemen.png' },
           { label: 'Ladies', image: 'images/attire/guests-ladies.png' },
+        ],
+      },
+      {
+        kicker: 'The Families',
+        title: 'Parents',
+        sides: [
+          { label: 'Gentlemen', image: 'images/attire/parents-gentlemen.png' },
+          { label: 'Ladies', image: 'images/attire/parents-ladies.png' },
         ],
       },
     ],
@@ -159,10 +220,8 @@ export const WEDDING: Wedding = {
       { name: 'Emerald Green', color: 'var(--swatch-emerald)' },
       { name: 'Beige', color: 'var(--swatch-beige)' },
       { name: 'Gold', color: 'var(--swatch-gold)' },
-      { name: 'Soft Beige', color: 'var(--swatch-soft-beige)' },
-      { name: 'Champagne', color: 'var(--swatch-champagne)' },
     ],
-    note: 'Emerald, beige, gold, and champagne. The wedding party wears one shared look each — champagne for the men, emerald for the women.',
+    note: 'Emerald, beige, and gold. The wedding party wears one shared look each — champagne for the men, emerald for the women.',
   },
   rsvp: {
     note: 'Every seat is reserved with love and intention. Kindly confirm your attendance below.',

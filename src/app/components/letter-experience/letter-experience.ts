@@ -14,6 +14,7 @@ import { SiteFooter } from '../site-footer/site-footer';
 import { MusicDisc } from '../music-disc/music-disc';
 import { AudioService } from '../../services/audio';
 import { WEDDING } from '../../data/wedding';
+import { readGuestInvite } from '../../data/invite-guest';
 
 /** The stages of the experience, in order of reveal. */
 type Stage = 'sealed' | 'open' | 'reading';
@@ -54,6 +55,9 @@ const STAGE_ORDER: readonly Stage[] = ['sealed', 'open', 'reading'];
           <app-wedding-invitation />
         } @else {
           <h1 class="scene__invite">
+            @if (guestName()) {
+              <span class="scene__invite-dear">Dear {{ guestName() }}</span>
+            }
             <span class="scene__invite-line">You're</span>
             <span class="scene__invite-line">Invited</span>
             <span class="scene__invite-kicker">{{ inviteDate }}</span>
@@ -105,12 +109,12 @@ const STAGE_ORDER: readonly Stage[] = ['sealed', 'open', 'reading'];
             </svg>
             <span>Location</span>
           </a>
-          <a class="tabbar__item" href="#gallery">
+          <a class="tabbar__item" href="#moments">
             <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
               <path fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round"
                     stroke-linejoin="round" d="M4 5h16v14H4zM4 15l4.5-4.5L14 16M14 13l2.5-2.5L20 14M9.5 9a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/>
             </svg>
-            <span>Gallery</span>
+            <span>Moments</span>
           </a>
           <a class="tabbar__item" href="#rsvp">
             <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
@@ -128,6 +132,7 @@ const STAGE_ORDER: readonly Stage[] = ['sealed', 'open', 'reading'];
 export class LetterExperience {
   protected readonly envelopePhoto = WEDDING.envelopePhoto;
   protected readonly inviteDate = `${WEDDING.dateLong.month} ${WEDDING.dateLong.day}, ${WEDDING.dateLong.year}`;
+  protected readonly guestName = signal('');
   private readonly audio = inject(AudioService);
   private readonly destroyRef = inject(DestroyRef);
   protected readonly stage = signal<Stage>('sealed');
@@ -138,6 +143,7 @@ export class LetterExperience {
   constructor() {
     afterNextRender(() => {
       this.setupOverscrollReturn();
+      this.guestName.set(readGuestInvite(window.location.search).name);
       // Chrome handoff from Messenger: skip the envelope and land on the invitation.
       const save = new URLSearchParams(window.location.search).get('save');
       if (save === 'invite' || save === 'qr') {
