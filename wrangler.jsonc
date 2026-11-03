@@ -1,6 +1,7 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "randewedding",
+  "account_id": "cd51d707580603d721829378ec5c022e",
   "compatibility_date": "2026-09-11",
   "main": "worker/index.ts",
   "observability": {

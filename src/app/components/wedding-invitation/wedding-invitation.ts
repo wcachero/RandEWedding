@@ -71,6 +71,7 @@ export class WeddingInvitation {
   protected readonly rsvpError = signal('');
   protected readonly rsvpSubmitting = signal(false);
   protected readonly rsvpSent = signal(false);
+  protected readonly rsvpWarningOpen = signal(false);
   private readonly rsvpSearch$ = new Subject<string>();
 
   /** Guest personalization from the invite link (?to=&seats=). */
@@ -616,6 +617,23 @@ export class WeddingInvitation {
       this.rsvpError.set('Please choose your name and attendance.');
       return;
     }
+    this.rsvpError.set('');
+    this.rsvpWarningOpen.set(true);
+  }
+
+  protected dismissRsvpWarning(): void {
+    if (this.rsvpSubmitting()) return;
+    this.rsvpWarningOpen.set(false);
+  }
+
+  protected confirmRsvpWarning(): void {
+    const guestId = this.rsvpSelectedId();
+    const attend = this.rsvpAttend();
+    if (!guestId || !attend) {
+      this.rsvpWarningOpen.set(false);
+      this.rsvpError.set('Please choose your name and attendance.');
+      return;
+    }
     this.rsvpSubmitting.set(true);
     this.rsvpError.set('');
     this.rsvpApi
@@ -628,10 +646,12 @@ export class WeddingInvitation {
       .subscribe({
         next: () => {
           this.rsvpSubmitting.set(false);
+          this.rsvpWarningOpen.set(false);
           this.rsvpSent.set(true);
         },
         error: (err) => {
           this.rsvpSubmitting.set(false);
+          this.rsvpWarningOpen.set(false);
           this.rsvpError.set(err?.error?.error || 'Could not send your RSVP. Please try again.');
         },
       });
@@ -639,6 +659,7 @@ export class WeddingInvitation {
 
   protected resetRsvp(): void {
     this.rsvpSent.set(false);
+    this.rsvpWarningOpen.set(false);
   }
 
   /** Bottom-of-page RSVP deadline warning — shown once per visit. */

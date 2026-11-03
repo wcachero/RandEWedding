@@ -171,6 +171,59 @@ function allowLocal(key, cfg) {
 }
 __name(allowLocal, "allowLocal");
 
+// worker/schema.ts
+var schemaReady = false;
+async function ensureSchema(env) {
+  if (schemaReady) return;
+  await env.DB.batch([
+    env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS guest_list (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        name TEXT NOT NULL COLLATE NOCASE,
+        joyfully_accept INTEGER,
+        message TEXT,
+        companion_count INTEGER NOT NULL DEFAULT 0,
+        date_responded TEXT,
+        date_added TEXT NOT NULL,
+        date_updated TEXT NOT NULL
+      )
+    `),
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_guest_list_name ON guest_list(name)`),
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_guest_list_responded ON guest_list(date_responded)`),
+    env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS companion (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        guest_id INTEGER NOT NULL REFERENCES guest_list(id) ON DELETE CASCADE,
+        name TEXT,
+        date_added TEXT NOT NULL,
+        date_updated TEXT NOT NULL
+      )
+    `),
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_companion_guest ON companion(guest_id)`),
+    env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS admin_user (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        username TEXT NOT NULL UNIQUE COLLATE NOCASE,
+        password_hash TEXT NOT NULL,
+        password_salt TEXT NOT NULL,
+        date_added TEXT NOT NULL,
+        date_updated TEXT NOT NULL
+      )
+    `),
+    env.DB.prepare(`
+      CREATE TABLE IF NOT EXISTS admin_session (
+        token TEXT PRIMARY KEY,
+        user_id INTEGER NOT NULL REFERENCES admin_user(id) ON DELETE CASCADE,
+        expires_at TEXT NOT NULL,
+        date_added TEXT NOT NULL
+      )
+    `),
+    env.DB.prepare(`CREATE INDEX IF NOT EXISTS idx_admin_session_user ON admin_session(user_id)`)
+  ]);
+  schemaReady = true;
+}
+__name(ensureSchema, "ensureSchema");
+
 // worker/index.ts
 var worker_default = {
   async fetch(request, env) {
@@ -195,6 +248,7 @@ async function handleApi(request, env, url) {
       headers: corsHeaders(request)
     });
   }
+  await ensureSchema(env);
   const limited = await enforceRateLimit(env, request, rateLimitKind(path, method));
   if (limited) return withCors(request, limited);
   if (method === "GET" && path === "/api/guests/search") {
@@ -507,7 +561,7 @@ var jsonError = /* @__PURE__ */ __name(async (request, env, _ctx, middlewareCtx)
 }, "jsonError");
 var middleware_miniflare3_json_error_default = jsonError;
 
-// .wrangler/tmp/bundle-34qVqj/middleware-insertion-facade.js
+// .wrangler/tmp/bundle-k8LDF7/middleware-insertion-facade.js
 var __INTERNAL_WRANGLER_MIDDLEWARE__ = [
   middleware_ensure_req_body_drained_default,
   middleware_miniflare3_json_error_default
@@ -539,7 +593,7 @@ function __facade_invoke__(request, env, ctx, dispatch, finalMiddleware) {
 }
 __name(__facade_invoke__, "__facade_invoke__");
 
-// .wrangler/tmp/bundle-34qVqj/middleware-loader.entry.ts
+// .wrangler/tmp/bundle-k8LDF7/middleware-loader.entry.ts
 var __Facade_ScheduledController__ = class ___Facade_ScheduledController__ {
   constructor(scheduledTime, cron, noRetry) {
     this.scheduledTime = scheduledTime;

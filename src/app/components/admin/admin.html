@@ -3,10 +3,11 @@
     <div>
       <p class="admin__kicker">Edward &amp; Rowie</p>
       <h1 class="admin__title">Wedding Admin</h1>
+      <p class="admin__lead">Manage invite names guests can search, then review who has replied.</p>
     </div>
     <div class="admin__top-actions">
       @if (username(); as user) {
-        <span class="admin__user">{{ user }}</span>
+        <span class="admin__user">Signed in as {{ user }}</span>
         <button type="button" class="admin__btn" (click)="logout()">Log out</button>
       }
       <a class="admin__link" routerLink="/">View invitation</a>
@@ -18,12 +19,14 @@
   } @else if (!username()) {
     <form class="admin__login" (submit)="login($event)">
       <h2>Sign in</h2>
+      <p class="admin__login-note">Use your wedding admin credentials to manage guests and RSVPs.</p>
       <label>
         <span>Username</span>
         <input
           type="text"
           name="username"
           autocomplete="username"
+          placeholder="Username"
           [ngModel]="loginUser()"
           (ngModelChange)="loginUser.set($event)"
           required />
@@ -34,6 +37,7 @@
           type="password"
           name="password"
           autocomplete="current-password"
+          placeholder="Password"
           [ngModel]="loginPass()"
           (ngModelChange)="loginPass.set($event)"
           required />
@@ -41,9 +45,30 @@
       @if (error()) {
         <p class="admin__error">{{ error() }}</p>
       }
-      <button type="submit" class="admin__btn admin__btn--primary">Log in</button>
+      <button type="submit" class="admin__btn admin__btn--primary" [disabled]="busy()">
+        {{ busy() ? 'Signing in…' : 'Log in' }}
+      </button>
     </form>
   } @else {
+    <section class="admin__stats" aria-label="Guest summary">
+      <div class="admin__stat">
+        <span class="admin__stat-value">{{ stats().total }}</span>
+        <span class="admin__stat-label">Guests</span>
+      </div>
+      <div class="admin__stat">
+        <span class="admin__stat-value">{{ stats().awaiting }}</span>
+        <span class="admin__stat-label">Awaiting</span>
+      </div>
+      <div class="admin__stat admin__stat--yes">
+        <span class="admin__stat-value">{{ stats().accepted }}</span>
+        <span class="admin__stat-label">Accepting</span>
+      </div>
+      <div class="admin__stat admin__stat--no">
+        <span class="admin__stat-value">{{ stats().declined }}</span>
+        <span class="admin__stat-label">Declining</span>
+      </div>
+    </section>
+
     <nav class="admin__tabs" aria-label="Admin sections">
       <button
         type="button"
@@ -51,6 +76,7 @@
         [class.admin__tab--on]="tab() === 'guests'"
         (click)="setTab('guests')">
         Guest list
+        <span class="admin__tab-count">{{ stats().total }}</span>
       </button>
       <button
         type="button"
@@ -58,32 +84,40 @@
         [class.admin__tab--on]="tab() === 'respondents'"
         (click)="setTab('respondents')">
         Respondents
+        <span class="admin__tab-count">{{ respondents().length }}</span>
       </button>
-      <button type="button" class="admin__btn" (click)="refresh()">Refresh</button>
+      <button type="button" class="admin__btn" (click)="refresh()" [disabled]="busy()">
+        {{ busy() ? 'Loading…' : 'Refresh' }}
+      </button>
     </nav>
 
     @if (notice()) {
-      <p class="admin__notice">{{ notice() }}</p>
+      <p class="admin__notice" role="status">{{ notice() }}</p>
     }
     @if (error()) {
-      <p class="admin__error">{{ error() }}</p>
+      <p class="admin__error" role="alert">{{ error() }}</p>
     }
 
     @if (tab() === 'guests') {
       <section class="admin__panel">
         <form class="admin__add" (submit)="addGuest($event)">
           <h2>Add guest</h2>
+          <p class="admin__hint">
+            Add the exact name guests will type on the invitation RSVP search.
+            Set companions to <strong>0</strong> for guest-only, or <strong>1+</strong> if they may bring plus-ones.
+          </p>
           <div class="admin__add-row">
             <label>
-              <span>Name</span>
+              <span>Full name</span>
               <input
                 type="text"
                 [ngModel]="newName()"
                 (ngModelChange)="newName.set($event)"
                 name="newName"
+                placeholder="e.g. Juan Dela Cruz"
                 required />
             </label>
-            <label>
+            <label class="admin__add-companions">
               <span>Companions allowed</span>
               <input
                 type="number"
@@ -93,10 +127,37 @@
                 (ngModelChange)="newCompanions.set(+$event || 0)"
                 name="newCompanions" />
             </label>
-            <button type="submit" class="admin__btn admin__btn--primary">Add</button>
+            <button type="submit" class="admin__btn admin__btn--primary" [disabled]="busy() || !newName().trim()">
+              Add guest
+            </button>
           </div>
-          <p class="admin__hint">0 companions means only that guest may RSVP for themselves.</p>
         </form>
+
+        <div class="admin__toolbar">
+          <label class="admin__search">
+            <span class="visually-hidden">Search guests</span>
+            <input
+              type="search"
+              placeholder="Search guest name…"
+              [ngModel]="guestQuery()"
+              (ngModelChange)="guestQuery.set($event)"
+              name="guestQuery" />
+          </label>
+          <div class="admin__filters" role="group" aria-label="Filter guests">
+            <button type="button" class="admin__filter" [class.is-on]="guestFilter() === 'all'" (click)="setFilter('all')">
+              All
+            </button>
+            <button type="button" class="admin__filter" [class.is-on]="guestFilter() === 'awaiting'" (click)="setFilter('awaiting')">
+              Awaiting
+            </button>
+            <button type="button" class="admin__filter" [class.is-on]="guestFilter() === 'accepted'" (click)="setFilter('accepted')">
+              Accepting
+            </button>
+            <button type="button" class="admin__filter" [class.is-on]="guestFilter() === 'declined'" (click)="setFilter('declined')">
+              Declining
+            </button>
+          </div>
+        </div>
 
         <div class="admin__table-wrap">
           <table class="admin__table">
@@ -106,20 +167,20 @@
                 <th>Companions</th>
                 <th>Status</th>
                 <th>Updated</th>
-                <th></th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
-              @for (g of guests(); track g.id) {
+              @for (g of filteredGuests(); track g.id) {
                 <tr>
-                  <td>
+                  <td data-label="Name">
                     <input
                       class="admin__inline"
                       [value]="g.name"
                       #nameInput
                       (keydown.enter)="saveGuest(g, nameInput.value, companionInput.value)" />
                   </td>
-                  <td>
+                  <td data-label="Companions">
                     <input
                       class="admin__inline admin__inline--num"
                       type="number"
@@ -129,28 +190,37 @@
                       #companionInput
                       (keydown.enter)="saveGuest(g, nameInput.value, companionInput.value)" />
                   </td>
-                  <td>{{ statusLabel(g) }}</td>
-                  <td>{{ g.dateUpdated | date: 'MMM d, y, h:mm a' }}</td>
-                  <td class="admin__actions">
+                  <td data-label="Status">
+                    <span class="admin__badge" [class]="statusClass(g)">{{ statusLabel(g) }}</span>
+                  </td>
+                  <td data-label="Updated">{{ g.dateUpdated | date: 'MMM d, y · h:mm a' }}</td>
+                  <td class="admin__actions" data-label="Actions">
                     <button
                       type="button"
-                      class="admin__btn"
-                      (click)="saveGuest(g, nameInput.value, companionInput.value)">
+                      class="admin__btn admin__btn--primary"
+                      (click)="saveGuest(g, nameInput.value, companionInput.value)"
+                      [disabled]="busy()">
                       Save
                     </button>
                     @if (g.dateResponded) {
-                      <button type="button" class="admin__btn" (click)="clearResponse(g)">
+                      <button type="button" class="admin__btn" (click)="clearResponse(g)" [disabled]="busy()">
                         Clear RSVP
                       </button>
                     }
-                    <button type="button" class="admin__btn admin__btn--danger" (click)="removeGuest(g)">
+                    <button type="button" class="admin__btn admin__btn--danger" (click)="removeGuest(g)" [disabled]="busy()">
                       Delete
                     </button>
                   </td>
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="5">No guests yet. Add names guests will search for.</td>
+                  <td colspan="5" class="admin__empty">
+                    @if (guests().length === 0) {
+                      No guests yet. Add names above so invitees can find themselves on RSVP search.
+                    } @else {
+                      No guests match this search or filter.
+                    }
+                  </td>
                 </tr>
               }
             </tbody>
@@ -159,6 +229,9 @@
       </section>
     } @else {
       <section class="admin__panel">
+        <p class="admin__hint">
+          Guests who have already sent an RSVP. Companion names appear when they filled them in.
+        </p>
         <div class="admin__table-wrap">
           <table class="admin__table">
             <thead>
@@ -173,25 +246,31 @@
             <tbody>
               @for (r of respondents(); track r.id) {
                 <tr>
-                  <td>{{ r.name }}</td>
-                  <td>{{ statusLabel(r) }}</td>
-                  <td>{{ r.message || '—' }}</td>
-                  <td>
+                  <td data-label="Name">
+                    <strong>{{ r.name }}</strong>
+                  </td>
+                  <td data-label="Reply">
+                    <span class="admin__badge" [class]="statusClass(r)">{{ statusLabel(r) }}</span>
+                  </td>
+                  <td data-label="Message">{{ r.message || '—' }}</td>
+                  <td data-label="Companions">
                     @if (r.companions.length) {
                       <ul class="admin__companions">
                         @for (c of r.companions; track c.id) {
                           <li>{{ c.name || 'Unnamed companion' }}</li>
                         }
                       </ul>
+                    } @else if (r.companionCount > 0) {
+                      Allowed {{ r.companionCount }}, none named
                     } @else {
-                      —
+                      Guest only
                     }
                   </td>
-                  <td>{{ r.dateResponded | date: 'MMM d, y, h:mm a' }}</td>
+                  <td data-label="Responded">{{ r.dateResponded | date: 'MMM d, y · h:mm a' }}</td>
                 </tr>
               } @empty {
                 <tr>
-                  <td colspan="5">No responses yet.</td>
+                  <td colspan="5" class="admin__empty">No responses yet. They will appear here after guests send an RSVP.</td>
                 </tr>
               }
             </tbody>

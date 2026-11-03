@@ -10,6 +10,7 @@ import {
   verifyPassword,
 } from './auth';
 import { enforceRateLimit, rateLimitKind } from './rate-limit';
+import { ensureSchema } from './schema';
 import type { CompanionRow, Env, GuestRow } from './types';
 
 export default {
@@ -39,6 +40,8 @@ async function handleApi(request: Request, env: Env, url: URL): Promise<Response
       headers: corsHeaders(request),
     });
   }
+
+  await ensureSchema(env);
 
   const limited = await enforceRateLimit(env, request, rateLimitKind(path, method));
   if (limited) return withCors(request, limited);

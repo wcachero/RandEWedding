@@ -95,6 +95,8 @@ export interface Wedding {
     readonly deadline: string;
     readonly contacts: readonly { readonly name: string; readonly phone: string }[];
     readonly reservedNote: string;
+    /** Warning modal copy after the guest taps Send RSVP. */
+    readonly submitWarning: string;
   };
   readonly entourage: {
     readonly parentsOfGroom: readonly string[];
@@ -253,6 +255,9 @@ export const WEDDING: Wedding = {
     ],
     reservedNote:
       'Only guests with confirmed RSVPs will be accommodated at the celebration. We respectfully ask that you refer to the number of reserved seats indicated in your invitation.',
+    /** Shown in the modal after the guest taps Send RSVP. */
+    submitWarning:
+      'Please note that we can only accommodate guests who have confirmed through this RSVP. Seating is reserved accordingly, and we kindly ask that only confirmed guests attend.',
   },
   entourage: {
     parentsOfGroom: [

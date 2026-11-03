@@ -846,6 +846,30 @@
   </div>
 }
 
+<!-- RSVP reserved-seats warning (after Send RSVP) -->
+@if (rsvpWarningOpen()) {
+  <div class="rsvp-notice" (click)="dismissRsvpWarning()" role="dialog" aria-modal="true"
+       aria-labelledby="rsvp-warning-title">
+    <div class="rsvp-notice__card" (click)="$event.stopPropagation()">
+      <button type="button" class="rsvp-notice__close" aria-label="Close"
+              (click)="dismissRsvpWarning()" [disabled]="rsvpSubmitting()">&times;</button>
+      <p class="rsvp-notice__kicker">Kind reminder</p>
+      <h3 class="rsvp-notice__title" id="rsvp-warning-title">Confirmed guests only</h3>
+      <p class="rsvp-notice__body">{{ wedding.rsvp.submitWarning }}</p>
+      <div class="rsvp-notice__actions">
+        <button type="button" class="btn btn--ghost rsvp-notice__secondary"
+                (click)="dismissRsvpWarning()" [disabled]="rsvpSubmitting()">
+          Go back
+        </button>
+        <button type="button" class="btn rsvp-notice__cta"
+                (click)="confirmRsvpWarning()" [disabled]="rsvpSubmitting()">
+          {{ rsvpSubmitting() ? 'Sending…' : 'Confirm &amp; send RSVP' }}
+        </button>
+      </div>
+    </div>
+  </div>
+}
+
 <!-- RSVP deadline notice (shows once after scrolling to the bottom) -->
 @if (rsvpDeadlineOpen()) {
   <div class="rsvp-notice" (click)="dismissRsvpDeadline()" role="dialog" aria-modal="true"
