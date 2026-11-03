@@ -544,23 +544,24 @@ export class WeddingInvitation {
   protected readonly rsvpDeadlineOpen = signal(false);
   private static readonly RSVP_NOTICE_KEY = 'gk-rsvp-deadline-seen';
   private rsvpNoticeScrollY = 0;
+  /** True only while this notice is holding overflow. Closing must not move scroll. */
+  private rsvpNoticeScrollFrozen = false;
 
   protected dismissRsvpDeadline(): void {
     this.rsvpDeadlineOpen.set(false);
-    this.unlockBackgroundScroll();
+    this.releaseRsvpNoticeScroll();
     try {
       sessionStorage.setItem(WeddingInvitation.RSVP_NOTICE_KEY, '1');
     } catch {
       /* private mode / blocked storage */
     }
-    // Always land on RSVP after the deadline notice closes.
-    queueMicrotask(() => {
-      document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
   }
 
   protected goToRsvpFromNotice(): void {
     this.dismissRsvpDeadline();
+    queueMicrotask(() => {
+      document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
   }
 
   /** Open the deadline notice the first time the guest reaches the invitation end. */
@@ -584,7 +585,7 @@ export class WeddingInvitation {
           return;
         }
         this.rsvpDeadlineOpen.set(true);
-        this.lockBackgroundScroll();
+        this.freezeRsvpNoticeScroll();
         observer.disconnect();
       },
       { root: null, threshold: 0.35 },
@@ -594,10 +595,44 @@ export class WeddingInvitation {
     this.destroyRef.onDestroy(() => {
       observer.disconnect();
       if (this.rsvpDeadlineOpen()) {
-        this.unlockBackgroundScroll();
+        this.releaseRsvpNoticeScroll();
       }
     });
   }
+
+  /**
+   * Block background scrolling while the notice is open.
+   * Do not toggle overflow or position: those change scroll height and move the page on close.
+   */
+  private freezeRsvpNoticeScroll(): void {
+    if (this.rsvpNoticeScrollFrozen) {
+      return;
+    }
+    this.rsvpNoticeScrollFrozen = true;
+    window.addEventListener('wheel', this.blockRsvpNoticeScroll, { passive: false });
+    window.addEventListener('touchmove', this.blockRsvpNoticeScroll, { passive: false });
+    window.addEventListener('keydown', this.blockRsvpNoticeKeys);
+  }
+
+  private releaseRsvpNoticeScroll(): void {
+    if (!this.rsvpNoticeScrollFrozen) {
+      return;
+    }
+    this.rsvpNoticeScrollFrozen = false;
+    window.removeEventListener('wheel', this.blockRsvpNoticeScroll);
+    window.removeEventListener('touchmove', this.blockRsvpNoticeScroll);
+    window.removeEventListener('keydown', this.blockRsvpNoticeKeys);
+  }
+
+  private readonly blockRsvpNoticeScroll = (event: Event): void => {
+    event.preventDefault();
+  };
+
+  private readonly blockRsvpNoticeKeys = (event: KeyboardEvent): void => {
+    if ([' ', 'ArrowDown', 'ArrowUp', 'PageDown', 'PageUp', 'Home', 'End'].includes(event.key)) {
+      event.preventDefault();
+    }
+  };
 
   /** Freeze page scroll while the RSVP notice overlay is open (incl. iOS). */
   private lockBackgroundScroll(): void {
@@ -621,7 +656,7 @@ export class WeddingInvitation {
     body.style.width = '';
     body.style.overflow = '';
     document.documentElement.style.overflow = '';
-    window.scrollTo(0, this.rsvpNoticeScrollY);
+    window.scrollTo({ top: this.rsvpNoticeScrollY, left: 0, behavior: 'auto' });
   }
 
   /** QR with a compact E&R monogram drawn in the centre (high error correction). */
@@ -1279,6 +1314,7 @@ export class WeddingInvitation {
       'var(--swatch-emerald)': '#115e4a',
       'var(--swatch-beige)': '#d7c4a8',
       'var(--swatch-gold)': '#c9a227',
+      'var(--swatch-brown)': '#4a2f1c',
       'var(--swatch-soft-beige)': '#ead9c4',
       'var(--swatch-champagne)': '#f3e6c4',
     };

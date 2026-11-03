@@ -11,11 +11,11 @@ export class AudioService {
   readonly playing = signal(false);
 
   /** Shown in the disc label while music is playing. */
-  readonly trackTitle = 'You Are The Reason';
+  readonly trackTitle = 'I Do Cherish You';
 
   private ensure(): HTMLAudioElement {
     if (!this.audio) {
-      const el = new Audio('audio/you-are-the-reason.mp3');
+      const el = new Audio('audio/i-do-cherish-you.mp3');
       el.loop = true;
       el.preload = 'auto';
       el.addEventListener('play', () => this.playing.set(true));

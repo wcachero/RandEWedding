@@ -30,8 +30,17 @@
         type="button"
         class="nav__download"
         (click)="downloadFromMenu()"
-        [disabled]="inviteDownloading()">
-        {{ inviteDownloading() ? 'Preparing…' : 'Download Invitation' }}
+        [disabled]="inviteDownloading()"
+        [attr.aria-label]="inviteDownloading() ? 'Preparing invitation' : 'Download Invitation'"
+        data-tooltip="Download Invitation">
+        <svg class="nav__download-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+          <path
+            fill="currentColor"
+            d="M12 3a1 1 0 0 1 1 1v9.59l2.3-2.3a1 1 0 1 1 1.4 1.42l-4 4a1 1 0 0 1-1.4 0l-4-4a1 1 0 1 1 1.4-1.42L11 13.59V4a1 1 0 0 1 1-1Zm-7 14a1 1 0 0 1 1 1v1h12v-1a1 1 0 1 1 2 0v2a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-2a1 1 0 0 1 1-1Z" />
+        </svg>
+        <span class="nav__download-text">
+          {{ inviteDownloading() ? 'Preparing…' : 'Download Invitation' }}
+        </span>
       </button>
     </li>
   </ul>
@@ -159,7 +168,7 @@
       <h2 class="section__title">The Celebration</h2>
     </div>
 
-    <article class="place">
+    <article class="place place--ceremony">
       <img class="place__photo place__photo--ceremony" [src]="ceremony.photo" alt="" />
       <div class="place__scrim"></div>
       <div class="place__frame" aria-hidden="true"></div>
@@ -175,27 +184,31 @@
       </div>
     </article>
 
-    <article class="place">
-      <img class="place__photo place__photo--reception" [src]="reception.photo" alt="" />
-      <div class="place__scrim"></div>
-      <div class="place__frame" aria-hidden="true"></div>
-      <div class="place__content" appReveal>
-        <p class="place__kicker">{{ reception.kicker }}</p>
-        <h3 class="place__name">{{ reception.venue }}</h3>
-        <p class="place__time">{{ reception.time }}</p>
-        <p class="place__meta">{{ reception.address }}</p>
-        <div class="place__actions">
-          <button type="button" class="btn" (click)="openMap(reception)">View Map</button>
-          <a class="btn btn--ghost" [href]="reception.mapLink" target="_blank" rel="noopener">Google Maps</a>
+    <article class="place place--reception">
+      <div class="place__card">
+        <div class="place__media">
+          <img class="place__photo place__photo--reception" [src]="reception.photo" alt="" />
+          <div class="place__scrim"></div>
         </div>
+        <div class="place__content" appReveal>
+          <p class="place__kicker">{{ reception.kicker }}</p>
+          <h3 class="place__name">{{ reception.venue }}</h3>
+          <p class="place__time">{{ reception.time }}</p>
+          <p class="place__meta">{{ reception.address }}</p>
+          <div class="place__actions">
+            <button type="button" class="btn" (click)="openMap(reception)">View Map</button>
+            <a class="btn btn--ghost" [href]="reception.mapLink" target="_blank" rel="noopener">Google Maps</a>
+          </div>
+        </div>
+        <div class="place__frame" aria-hidden="true"></div>
       </div>
     </article>
   </section>
 
   <section class="section day" id="day">
     <div class="container">
-      <p class="section__label" appReveal>The day at a glance</p>
-      <h2 class="section__title" [appReveal]="60">Order of the Day</h2>
+      <p class="section__label" appReveal>From the first hour</p>
+      <h2 class="section__title" [appReveal]="60">How the Day Unfolds</h2>
 
       <ol class="day__timeline" appReveal>
         @for (beat of wedding.schedule; track beat.title) {
@@ -240,7 +253,11 @@
         @for (s of wedding.dressCode.swatches; track s.name; let i = $index) {
           <li class="swatch" [appReveal]="i * 90">
             <span class="swatch__chip" [style.background]="s.color"></span>
-            <span class="swatch__name">{{ s.name }}</span>
+            <span class="swatch__name">
+              @for (word of s.name.split(' '); track $index) {
+                <span class="swatch__word">{{ word }}</span>
+              }
+            </span>
           </li>
         }
       </ul>

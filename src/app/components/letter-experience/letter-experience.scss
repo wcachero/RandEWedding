@@ -593,6 +593,16 @@
   padding-bottom: calc(var(--tabbar-h) + env(safe-area-inset-bottom, 0px));
 }
 
+/* Desktop already has the top menu, so the bottom bar stays off. */
+@media (min-width: 1200px) {
+  .tabbar { display: none; }
+
+  .scene[data-stage='reading'] {
+    --tabbar-h: 0px;
+    padding-bottom: 0;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .tabbar__item { transition: none; }
   .tabbar::after { animation: none; }

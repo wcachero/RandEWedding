@@ -80,7 +80,7 @@ export interface Wedding {
   };
   readonly rsvp: {
     readonly note: string;
-    /** Soft deadline shown on the invitation (e.g. November 8, 2026). */
+    /** Soft deadline shown on the invitation (e.g. November 15, 2026). */
     readonly deadline: string;
     readonly contacts: readonly { readonly name: string; readonly phone: string }[];
     readonly reservedNote: string;
@@ -135,15 +135,15 @@ export const WEDDING: Wedding = {
     parking: 'Parking is available at the church grounds and along the approach road.',
   },
   reception: {
-    title: 'Marino Residence',
+    title: "Don Alberto's Pavilion",
     kicker: 'The Reception',
     time: 'Lunch to follow',
-    venue: 'Marino Residence',
-    address: 'San Pablo City, Laguna',
-    mapQuery: 'Marino Residence, San Pablo City, Laguna',
-    photo: 'images/moments/06.jpg',
-    landmark: 'Private residence, San Pablo City, Laguna',
-    parking: 'Limited parking at the residence. Please carpool if you can.',
+    venue: "Don Alberto's Pavilion",
+    address: 'Brgy. Sta. Maria Magdalena, San Pablo City',
+    mapQuery: "Don Alberto's Pavilion, Sta. Maria Magdalena, San Pablo City, Laguna",
+    photo: 'images/reception.jpg',
+    landmark: 'Brgy. Sta. Maria Magdalena, San Pablo City',
+    parking: 'Parking is available at the pavilion.',
   },
   weather:
     'December mornings in San Pablo are typically dry and mild. A light wrap is welcome in the church.',
@@ -175,7 +175,7 @@ export const WEDDING: Wedding = {
     {
       time: 'Lunch',
       title: 'Reception',
-      detail: 'Marino Residence, San Pablo City',
+      detail: "Don Alberto's Pavilion, San Pablo City",
     },
   ],
   rites: [
@@ -220,12 +220,13 @@ export const WEDDING: Wedding = {
       { name: 'Emerald Green', color: 'var(--swatch-emerald)' },
       { name: 'Beige', color: 'var(--swatch-beige)' },
       { name: 'Gold', color: 'var(--swatch-gold)' },
+      { name: 'Dark Brown', color: 'var(--swatch-brown)' },
     ],
-    note: 'Emerald, beige, and gold. The wedding party wears one shared look each — champagne for the men, emerald for the women.',
+    note: 'Emerald, beige, gold, and dark brown. The wedding party wears one shared look each — champagne for the men, emerald for the women.',
   },
   rsvp: {
     note: 'Every seat is reserved with love and intention. Kindly confirm your attendance below.',
-    deadline: 'November 8, 2026',
+    deadline: 'November 15, 2026',
     contacts: [
       { name: 'Rowelyn', phone: '0917 555 0101' },
       { name: 'Edward', phone: '0918 555 0102' },
