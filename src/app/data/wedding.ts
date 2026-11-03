@@ -18,12 +18,23 @@ export interface DressSwatch {
   readonly color: string;
 }
 
+export interface DressSide {
+  readonly label: string;
+  readonly image: string;
+}
+
+export interface DressRow {
+  readonly kicker: string;
+  readonly title: string;
+  readonly sides: readonly DressSide[];
+}
+
 export interface DressLook {
   readonly kicker: string;
   readonly title: string;
   readonly image: string;
-  /** How the source should sit inside its frame. */
-  readonly fit?: 'board' | 'cover' | 'contain';
+  /** Full-width plate. Pair looks sit two across. */
+  readonly wide?: boolean;
 }
 
 export interface Wedding {
@@ -43,7 +54,8 @@ export interface Wedding {
   readonly reception: WeddingEvent;
   readonly dressCode: {
     readonly title: string;
-    readonly boards: readonly DressLook[];
+    readonly rows: readonly DressRow[];
+    readonly sponsors: readonly DressLook[];
     readonly party: readonly DressLook[];
     readonly swatches: readonly DressSwatch[];
     readonly note: string;
@@ -113,17 +125,35 @@ export const WEDDING: Wedding = {
   },
   dressCode: {
     title: 'Semi-Formal Attire',
-    boards: [
-      { kicker: 'For Everyone', title: 'Guests', image: 'images/attire/guests.png', fit: 'board' },
-      { kicker: 'The Families', title: 'Parents', image: 'images/attire/parents.png', fit: 'board' },
-      { kicker: 'Ladies', title: 'Sponsors', image: 'images/attire/sponsors-ladies.png', fit: 'board' },
-      { kicker: 'Gentlemen', title: 'Sponsors', image: 'images/attire/sponsors-gentlemen.png', fit: 'board' },
+    rows: [
+      {
+        kicker: 'The Families',
+        title: 'Parents',
+        sides: [
+          { label: 'Gentlemen', image: 'images/attire/parents-gentlemen.png' },
+          { label: 'Ladies', image: 'images/attire/parents-ladies.png' },
+        ],
+      },
+      {
+        kicker: 'For Everyone',
+        title: 'Guests',
+        sides: [
+          { label: 'Gentlemen', image: 'images/attire/guests-gentlemen.png' },
+          { label: 'Ladies', image: 'images/attire/guests-ladies.png' },
+        ],
+      },
+    ],
+    sponsors: [
+      { kicker: '', title: 'Ladies', image: 'images/attire/sponsors-ladies.png' },
+      { kicker: '', title: 'Gentlemen', image: 'images/attire/sponsors-gentlemen.png' },
     ],
     party: [
-      { kicker: 'One look', title: 'Best Man', image: 'images/attire/best-man.png', fit: 'cover' },
-      { kicker: 'One look', title: 'Maid of Honor', image: 'images/attire/maid-of-honor.png', fit: 'cover' },
-      { kicker: 'The party', title: 'Groomsmen', image: 'images/attire/groomsmen.png', fit: 'cover' },
-      { kicker: 'The party', title: 'Bridesmaids', image: 'images/attire/bridesmaids.png', fit: 'cover' },
+      { kicker: '', title: 'Best Man', image: 'images/attire/best-man.png' },
+      { kicker: '', title: 'Maid of Honor', image: 'images/attire/maid-of-honor.png' },
+      { kicker: '', title: 'Groomsmen', image: 'images/attire/groomsmen.png', wide: true },
+      { kicker: '', title: 'Bridesmaids', image: 'images/attire/bridesmaids.png', wide: true },
+      { kicker: '', title: 'Junior Groomsmen', image: 'images/attire/groomsmen-kids.png', wide: true },
+      { kicker: '', title: 'Flower Girls', image: 'images/attire/flower-girls.png', wide: true },
     ],
     swatches: [
       { name: 'Emerald Green', color: 'var(--swatch-emerald)' },

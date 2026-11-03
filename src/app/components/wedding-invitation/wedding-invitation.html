@@ -19,12 +19,12 @@
   </button>
 
   <ul class="nav__links">
-    <li><a href="#details" (click)="closeMenu()">Details</a></li>
-    <li><a href="#venue" (click)="closeMenu()">Venue</a></li>
-    <li><a href="#attire" (click)="closeMenu()">Attire</a></li>
-    <li><a href="#entourage" (click)="closeMenu()">Entourage</a></li>
-    <li><a href="#gallery" (click)="closeMenu()">Gallery</a></li>
-    <li><a href="#rsvp" (click)="closeMenu()">RSVP</a></li>
+    <li><a href="#details" (click)="closeMenu()" [class.is-active]="activeSection() === 'details'" [attr.aria-current]="activeSection() === 'details' ? 'true' : null">Details</a></li>
+    <li><a href="#venue" (click)="closeMenu()" [class.is-active]="activeSection() === 'venue'" [attr.aria-current]="activeSection() === 'venue' ? 'true' : null">Venue</a></li>
+    <li><a href="#attire" (click)="closeMenu()" [class.is-active]="activeSection() === 'attire'" [attr.aria-current]="activeSection() === 'attire' ? 'true' : null">Attire</a></li>
+    <li><a href="#entourage" (click)="closeMenu()" [class.is-active]="activeSection() === 'entourage'" [attr.aria-current]="activeSection() === 'entourage' ? 'true' : null">Entourage</a></li>
+    <li><a href="#gallery" (click)="closeMenu()" [class.is-active]="activeSection() === 'gallery'" [attr.aria-current]="activeSection() === 'gallery' ? 'true' : null">Gallery</a></li>
+    <li><a href="#rsvp" (click)="closeMenu()" [class.is-active]="activeSection() === 'rsvp'" [attr.aria-current]="activeSection() === 'rsvp' ? 'true' : null">RSVP</a></li>
     <li>
       <button
         type="button"
@@ -35,6 +35,7 @@
       </button>
     </li>
   </ul>
+  <span class="nav__progress" [style.transform]="'scaleX(' + scrollProgress() + ')'" aria-hidden="true"></span>
 </nav>
 
 <!-- Soft emerald wash that appears at the top while the sticky nav is collapsed -->
@@ -120,19 +121,27 @@
       } @else {
         <ol class="countdown__line" appReveal>
           <li>
-            <span class="countdown__num">{{ pad(countdown().days) }}</span>
+            @for (n of [countdown().days]; track n) {
+              <span class="countdown__num countdown__num--tick">{{ pad(n) }}</span>
+            }
             <span class="countdown__unit">Days</span>
           </li>
           <li>
-            <span class="countdown__num">{{ pad(countdown().hours) }}</span>
+            @for (n of [countdown().hours]; track n) {
+              <span class="countdown__num countdown__num--tick">{{ pad(n) }}</span>
+            }
             <span class="countdown__unit">Hours</span>
           </li>
           <li>
-            <span class="countdown__num">{{ pad(countdown().minutes) }}</span>
+            @for (n of [countdown().minutes]; track n) {
+              <span class="countdown__num countdown__num--tick">{{ pad(n) }}</span>
+            }
             <span class="countdown__unit">Minutes</span>
           </li>
           <li>
-            <span class="countdown__num">{{ pad(countdown().seconds) }}</span>
+            @for (n of [countdown().seconds]; track n) {
+              <span class="countdown__num countdown__num--tick">{{ pad(n) }}</span>
+            }
             <span class="countdown__unit">Seconds</span>
           </li>
         </ol>
@@ -174,7 +183,7 @@
     </article>
   </section>
 
-  <div class="divider" aria-hidden="true"></div>
+  <div class="divider" appReveal aria-hidden="true"></div>
 
   <!-- Dress code -->
   <section class="section attire" id="attire">
@@ -192,41 +201,82 @@
         }
       </ul>
 
-      <div class="attire__boards">
-        @for (look of wedding.dressCode.boards; track look.image) {
-          <figure class="attire__panel" appReveal>
-            <p class="attire__kicker">{{ look.kicker }}</p>
-            <figcaption class="attire__caption">{{ look.title }}</figcaption>
-            <button type="button" class="attire__card"
-                    (click)="openLightbox(look.image)"
-                    [attr.aria-label]="'Enlarge ' + look.kicker + ' ' + look.title + ' attire guide'">
-              <img class="attire__image" [src]="look.image"
-                   [alt]="look.kicker + ' — ' + look.title + ' attire'" loading="lazy" />
-            </button>
-          </figure>
+      <div class="attire__groups">
+        @for (row of wedding.dressCode.rows; track row.title) {
+          @if (row.title === 'Parents') {
+            <figure class="attire__group" appReveal>
+              <p class="attire__kicker">{{ row.kicker }}</p>
+              <figcaption class="attire__caption">{{ row.title }}</figcaption>
+              <div class="attire__row">
+                @for (side of row.sides; track side.image) {
+                  <button type="button" class="attire__card"
+                          (click)="openLightbox(side.image)"
+                          [attr.aria-label]="'Enlarge ' + row.title + ' ' + side.label + ' attire'">
+                    <span class="attire__side">{{ side.label }}</span>
+                    <img class="attire__image" [src]="side.image"
+                         [alt]="row.title + ' — ' + side.label + ' attire'" loading="lazy" />
+                  </button>
+                }
+              </div>
+            </figure>
+          }
         }
+
+        <figure class="attire__group" appReveal>
+          <figcaption class="attire__caption">Sponsors</figcaption>
+          <div class="attire__sponsors">
+            @for (look of wedding.dressCode.sponsors; track look.image) {
+              <button type="button" class="attire__card"
+                      (click)="openLightbox(look.image)"
+                      [attr.aria-label]="'Enlarge ' + look.title + ' sponsors attire'">
+                <span class="attire__side">{{ look.title }}</span>
+                <img class="attire__image" [src]="look.image"
+                     [alt]="look.title + ' sponsors attire'" loading="lazy" />
+              </button>
+            }
+          </div>
+        </figure>
       </div>
 
       <p class="attire__party-label" appReveal>The Wedding Party</p>
       <div class="attire__party">
         @for (look of wedding.dressCode.party; track look.image) {
-          <figure class="party-card" [class.party-card--lay]="look.fit === 'contain'" appReveal>
-            <button type="button" class="party-card__hit"
+          <figure class="attire__look" [class.attire__look--wide]="look.wide" appReveal>
+            <figcaption class="attire__caption">{{ look.title }}</figcaption>
+            <button type="button" class="attire__card"
                     (click)="openLightbox(look.image)"
                     [attr.aria-label]="'Enlarge ' + look.title + ' attire'">
-              <img [src]="look.image" [alt]="look.title + ' attire'" loading="lazy" />
-              <span class="party-card__meta">
-                <span class="party-card__kicker">{{ look.kicker }}</span>
-                <span class="party-card__title">{{ look.title }}</span>
-              </span>
+              <img class="attire__image" [src]="look.image" [alt]="look.title + ' attire'" loading="lazy" />
             </button>
           </figure>
+        }
+      </div>
+
+      <div class="attire__groups">
+        @for (row of wedding.dressCode.rows; track row.title) {
+          @if (row.title === 'Guests') {
+            <figure class="attire__group" appReveal>
+              <p class="attire__kicker">{{ row.kicker }}</p>
+              <figcaption class="attire__caption">{{ row.title }}</figcaption>
+              <div class="attire__row">
+                @for (side of row.sides; track side.image) {
+                  <button type="button" class="attire__card"
+                          (click)="openLightbox(side.image)"
+                          [attr.aria-label]="'Enlarge ' + row.title + ' ' + side.label + ' attire'">
+                    <span class="attire__side">{{ side.label }}</span>
+                    <img class="attire__image" [src]="side.image"
+                         [alt]="row.title + ' — ' + side.label + ' attire'" loading="lazy" />
+                  </button>
+                }
+              </div>
+            </figure>
+          }
         }
       </div>
     </div>
   </section>
 
-  <div class="divider" aria-hidden="true"></div>
+  <div class="divider" appReveal aria-hidden="true"></div>
 
   <!-- Entourage -->
   <section class="section entourage" id="entourage">
@@ -709,6 +759,7 @@
 <!-- Lightbox -->
 @if (lightboxPhoto(); as photo) {
   <div class="lightbox"
+       [class.lightbox--attire]="photo.includes('images/attire/')"
        (click)="onLightboxBackdropClick()"
        (pointerdown)="onPointerDown($event)"
        (pointerup)="onLightboxPointerUp($event)">

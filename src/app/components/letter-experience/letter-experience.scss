@@ -520,10 +520,15 @@
     svg { display: block; width: 22px; height: 22px; }
 
     &:hover,
-    &:active {
+    &:active,
+    &.is-active {
       color: #e8d5a0;
       transform: translateY(-2px);
       text-shadow: none;
+    }
+
+    &.is-active {
+      color: #fff;
     }
 
     &:focus-visible {

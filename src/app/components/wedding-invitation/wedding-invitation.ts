@@ -86,6 +86,12 @@ export class WeddingInvitation {
   /** True while the guest is scrolling down — bar slides away until idle or scroll-up. */
   protected readonly navHidden = signal(false);
 
+  /** 0–1 reading progress, painted as the gold line under the nav. */
+  protected readonly scrollProgress = signal(0);
+
+  /** Section id currently in view, used to mark the nav link. */
+  protected readonly activeSection = signal('top');
+
   /** Whether the full metro tile album is expanded. */
   protected readonly galleryExpanded = signal(false);
   private readonly galleryPreviewCount = 8;
@@ -1597,11 +1603,44 @@ export class WeddingInvitation {
     let idleId: ReturnType<typeof setTimeout> | null = null;
 
     const showNav = () => this.navHidden.set(false);
+    const sectionIds = ['details', 'venue', 'attire', 'entourage', 'gallery', 'rsvp'];
+    let lastTab = '';
 
     const onScroll = () => {
       const y = Math.max(0, window.scrollY);
       const delta = y - lastY;
       lastY = y;
+
+      const max = document.documentElement.scrollHeight - window.innerHeight;
+      const progress = max > 0 ? Math.min(1, Math.max(0, y / max)) : 0;
+      if (Math.abs(progress - this.scrollProgress()) > 0.004) {
+        this.scrollProgress.set(progress);
+      }
+
+      const marker = y + 140;
+      let section = 'top';
+      for (const id of sectionIds) {
+        const el = document.getElementById(id);
+        if (!el) continue;
+        const top = el.getBoundingClientRect().top + window.scrollY;
+        if (top <= marker) section = id;
+      }
+      if (section !== this.activeSection()) {
+        this.activeSection.set(section);
+      }
+
+      const tabHref =
+        section === 'details' ? '#details'
+        : section === 'gallery' ? '#gallery'
+        : section === 'rsvp' ? '#rsvp'
+        : section === 'venue' || section === 'attire' || section === 'entourage' ? '#venue'
+        : '#top';
+      if (tabHref !== lastTab) {
+        lastTab = tabHref;
+        document.querySelectorAll<HTMLAnchorElement>('.tabbar__item').forEach((link) => {
+          link.classList.toggle('is-active', link.getAttribute('href') === tabHref);
+        });
+      }
 
       if (idleId !== null) {
         clearTimeout(idleId);
@@ -1625,6 +1664,7 @@ export class WeddingInvitation {
       }
     };
 
+    onScroll();
     window.addEventListener('scroll', onScroll, { passive: true });
     this.destroyRef.onDestroy(() => {
       window.removeEventListener('scroll', onScroll);
