@@ -322,15 +322,6 @@
       <p class="section__label" appReveal>With grateful hearts</p>
       <h2 class="section__title" [appReveal]="60">The Entourage</h2>
 
-      <ul class="court__rites" appReveal>
-        @for (rite of wedding.rites; track rite.name) {
-          <li>
-            <span class="court__rite-name">{{ rite.name }}</span>
-            <span class="court__rite-meaning">{{ rite.meaning }}</span>
-          </li>
-        }
-      </ul>
-
       <div class="court">
         <div class="court__split" appReveal>
           <div class="court__col">
@@ -360,11 +351,11 @@
         <div class="court__split" appReveal>
           <div class="court__col">
             <p class="court__role">Best Man</p>
-            <p class="court__name court__name--attend">{{ wedding.entourage.bestMan }}</p>
+            <p class="court__name">{{ wedding.entourage.bestMan }}</p>
           </div>
           <div class="court__col">
             <p class="court__role">Maid of Honor</p>
-            <p class="court__name court__name--attend">{{ wedding.entourage.maidOfHonor }}</p>
+            <p class="court__name">{{ wedding.entourage.maidOfHonor }}</p>
           </div>
         </div>
 
@@ -391,9 +382,11 @@
 
         @if (wedding.entourage.flowerGirls.length) {
           <h3 class="court__banner">Flower Girls</h3>
-          <div class="court__split court__split--script">
+          <div class="court__roles">
             @for (name of wedding.entourage.flowerGirls; track name) {
-              <p class="court__name court__name--lead">{{ name }}</p>
+              <div class="court__col">
+                <p class="court__name">{{ name }}</p>
+              </div>
             }
           </div>
         }

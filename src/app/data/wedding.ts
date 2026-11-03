@@ -172,11 +172,10 @@ export const WEDDING: Wedding = {
     qrPayload: 'MOCK-GIFT|BDO|004278123456|Edward & Rowie Wedding',
   },
   hashtags: [
+    '#EDWARDmazingDayWithROWIE',
     '#RandEWedding',
     '#EdwardAndRowie',
-    '#RowieAndEdward',
     '#EdwardRowie2026',
-    '#EandR1205',
   ],
   schedule: [
     {
@@ -200,12 +199,7 @@ export const WEDDING: Wedding = {
       detail: "Don Alberto's Pavilion, San Pablo City",
     },
   ],
-  rites: [
-    { name: 'Candle', meaning: 'The light of faith' },
-    { name: 'Veil', meaning: 'Clothed as one' },
-    { name: 'Cord', meaning: 'The marriage bond' },
-    { name: 'Arrhae', meaning: 'Coins of provision' },
-  ],
+  rites: [],
   dressCode: {
     title: 'Semi-Formal Attire',
     rows: [
