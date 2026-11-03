@@ -24,6 +24,7 @@
     <li><a href="#attire" (click)="closeMenu()" [class.is-active]="activeSection() === 'attire'" [attr.aria-current]="activeSection() === 'attire' ? 'true' : null">Attire</a></li>
     <li><a href="#entourage" (click)="closeMenu()" [class.is-active]="activeSection() === 'entourage'" [attr.aria-current]="activeSection() === 'entourage' ? 'true' : null">Entourage</a></li>
     <li><a href="#moments" (click)="closeMenu()" [class.is-active]="activeSection() === 'moments'" [attr.aria-current]="activeSection() === 'moments' ? 'true' : null">Moments</a></li>
+    <li><a href="#gifts" (click)="closeMenu()" [class.is-active]="activeSection() === 'gifts'" [attr.aria-current]="activeSection() === 'gifts' ? 'true' : null">Gifts</a></li>
     <li><a href="#rsvp" (click)="closeMenu()" [class.is-active]="activeSection() === 'rsvp'" [attr.aria-current]="activeSection() === 'rsvp' ? 'true' : null">RSVP</a></li>
     <li>
       <button
@@ -460,6 +461,89 @@
   </section>
 
   <!-- RSVP -->
+  <section class="section gifts" id="gifts">
+    <div class="container">
+      <p class="section__label" appReveal>With gratitude</p>
+      <h2 class="section__title" [appReveal]="60">Monetary Gift</h2>
+      <img
+        class="gifts__box"
+        src="images/gift-box.png"
+        alt=""
+        aria-hidden="true"
+        appReveal />
+      <p class="gifts__note" appReveal>{{ wedding.monetaryGift.note }}</p>
+
+      <div class="gifts__grid" appReveal>
+        <article class="gifts__card gifts__card--qr">
+          <p class="gifts__card-kicker">Scan to send</p>
+          <div class="gifts__qr">
+            @if (giftQrDataUrl(); as qr) {
+              <img class="gifts__qr-code" [src]="qr" alt="Mock QR code for monetary gifts" />
+            } @else {
+              <span class="gifts__qr-skeleton" aria-hidden="true"></span>
+            }
+          </div>
+          <p class="gifts__qr-caption">Mock QR · Preview only</p>
+          <p class="gifts__gcash">
+            <span class="gifts__gcash-label">GCash</span>
+            <span class="gifts__gcash-name">{{ wedding.monetaryGift.gcashName }}</span>
+            <span class="gifts__gcash-number">{{ wedding.monetaryGift.gcashNumber }}</span>
+          </p>
+          <button
+            type="button"
+            class="btn gifts__download"
+            (click)="downloadGiftQr()"
+            [disabled]="!giftQrDataUrl() || giftQrDownloading()">
+            {{ giftQrDownloading() ? 'Preparing…' : 'Download QR' }}
+          </button>
+        </article>
+
+        <article class="gifts__card gifts__card--bank">
+          <p class="gifts__card-kicker">Bank transfer</p>
+          <dl class="gifts__bank">
+            <div>
+              <dt>Bank</dt>
+              <dd>{{ wedding.monetaryGift.bankName }}</dd>
+            </div>
+            <div>
+              <dt>Account name</dt>
+              <dd>{{ wedding.monetaryGift.accountName }}</dd>
+            </div>
+            <div>
+              <dt>Account number</dt>
+              <dd class="gifts__account-row">
+                <span class="gifts__account">{{ wedding.monetaryGift.accountNumber }}</span>
+                <button
+                  type="button"
+                  class="gifts__copy"
+                  (click)="copyGiftAccount()"
+                  [attr.aria-label]="giftAccountCopied() ? 'Account number copied' : 'Copy account number'"
+                  [attr.title]="giftAccountCopied() ? 'Copied' : 'Copy'">
+                  @if (giftAccountCopied()) {
+                    <span class="gifts__copy-label">Copied</span>
+                  } @else {
+                    <svg class="gifts__copy-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+                      <path
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="1.8"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                        d="M8 8.5V6.8A1.8 1.8 0 0 1 9.8 5h7.4A1.8 1.8 0 0 1 19 6.8v7.4a1.8 1.8 0 0 1-1.8 1.8H15.5M6.8 9H14a1.8 1.8 0 0 1 1.8 1.8V19A1.8 1.8 0 0 1 14 20.8H6.8A1.8 1.8 0 0 1 5 19v-8.2A1.8 1.8 0 0 1 6.8 9Z" />
+                    </svg>
+                  }
+                </button>
+              </dd>
+            </div>
+          </dl>
+          <p class="gifts__hint">Tap copy to save the account number</p>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider" appReveal aria-hidden="true"></div>
+
   <section class="section rsvp" id="rsvp">
     <div class="container">
       <p class="script-accent" appReveal>R S V P</p>
@@ -470,112 +554,135 @@
       </p>
 
       <div class="rsvp__form" appReveal>
-        @if (rsvpSent()) {
-          <div class="rsvp__done" role="status">
-            <p class="rsvp__done-kicker">Reply noted</p>
-            <p class="rsvp__done-name">Thank you, {{ rsvpName() }}</p>
-            @if (rsvpAttend() === 'yes') {
-              <p class="rsvp__done-line">
-                We have reserved {{ rsvpSeats() }}
-                {{ rsvpSeats() === 1 ? 'seat' : 'seats' }} for you.
-              </p>
-              @if (rsvpSong().trim()) {
-                <p class="rsvp__done-line">We'll keep {{ rsvpSong().trim() }} in mind.</p>
-              }
-            } @else {
-              <p class="rsvp__done-line">We will miss you, and we are grateful you let us know.</p>
-            }
-            <button type="button" class="btn btn--ghost" (click)="resetRsvp()">Edit reply</button>
-          </div>
-        } @else {
-          <form class="rsvp__card" (submit)="submitRsvp($event)">
-            <label class="rsvp__field">
-              <span class="rsvp__label">Your name</span>
-              <input
-                class="rsvp__input"
-                type="text"
-                name="name"
-                autocomplete="name"
-                maxlength="80"
-                placeholder="Full name"
-                [value]="rsvpName()"
-                (input)="onRsvpName($event)"
-              />
-            </label>
-
-            <fieldset class="rsvp__field">
-              <legend class="rsvp__label">Will you attend?</legend>
-              <div class="rsvp__choices">
-                <button
-                  type="button"
-                  class="rsvp__choice"
-                  [class.rsvp__choice--on]="rsvpAttend() === 'yes'"
-                  (click)="setRsvpAttend('yes')">
-                  Joyfully accept
-                </button>
-                <button
-                  type="button"
-                  class="rsvp__choice"
-                  [class.rsvp__choice--on]="rsvpAttend() === 'no'"
-                  (click)="setRsvpAttend('no')">
-                  Regretfully decline
-                </button>
+        <div class="rsvp__frame">
+          <div class="rsvp__frame-edge" aria-hidden="true"></div>
+          <div class="rsvp__panel">
+            @if (rsvpSent()) {
+              <div class="rsvp__done" role="status">
+                <p class="rsvp__done-kicker">Reply noted</p>
+                <p class="rsvp__done-name">Thank you, {{ rsvpSelectedName() }}</p>
+                @if (rsvpAttend() === 'yes') {
+                  <p class="rsvp__done-line">We joyfully await your presence.</p>
+                } @else {
+                  <p class="rsvp__done-line">We will miss you, and we are grateful you let us know.</p>
+                }
+                <button type="button" class="btn btn--ghost" (click)="resetRsvp()">Edit reply</button>
               </div>
-            </fieldset>
-
-            @if (rsvpAttend() === 'yes') {
-              <fieldset class="rsvp__field">
-                <legend class="rsvp__label">
-                  {{ reservedSeats() ? 'Reserved seats' : 'Number of seats' }}
-                </legend>
-                <div class="rsvp__seats">
-                  @for (count of rsvpSeatChoices(); track count) {
-                    <button
-                      type="button"
-                      class="rsvp__seat"
-                      [class.rsvp__seat--on]="rsvpSeats() === count"
-                      (click)="setRsvpSeats(count)">
-                      {{ count }}
-                    </button>
+            } @else {
+              <form class="rsvp__card" (submit)="submitRsvp($event)">
+                <label class="rsvp__field rsvp__field--search">
+                  <span class="rsvp__label">Your name</span>
+                  <input
+                    class="rsvp__input"
+                    type="text"
+                    name="name"
+                    autocomplete="off"
+                    maxlength="80"
+                    placeholder="Start typing your name"
+                    [value]="rsvpQuery()"
+                    (input)="onRsvpQuery($event)"
+                    (focus)="rsvpSuggestOpen.set(true)"
+                  />
+                  @if (rsvpSearching()) {
+                    <p class="rsvp__search-status">Searching…</p>
                   }
-                </div>
-              </fieldset>
+                  @if (rsvpSuggestOpen() && rsvpHits().length) {
+                    <ul class="rsvp__suggest" role="listbox">
+                      @for (hit of rsvpHits(); track hit.id) {
+                        <li>
+                          <button
+                            type="button"
+                            class="rsvp__suggest-item"
+                            (click)="selectRsvpGuest(hit)">
+                            <span class="rsvp__suggest-name">{{ hit.name }}</span>
+                            <span class="rsvp__suggest-meta">
+                              @if (hit.responded) {
+                                Already replied
+                              } @else if (hit.companionCount > 0) {
+                                +{{ hit.companionCount }} companion{{ hit.companionCount === 1 ? '' : 's' }}
+                              } @else {
+                                Guest only
+                              }
+                            </span>
+                          </button>
+                        </li>
+                      }
+                    </ul>
+                  } @else if (rsvpSuggestOpen() && rsvpQuery().trim().length >= 1 && !rsvpSearching() && !rsvpSelectedId()) {
+                    <p class="rsvp__search-status">No matching guest found. Please use the name on your invitation.</p>
+                  }
+                </label>
 
-              <label class="rsvp__field">
-                <span class="rsvp__label">Song request <span class="rsvp__optional">optional</span></span>
-                <input
-                  class="rsvp__input"
-                  type="text"
-                  name="song"
-                  maxlength="80"
-                  placeholder="A song for the celebration"
-                  [value]="rsvpSong()"
-                  (input)="onRsvpSong($event)"
-                />
-              </label>
+                @if (rsvpSelectedId(); as guestId) {
+                  <p class="rsvp__selected">
+                    Responding as <strong>{{ rsvpSelectedName() }}</strong>
+                    <button type="button" class="rsvp__change" (click)="clearRsvpSelection()">Change</button>
+                  </p>
+
+                  <fieldset class="rsvp__field">
+                    <legend class="rsvp__label">Will you attend?</legend>
+                    <div class="rsvp__choices">
+                      <button
+                        type="button"
+                        class="rsvp__choice"
+                        [class.rsvp__choice--on]="rsvpAttend() === 'yes'"
+                        (click)="setRsvpAttend('yes')">
+                        Joyfully accept
+                      </button>
+                      <button
+                        type="button"
+                        class="rsvp__choice"
+                        [class.rsvp__choice--on]="rsvpAttend() === 'no'"
+                        (click)="setRsvpAttend('no')">
+                        Regretfully decline
+                      </button>
+                    </div>
+                  </fieldset>
+
+                  @if (rsvpCompanionSlots().length) {
+                    <fieldset class="rsvp__field">
+                      <legend class="rsvp__label">Companion name{{ rsvpCompanionSlots().length === 1 ? '' : 's' }} (optional)</legend>
+                      @for (slot of rsvpCompanionSlots(); track $index) {
+                        <input
+                          class="rsvp__input rsvp__input--companion"
+                          type="text"
+                          maxlength="120"
+                          [placeholder]="'Companion ' + ($index + 1)"
+                          [value]="slot"
+                          (input)="onCompanionName($index, $event)"
+                        />
+                      }
+                    </fieldset>
+                  }
+
+                  <label class="rsvp__field">
+                    <span class="rsvp__label">Short message (optional)</span>
+                    <textarea
+                      class="rsvp__input rsvp__note"
+                      name="message"
+                      maxlength="500"
+                      rows="3"
+                      placeholder="A note for the couple"
+                      [value]="rsvpMessage()"
+                      (input)="onRsvpMessage($event)"
+                    ></textarea>
+                  </label>
+
+                  @if (rsvpError()) {
+                    <p class="rsvp__error">{{ rsvpError() }}</p>
+                  }
+
+                  <button
+                    type="submit"
+                    class="btn rsvp__submit"
+                    [disabled]="!rsvpAttend() || rsvpSubmitting()">
+                    {{ rsvpSubmitting() ? 'Sending…' : 'Send RSVP' }}
+                  </button>
+                }
+              </form>
             }
-
-            <label class="rsvp__field">
-              <span class="rsvp__label">A note <span class="rsvp__optional">optional</span></span>
-              <textarea
-                class="rsvp__input rsvp__note"
-                name="note"
-                rows="3"
-                maxlength="240"
-                placeholder="Dietary notes or a wish"
-                [value]="rsvpNote()"
-                (input)="onRsvpNote($event)"
-              ></textarea>
-            </label>
-
-            @if (rsvpError()) {
-              <p class="rsvp__error" role="alert">{{ rsvpError() }}</p>
-            }
-
-            <button type="submit" class="btn rsvp__submit">Send reply</button>
-            <p class="rsvp__preview">Preview only. Replies stay on this page for now.</p>
-          </form>
-        }
+          </div>
+        </div>
       </div>
 
       <p class="rsvp__or" appReveal>— or —</p>

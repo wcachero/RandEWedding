@@ -11,12 +11,12 @@ export class AudioService {
   readonly playing = signal(false);
 
   /** Shown in the disc label while music is playing. */
-  readonly trackTitle = 'I Do Cherish You';
+  readonly trackTitle = 'I Do (Cherish You)';
 
   private ensure(): HTMLAudioElement {
     if (!this.audio) {
       const el = new Audio('audio/i-do-cherish-you.mp3');
-      el.loop = true;
+      el.loop = false;
       el.preload = 'auto';
       el.addEventListener('play', () => this.playing.set(true));
       el.addEventListener('pause', () => this.playing.set(false));

@@ -67,6 +67,17 @@ export interface Wedding {
   readonly reception: WeddingEvent;
   readonly weather: string;
   readonly gifts: string;
+  /** Optional monetary gift details shown in the Gifts section. */
+  readonly monetaryGift: {
+    readonly note: string;
+    readonly bankName: string;
+    readonly accountName: string;
+    readonly accountNumber: string;
+    readonly gcashName: string;
+    readonly gcashNumber: string;
+    /** Payload encoded into the mock QR (preview only). */
+    readonly qrPayload: string;
+  };
   readonly hashtags: readonly string[];
   readonly schedule: readonly DayBeat[];
   readonly rites: readonly WeddingRite[];
@@ -149,6 +160,15 @@ export const WEDDING: Wedding = {
     'December mornings in San Pablo are typically dry and mild. A light wrap is welcome in the church.',
   gifts:
     'Your presence is the gift we hope for. Should you wish to bless us further, a monetary gift would be warmly received at the reception.',
+  monetaryGift: {
+    note: 'Your presence is the gift we treasure most. If you wish to bless us further, you may send a monetary gift through the details below.',
+    bankName: 'BDO Unibank',
+    accountName: 'Edward Cachero / Rowelyn Cachero',
+    accountNumber: '0042 7812 3456',
+    gcashName: 'Rowelyn Cachero',
+    gcashNumber: '0917 555 0101',
+    qrPayload: 'MOCK-GIFT|BDO|004278123456|Edward & Rowie Wedding',
+  },
   hashtags: [
     '#RandEWedding',
     '#EdwardAndRowie',

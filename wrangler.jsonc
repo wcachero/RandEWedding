@@ -1,12 +1,43 @@
 {
   "$schema": "node_modules/wrangler/config-schema.json",
-  "name": "gandkwedding",
+  "name": "randewedding",
   "compatibility_date": "2026-09-11",
+  "main": "worker/index.ts",
   "observability": {
     "enabled": true
   },
   "assets": {
     "directory": "dist",
-    "not_found_handling": "single-page-application"
+    "not_found_handling": "single-page-application",
+    "binding": "ASSETS",
+    "run_worker_first": ["/api/*"]
+  },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "randewedding-rsvp",
+      "database_id": "0227c10e-9fde-4e93-bd5b-9149dbd80d06",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "ratelimits": [
+    {
+      "name": "RATE_LIMIT_PUBLIC",
+      "namespace_id": "9101",
+      "simple": { "limit": 60, "period": 60 }
+    },
+    {
+      "name": "RATE_LIMIT_LOGIN",
+      "namespace_id": "9102",
+      "simple": { "limit": 8, "period": 60 }
+    },
+    {
+      "name": "RATE_LIMIT_ADMIN",
+      "namespace_id": "9103",
+      "simple": { "limit": 120, "period": 60 }
+    }
+  ],
+  "vars": {
+    "ADMIN_BOOTSTRAP_USER": "admin000"
   }
 }

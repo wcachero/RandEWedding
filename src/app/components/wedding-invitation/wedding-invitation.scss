@@ -2189,6 +2189,236 @@
   }
 }
 
+/* ----- Monetary gifts ----------------------------------------------------- */
+.gifts {
+  background: linear-gradient(180deg, #e7f4ea 0%, #d5ead8 46%, #f3e6c4 100%);
+  text-align: center;
+
+  .section__label { color: #8d6a18; }
+  .section__title { color: #0e3d32; }
+
+  &__box {
+    display: block;
+    width: min(9.5rem, 42vw);
+    height: auto;
+    margin: 0.35rem auto clamp(1.15rem, 3vw, 1.65rem);
+    filter: drop-shadow(0 10px 18px rgba(7, 26, 20, 0.22));
+  }
+
+  &__note {
+    max-width: 36rem;
+    margin: 0 auto clamp(1.6rem, 4vw, 2.35rem);
+    font-family: var(--font-heading);
+    font-size: clamp(1.08rem, 0.95rem + 0.4vw, 1.28rem);
+    line-height: 1.55;
+    color: #1a322c;
+  }
+
+  &__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: clamp(1rem, 3vw, 1.75rem);
+    max-width: min(720px, 100%);
+    margin-inline: auto;
+    text-align: left;
+
+    @media (max-width: 720px) {
+      grid-template-columns: 1fr;
+      max-width: 24rem;
+    }
+  }
+
+  &__card {
+    padding: clamp(1.25rem, 3.5vw, 1.75rem);
+    border: 1px solid rgba(201, 162, 39, 0.72);
+    background: rgba(251, 250, 246, 0.42);
+  }
+
+  &__card-kicker {
+    margin: 0 0 1rem;
+    font-family: var(--font-ui);
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    font-size: 0.6rem;
+    color: #8d6a18;
+    text-align: center;
+  }
+
+  &__qr {
+    display: grid;
+    place-items: center;
+    width: min(100%, 12.5rem);
+    aspect-ratio: 1;
+    margin: 0 auto 0.85rem;
+    padding: 0.55rem;
+    background: #fbfaf6;
+    border: 1px solid rgba(14, 61, 50, 0.18);
+  }
+
+  &__qr-code {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  &__qr-skeleton {
+    display: block;
+    width: 100%;
+    height: 100%;
+    background:
+      repeating-linear-gradient(
+        90deg,
+        rgba(14, 61, 50, 0.12) 0 8px,
+        transparent 8px 16px
+      ),
+      repeating-linear-gradient(
+        0deg,
+        rgba(14, 61, 50, 0.12) 0 8px,
+        transparent 8px 16px
+      );
+  }
+
+  &__qr-caption {
+    margin: 0 0 1rem;
+    text-align: center;
+    font-family: var(--font-ui);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-size: 0.55rem;
+    color: #8d6a18;
+  }
+
+  &__gcash {
+    display: grid;
+    gap: 0.2rem;
+    text-align: center;
+  }
+
+  &__gcash-label {
+    font-family: var(--font-ui);
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    font-size: 0.56rem;
+    color: #8d6a18;
+  }
+
+  &__gcash-name {
+    font-family: var(--font-heading);
+    font-size: 1.15rem;
+    color: #0e3d32;
+  }
+
+  &__gcash-number {
+    font-family: var(--font-heading);
+    letter-spacing: 0.08em;
+    font-size: 1.05rem;
+    color: #1a322c;
+  }
+
+  &__bank {
+    display: grid;
+    gap: 1rem;
+    margin: 0;
+
+    div {
+      margin: 0;
+    }
+
+    dt {
+      margin: 0 0 0.2rem;
+      font-family: var(--font-ui);
+      letter-spacing: 0.18em;
+      text-transform: uppercase;
+      font-size: 0.56rem;
+      color: #8d6a18;
+    }
+
+    dd {
+      margin: 0;
+      font-family: var(--font-heading);
+      font-size: clamp(1.1rem, 0.95rem + 0.45vw, 1.35rem);
+      line-height: 1.35;
+      color: #0e3d32;
+    }
+  }
+
+  &__account-row {
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    flex-wrap: wrap;
+  }
+
+  &__account {
+    letter-spacing: 0.08em;
+  }
+
+  &__copy {
+    appearance: none;
+    flex: 0 0 auto;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.85rem;
+    height: 1.85rem;
+    padding: 0 0.35rem;
+    border: 1px solid rgba(201, 162, 39, 0.75);
+    background: rgba(251, 250, 246, 0.55);
+    color: #0e3d32;
+    cursor: pointer;
+    transition: color 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      color: #8d6a18;
+      background: #fbfaf6;
+      border-color: #c9a227;
+    }
+
+    &:focus-visible {
+      outline: 2px solid #c9a227;
+      outline-offset: 2px;
+    }
+  }
+
+  &__copy-icon {
+    width: 0.95rem;
+    height: 0.95rem;
+    display: block;
+  }
+
+  &__copy-label {
+    font-family: var(--font-ui);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    font-size: 0.48rem;
+    color: #8d6a18;
+    padding-inline: 0.2rem;
+  }
+
+  &__hint {
+    margin: 1.15rem 0 0;
+    font-family: var(--font-ui);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 0.55rem;
+    color: #8d6a18;
+  }
+
+  &__download {
+    display: inline-flex;
+    margin: 1.15rem auto 0;
+    width: 100%;
+    justify-content: center;
+  }
+
+  &__card--qr {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+}
+
 /* ----- RSVP --------------------------------------------------------------- */
 .rsvp {
   background:
@@ -2242,31 +2472,56 @@
   }
 
   &__form {
-    max-width: 34rem;
+    max-width: min(34rem, 100%);
     margin: 0 auto var(--space-6);
-    padding: clamp(1.25rem, 3vw, 2rem);
-    border-radius: 14px;
-    border: 1px solid #c9a227;
-    background: linear-gradient(165deg, #e8f4ea 0%, #dcecd8 46%, #f3e6c4 100%);
-    box-shadow: var(--shadow-sm);
+    padding: 0;
+    border: 0;
+    background: none;
+    box-shadow: none;
     text-align: left;
   }
 
-  &__card,
-  &__done {
-    display: flex;
-    flex-direction: column;
-    gap: 1.05rem;
+  &__frame {
+    position: relative;
+    overflow: visible;
+    border: 1px solid #c9a227;
+    background:
+      linear-gradient(165deg, rgba(232, 244, 234, 0.96) 0%, rgba(220, 236, 216, 0.92) 46%, rgba(243, 230, 196, 0.96) 100%);
+    box-shadow:
+      inset 0 0 0 8px rgba(14, 61, 50, 0.06),
+      0 18px 40px rgba(7, 26, 20, 0.28);
+  }
+
+  &__frame-edge {
+    position: absolute;
+    inset: 10px;
+    z-index: 1;
+    pointer-events: none;
+    border: 1px solid rgba(201, 162, 39, 0.55);
+  }
+
+  &__panel {
+    position: relative;
+    z-index: 2;
+    padding: 1.55rem 1.25rem 1.4rem;
+  }
+
+  &__card {
+    display: grid;
+    gap: 1rem;
   }
 
   &__field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.4rem;
+    display: grid;
+    gap: 0.45rem;
     margin: 0;
-    padding: 0;
     border: 0;
+    padding: 0;
     min-inline-size: 0;
+
+    &--search {
+      position: relative;
+    }
   }
 
   &__label {
@@ -2274,42 +2529,107 @@
     text-transform: uppercase;
     letter-spacing: 0.16em;
     font-size: 0.62rem;
-    font-weight: 500;
-    color: #0e3d32;
-  }
-
-  &__optional {
-    letter-spacing: 0.12em;
-    color: var(--color-text-muted);
+    color: #8d6a18;
   }
 
   &__input {
     width: 100%;
-    padding: 0.75rem 0.9rem;
-    border: 1px solid rgba(201, 162, 39, 0.45);
-    border-radius: 8px;
+    box-sizing: border-box;
+    padding: 0.7rem 0.8rem;
+    border: 1px solid rgba(201, 162, 39, 0.55);
     background: #fff;
-    color: var(--color-text);
-    font-family: var(--font-heading);
+    color: #0e3d32;
+    font: inherit;
     font-size: 1.15rem;
-    line-height: 1.4;
-    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 
-    &::placeholder {
-      color: #8aa096;
+    &--companion + &--companion {
+      margin-top: 0.4rem;
     }
 
-    &:focus {
+    &:focus-visible {
       outline: 2px solid #c9a227;
-      outline-offset: 1px;
-      border-color: #c9a227;
-      box-shadow: 0 0 0 4px rgba(201, 162, 39, 0.18);
+      outline-offset: 2px;
     }
   }
 
   &__note {
     resize: vertical;
     min-height: 5.5rem;
+  }
+
+  &__search-status {
+    margin: 0.15rem 0 0;
+    font-size: 0.95rem;
+    color: #4d635b;
+  }
+
+  &__suggest {
+    list-style: none;
+    margin: 0.35rem 0 0;
+    padding: 0.25rem;
+    border: 1px solid rgba(201, 162, 39, 0.55);
+    background: #fff;
+    max-height: 14rem;
+    overflow: auto;
+  }
+
+  &__suggest-item {
+    width: 100%;
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 0.35rem 0.75rem;
+    text-align: left;
+    border: 0;
+    background: transparent;
+    color: #0e3d32;
+    font: inherit;
+    font-size: 1.05rem;
+    padding: 0.55rem 0.6rem;
+    cursor: pointer;
+
+    &:hover,
+    &:focus-visible {
+      background: rgba(14, 61, 50, 0.08);
+    }
+  }
+
+  &__suggest-name {
+    font-family: var(--font-heading);
+  }
+
+  &__suggest-meta {
+    font-family: var(--font-ui);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    font-size: 0.58rem;
+    color: #8d6a18;
+    align-self: center;
+  }
+
+  &__selected {
+    margin: 0;
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    gap: 0.45rem 0.75rem;
+    color: #0e3d32;
+    font-size: 1.05rem;
+  }
+
+  &__change {
+    appearance: none;
+    border: 0;
+    background: none;
+    color: #8d6a18;
+    font-family: var(--font-ui);
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    font-size: 0.58rem;
+    text-decoration: underline;
+    text-underline-offset: 3px;
+    cursor: pointer;
+    padding: 0;
   }
 
   &__choices,

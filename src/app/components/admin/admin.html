@@ -1,0 +1,203 @@
+<div class="admin">
+  <header class="admin__top">
+    <div>
+      <p class="admin__kicker">Edward &amp; Rowie</p>
+      <h1 class="admin__title">Wedding Admin</h1>
+    </div>
+    <div class="admin__top-actions">
+      @if (username(); as user) {
+        <span class="admin__user">{{ user }}</span>
+        <button type="button" class="admin__btn" (click)="logout()">Log out</button>
+      }
+      <a class="admin__link" routerLink="/">View invitation</a>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <p class="admin__status">Checking session…</p>
+  } @else if (!username()) {
+    <form class="admin__login" (submit)="login($event)">
+      <h2>Sign in</h2>
+      <label>
+        <span>Username</span>
+        <input
+          type="text"
+          name="username"
+          autocomplete="username"
+          [ngModel]="loginUser()"
+          (ngModelChange)="loginUser.set($event)"
+          required />
+      </label>
+      <label>
+        <span>Password</span>
+        <input
+          type="password"
+          name="password"
+          autocomplete="current-password"
+          [ngModel]="loginPass()"
+          (ngModelChange)="loginPass.set($event)"
+          required />
+      </label>
+      @if (error()) {
+        <p class="admin__error">{{ error() }}</p>
+      }
+      <button type="submit" class="admin__btn admin__btn--primary">Log in</button>
+    </form>
+  } @else {
+    <nav class="admin__tabs" aria-label="Admin sections">
+      <button
+        type="button"
+        class="admin__tab"
+        [class.admin__tab--on]="tab() === 'guests'"
+        (click)="setTab('guests')">
+        Guest list
+      </button>
+      <button
+        type="button"
+        class="admin__tab"
+        [class.admin__tab--on]="tab() === 'respondents'"
+        (click)="setTab('respondents')">
+        Respondents
+      </button>
+      <button type="button" class="admin__btn" (click)="refresh()">Refresh</button>
+    </nav>
+
+    @if (notice()) {
+      <p class="admin__notice">{{ notice() }}</p>
+    }
+    @if (error()) {
+      <p class="admin__error">{{ error() }}</p>
+    }
+
+    @if (tab() === 'guests') {
+      <section class="admin__panel">
+        <form class="admin__add" (submit)="addGuest($event)">
+          <h2>Add guest</h2>
+          <div class="admin__add-row">
+            <label>
+              <span>Name</span>
+              <input
+                type="text"
+                [ngModel]="newName()"
+                (ngModelChange)="newName.set($event)"
+                name="newName"
+                required />
+            </label>
+            <label>
+              <span>Companions allowed</span>
+              <input
+                type="number"
+                min="0"
+                max="20"
+                [ngModel]="newCompanions()"
+                (ngModelChange)="newCompanions.set(+$event || 0)"
+                name="newCompanions" />
+            </label>
+            <button type="submit" class="admin__btn admin__btn--primary">Add</button>
+          </div>
+          <p class="admin__hint">0 companions means only that guest may RSVP for themselves.</p>
+        </form>
+
+        <div class="admin__table-wrap">
+          <table class="admin__table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Companions</th>
+                <th>Status</th>
+                <th>Updated</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (g of guests(); track g.id) {
+                <tr>
+                  <td>
+                    <input
+                      class="admin__inline"
+                      [value]="g.name"
+                      #nameInput
+                      (keydown.enter)="saveGuest(g, nameInput.value, companionInput.value)" />
+                  </td>
+                  <td>
+                    <input
+                      class="admin__inline admin__inline--num"
+                      type="number"
+                      min="0"
+                      max="20"
+                      [value]="g.companionCount"
+                      #companionInput
+                      (keydown.enter)="saveGuest(g, nameInput.value, companionInput.value)" />
+                  </td>
+                  <td>{{ statusLabel(g) }}</td>
+                  <td>{{ g.dateUpdated | date: 'MMM d, y, h:mm a' }}</td>
+                  <td class="admin__actions">
+                    <button
+                      type="button"
+                      class="admin__btn"
+                      (click)="saveGuest(g, nameInput.value, companionInput.value)">
+                      Save
+                    </button>
+                    @if (g.dateResponded) {
+                      <button type="button" class="admin__btn" (click)="clearResponse(g)">
+                        Clear RSVP
+                      </button>
+                    }
+                    <button type="button" class="admin__btn admin__btn--danger" (click)="removeGuest(g)">
+                      Delete
+                    </button>
+                  </td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5">No guests yet. Add names guests will search for.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    } @else {
+      <section class="admin__panel">
+        <div class="admin__table-wrap">
+          <table class="admin__table">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Reply</th>
+                <th>Message</th>
+                <th>Companions</th>
+                <th>Responded</th>
+              </tr>
+            </thead>
+            <tbody>
+              @for (r of respondents(); track r.id) {
+                <tr>
+                  <td>{{ r.name }}</td>
+                  <td>{{ statusLabel(r) }}</td>
+                  <td>{{ r.message || '—' }}</td>
+                  <td>
+                    @if (r.companions.length) {
+                      <ul class="admin__companions">
+                        @for (c of r.companions; track c.id) {
+                          <li>{{ c.name || 'Unnamed companion' }}</li>
+                        }
+                      </ul>
+                    } @else {
+                      —
+                    }
+                  </td>
+                  <td>{{ r.dateResponded | date: 'MMM d, y, h:mm a' }}</td>
+                </tr>
+              } @empty {
+                <tr>
+                  <td colspan="5">No responses yet.</td>
+                </tr>
+              }
+            </tbody>
+          </table>
+        </div>
+      </section>
+    }
+  }
+</div>

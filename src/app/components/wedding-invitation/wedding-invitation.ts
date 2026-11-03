@@ -10,12 +10,15 @@ import {
   inject,
   signal,
 } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser';
 import QRCode from 'qrcode';
+import { Subject, catchError, debounceTime, distinctUntilChanged, of, switchMap, tap } from 'rxjs';
 import { GALLERY_FOCUS, WEDDING, WeddingEvent } from '../../data/wedding';
 import { readGuestInvite } from '../../data/invite-guest';
 import { Reveal } from '../../directives/reveal';
 import { Parallax } from '../../directives/parallax';
+import { GuestSearchHit, RsvpApi } from '../../services/rsvp-api';
 
 interface Countdown {
   days: number;
@@ -47,6 +50,7 @@ export class WeddingInvitation {
   private readonly destroyRef = inject(DestroyRef);
   private readonly host = inject(ElementRef<HTMLElement>);
   private readonly injector = inject(Injector);
+  private readonly rsvpApi = inject(RsvpApi);
   protected readonly wedding = WEDDING;
 
   /** Same mark as `.nav__logo`, burned into the centre of the QR at a scan-safe size. */
@@ -54,22 +58,29 @@ export class WeddingInvitation {
   protected readonly ceremony = this.toEventView(WEDDING.ceremony);
   protected readonly reception = this.toEventView(WEDDING.reception);
 
-  /** Mock RSVP — kept on the page until a real form is connected. */
+  /** RSVP form — guest-list search + submit. */
+  protected readonly rsvpQuery = signal('');
+  protected readonly rsvpHits = signal<GuestSearchHit[]>([]);
+  protected readonly rsvpSearching = signal(false);
+  protected readonly rsvpSuggestOpen = signal(false);
+  protected readonly rsvpSelectedId = signal<number | null>(null);
+  protected readonly rsvpSelectedName = signal('');
+  protected readonly rsvpAttend = signal<'yes' | 'no' | null>(null);
+  protected readonly rsvpMessage = signal('');
+  protected readonly rsvpCompanionSlots = signal<string[]>([]);
+  protected readonly rsvpError = signal('');
+  protected readonly rsvpSubmitting = signal(false);
+  protected readonly rsvpSent = signal(false);
+  private readonly rsvpSearch$ = new Subject<string>();
+
+  /** Guest personalization from the invite link (?to=&seats=). */
   protected readonly guestName = signal('');
   protected readonly reservedSeats = signal<number | null>(null);
-  protected readonly rsvpName = signal('');
-  protected readonly rsvpAttend = signal<'yes' | 'no' | ''>('');
-  protected readonly rsvpSeats = signal(1);
-  protected readonly rsvpNote = signal('');
-  protected readonly rsvpSong = signal('');
-  protected readonly rsvpSent = signal(false);
-  protected readonly rsvpError = signal('');
-  protected readonly rsvpSeatChoices = computed(() => {
-    const reserved = this.reservedSeats();
-    const max = reserved ?? 4;
-    return Array.from({ length: max }, (_, i) => i + 1);
-  });
   protected readonly hashtagCopied = signal('');
+  protected readonly giftQrDataUrl = signal<string | null>(null);
+  protected readonly giftQrDownloading = signal(false);
+  protected readonly giftAccountCopied = signal(false);
+  private giftAccountCopiedTimer: ReturnType<typeof setTimeout> | null = null;
 
   /** Current time, ticked every second to drive the countdown. */
   private readonly now = signal(Date.now());
@@ -460,6 +471,32 @@ export class WeddingInvitation {
     const id = setInterval(() => this.now.set(Date.now()), 1000);
     this.destroyRef.onDestroy(() => clearInterval(id));
 
+    this.rsvpSearch$
+      .pipe(
+        debounceTime(280),
+        distinctUntilChanged(),
+        tap((q) => {
+          if (q.trim().length < 1) {
+            this.rsvpHits.set([]);
+            this.rsvpSearching.set(false);
+          } else {
+            this.rsvpSearching.set(true);
+          }
+        }),
+        switchMap((q) => {
+          const query = q.trim();
+          if (query.length < 1) return of({ guests: [] as GuestSearchHit[] });
+          return this.rsvpApi.searchGuests(query).pipe(
+            catchError(() => of({ guests: [] as GuestSearchHit[] })),
+          );
+        }),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((res) => {
+        this.rsvpHits.set(res.guests);
+        this.rsvpSearching.set(false);
+      });
+
     // Resolve the live URL and render the QR code only in the browser
     // (window is unavailable during prerendering).
     afterNextRender(() => {
@@ -474,16 +511,19 @@ export class WeddingInvitation {
         .then((data) => this.qrDataUrl.set(data))
         .catch(() => this.qrDataUrl.set(null));
 
+      QRCode.toDataURL(this.wedding.monetaryGift.qrPayload, {
+        errorCorrectionLevel: 'M',
+        margin: 1,
+        width: 280,
+        color: { dark: '#0e3d32', light: '#fbfaf6' },
+      })
+        .then((data) => this.giftQrDataUrl.set(data))
+        .catch(() => this.giftQrDataUrl.set(null));
+
       // Opened from Messenger's "Open in Chrome" so a real tap can save the file.
       const guest = readGuestInvite(window.location.search);
       this.guestName.set(guest.name);
       this.reservedSeats.set(guest.seats);
-      if (guest.name) {
-        this.rsvpName.set(guest.name);
-      }
-      if (guest.seats) {
-        this.rsvpSeats.set(guest.seats);
-      }
 
       const save = new URLSearchParams(window.location.search).get('save');
       if ((save === 'invite' || save === 'qr') && !this.isRestrictedInAppBrowser()) {
@@ -496,44 +536,105 @@ export class WeddingInvitation {
     });
   }
 
-  protected onRsvpName(event: Event): void {
-    this.rsvpName.set((event.target as HTMLInputElement).value);
-    if (this.rsvpError()) {
-      this.rsvpError.set('');
+  protected onRsvpQuery(event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.rsvpQuery.set(value);
+    this.rsvpSuggestOpen.set(true);
+    if (this.rsvpSelectedId()) {
+      this.rsvpSelectedId.set(null);
+      this.rsvpSelectedName.set('');
+      this.rsvpAttend.set(null);
+      this.rsvpCompanionSlots.set([]);
+      this.rsvpSent.set(false);
     }
+    this.rsvpSearch$.next(value);
   }
 
-  protected onRsvpNote(event: Event): void {
-    this.rsvpNote.set((event.target as HTMLTextAreaElement).value);
+  protected selectRsvpGuest(hit: GuestSearchHit): void {
+    this.rsvpSelectedId.set(hit.id);
+    this.rsvpSelectedName.set(hit.name);
+    this.rsvpQuery.set(hit.name);
+    this.rsvpHits.set([]);
+    this.rsvpSuggestOpen.set(false);
+    this.rsvpError.set('');
+    this.rsvpSent.set(false);
+    this.rsvpCompanionSlots.set(Array.from({ length: Math.max(0, hit.companionCount) }, () => ''));
+    if (hit.responded && hit.joyfullyAccept != null) {
+      this.rsvpAttend.set(hit.joyfullyAccept ? 'yes' : 'no');
+    } else {
+      this.rsvpAttend.set(null);
+    }
+    this.rsvpApi.getGuest(hit.id).subscribe({
+      next: ({ guest }) => {
+        this.rsvpMessage.set(guest.message || '');
+        if (guest.joyfullyAccept != null) {
+          this.rsvpAttend.set(guest.joyfullyAccept ? 'yes' : 'no');
+        }
+        const slots = Array.from({ length: Math.max(0, guest.companionCount) }, (_, i) =>
+          guest.companions[i]?.name || '',
+        );
+        this.rsvpCompanionSlots.set(slots);
+      },
+      error: () => undefined,
+    });
   }
 
-  protected onRsvpSong(event: Event): void {
-    this.rsvpSong.set((event.target as HTMLInputElement).value);
+  protected clearRsvpSelection(): void {
+    this.rsvpSelectedId.set(null);
+    this.rsvpSelectedName.set('');
+    this.rsvpAttend.set(null);
+    this.rsvpMessage.set('');
+    this.rsvpCompanionSlots.set([]);
+    this.rsvpError.set('');
+    this.rsvpSent.set(false);
+    this.rsvpSuggestOpen.set(true);
+    this.rsvpSearch$.next(this.rsvpQuery());
   }
 
   protected setRsvpAttend(value: 'yes' | 'no'): void {
     this.rsvpAttend.set(value);
-    this.rsvpError.set('');
   }
 
-  protected setRsvpSeats(count: number): void {
-    this.rsvpSeats.set(count);
+  protected onRsvpMessage(event: Event): void {
+    this.rsvpMessage.set((event.target as HTMLTextAreaElement).value);
+  }
+
+  protected onCompanionName(index: number, event: Event): void {
+    const value = (event.target as HTMLInputElement).value;
+    this.rsvpCompanionSlots.update((slots) => {
+      const next = slots.slice();
+      next[index] = value;
+      return next;
+    });
   }
 
   protected submitRsvp(event: Event): void {
     event.preventDefault();
-    const name = this.rsvpName().trim();
-    if (!name) {
-      this.rsvpError.set('Please tell us your name.');
+    const guestId = this.rsvpSelectedId();
+    const attend = this.rsvpAttend();
+    if (!guestId || !attend) {
+      this.rsvpError.set('Please choose your name and attendance.');
       return;
     }
-    if (!this.rsvpAttend()) {
-      this.rsvpError.set('Please let us know if you can attend.');
-      return;
-    }
-    this.rsvpName.set(name);
+    this.rsvpSubmitting.set(true);
     this.rsvpError.set('');
-    this.rsvpSent.set(true);
+    this.rsvpApi
+      .submitRsvp({
+        guestId,
+        joyfullyAccept: attend === 'yes',
+        message: this.rsvpMessage().trim() || undefined,
+        companions: this.rsvpCompanionSlots().map((name) => ({ name: name.trim() || null })),
+      })
+      .subscribe({
+        next: () => {
+          this.rsvpSubmitting.set(false);
+          this.rsvpSent.set(true);
+        },
+        error: (err) => {
+          this.rsvpSubmitting.set(false);
+          this.rsvpError.set(err?.error?.error || 'Could not send your RSVP. Please try again.');
+        },
+      });
   }
 
   protected resetRsvp(): void {
@@ -1599,6 +1700,142 @@ export class WeddingInvitation {
     }
   }
 
+  /** Download the monetary-gift QR with bank details. */
+  protected async downloadGiftQr(): Promise<void> {
+    const qr = this.giftQrDataUrl();
+    if (!qr || this.giftQrDownloading()) {
+      return;
+    }
+
+    this.giftQrDownloading.set(true);
+    try {
+      const dataUrl = await this.buildDownloadableGiftQrCard(qr);
+      const filename = `${this.wedding.groom.toLowerCase()}-${this.wedding.bride.toLowerCase()}-gift-qr.jpg`;
+      await this.saveOrShareImage(
+        dataUrl,
+        filename,
+        `${this.wedding.groom} & ${this.wedding.bride} Gift QR`,
+      );
+    } catch {
+      /* keep the gifts section usable if canvas/fonts fail */
+    } finally {
+      this.giftQrDownloading.set(false);
+    }
+  }
+
+  /** Cream card with gift QR, GCash, and bank account details. */
+  private async buildDownloadableGiftQrCard(qrDataUrl: string): Promise<string> {
+    if (document.fonts?.ready) {
+      await document.fonts.ready;
+    }
+
+    const qrImg = await this.loadImage(qrDataUrl);
+    const gift = this.wedding.monetaryGift;
+    const width = 1080;
+    const height = 1480;
+    const canvas = document.createElement('canvas');
+    canvas.width = width;
+    canvas.height = height;
+    const ctx = canvas.getContext('2d');
+    if (!ctx) {
+      throw new Error('Canvas unavailable');
+    }
+
+    const bg = ctx.createLinearGradient(0, 0, 0, height);
+    bg.addColorStop(0, '#f4ead8');
+    bg.addColorStop(0.45, '#fbf6ec');
+    bg.addColorStop(1, '#ead9c4');
+    ctx.fillStyle = bg;
+    ctx.fillRect(0, 0, width, height);
+
+    const glow = ctx.createRadialGradient(width / 2, height * 0.28, 40, width / 2, height * 0.35, width * 0.55);
+    glow.addColorStop(0, 'rgba(14, 61, 50, 0.28)');
+    glow.addColorStop(1, 'rgba(14, 61, 50, 0)');
+    ctx.fillStyle = glow;
+    ctx.fillRect(0, 0, width, height);
+
+    const inset = 48;
+    ctx.strokeStyle = 'rgba(201, 162, 39, 0.95)';
+    ctx.lineWidth = 3;
+    ctx.strokeRect(inset, inset, width - inset * 2, height - inset * 2);
+    ctx.strokeStyle = 'rgba(201, 162, 39, 0.55)';
+    ctx.lineWidth = 1.5;
+    ctx.strokeRect(inset + 14, inset + 14, width - (inset + 14) * 2, height - (inset + 14) * 2);
+
+    ctx.fillStyle = '#0e3d32';
+    ctx.textAlign = 'center';
+    ctx.font = '400 88px "Great Vibes", cursive';
+    ctx.fillText(`${this.wedding.groom} & ${this.wedding.bride}`, width / 2, 210);
+
+    this.drawGoldRule(ctx, width / 2, 255, 260);
+
+    ctx.fillStyle = '#b8943a';
+    ctx.font = '600 26px Cinzel, serif';
+    this.fillSpacedText(ctx, 'MONETARY GIFT', width / 2, 310, 8);
+
+    const qrSize = 520;
+    const qrX = (width - qrSize) / 2;
+    const qrY = 360;
+    ctx.fillStyle = '#fbfaf6';
+    ctx.fillRect(qrX - 18, qrY - 18, qrSize + 36, qrSize + 36);
+    ctx.strokeStyle = 'rgba(201, 162, 39, 0.85)';
+    ctx.lineWidth = 2;
+    ctx.strokeRect(qrX - 18, qrY - 18, qrSize + 36, qrSize + 36);
+    ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
+
+    let y = qrY + qrSize + 78;
+    ctx.fillStyle = '#8d6a18';
+    ctx.font = '600 22px Cinzel, serif';
+    this.fillSpacedText(ctx, 'GCASH', width / 2, y, 6);
+    y += 42;
+    ctx.fillStyle = '#0e3d32';
+    ctx.font = '500 34px "Cormorant Garamond", serif';
+    ctx.fillText(gift.gcashName, width / 2, y);
+    y += 40;
+    ctx.fillText(gift.gcashNumber, width / 2, y);
+
+    y += 58;
+    this.drawGoldRule(ctx, width / 2, y, 180);
+    y += 52;
+
+    ctx.fillStyle = '#8d6a18';
+    ctx.font = '600 22px Cinzel, serif';
+    this.fillSpacedText(ctx, 'BANK TRANSFER', width / 2, y, 6);
+    y += 44;
+    ctx.fillStyle = '#0e3d32';
+    ctx.font = '500 32px "Cormorant Garamond", serif';
+    ctx.fillText(gift.bankName, width / 2, y);
+    y += 40;
+    ctx.fillText(gift.accountName, width / 2, y);
+    y += 44;
+    ctx.font = '600 38px "Cormorant Garamond", serif';
+    ctx.fillText(gift.accountNumber, width / 2, y);
+
+    y += 58;
+    ctx.fillStyle = '#4d635b';
+    ctx.font = 'italic 24px "Cormorant Garamond", serif';
+    ctx.fillText('Mock QR · Preview only', width / 2, y);
+
+    return canvas.toDataURL('image/jpeg', 0.92);
+  }
+
+  /** Copy the mock bank account number for monetary gifts. */
+  protected async copyGiftAccount(): Promise<void> {
+    const digits = this.wedding.monetaryGift.accountNumber.replace(/\s+/g, '');
+    const ok = await this.copyLink(digits);
+    if (this.giftAccountCopiedTimer) {
+      clearTimeout(this.giftAccountCopiedTimer);
+      this.giftAccountCopiedTimer = null;
+    }
+    this.giftAccountCopied.set(ok);
+    if (ok) {
+      this.giftAccountCopiedTimer = setTimeout(() => {
+        this.giftAccountCopied.set(false);
+        this.giftAccountCopiedTimer = null;
+      }, 1800);
+    }
+  }
+
   /** Copy the invitation link and reflect it in the chooser. */
   protected async copyShareLink(): Promise<void> {
     const ok = await this.copyLink(this.shareUrl() || window.location.href);
@@ -1675,7 +1912,7 @@ export class WeddingInvitation {
     let idleId: ReturnType<typeof setTimeout> | null = null;
 
     const showNav = () => this.navHidden.set(false);
-    const sectionIds = ['details', 'venue', 'day', 'attire', 'entourage', 'moments', 'rsvp'];
+    const sectionIds = ['details', 'venue', 'day', 'attire', 'entourage', 'moments', 'gifts', 'rsvp'];
     let lastTab = '';
 
     const onScroll = () => {

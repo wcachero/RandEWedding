@@ -3,10 +3,15 @@
   "version": "0.0.0",
   "scripts": {
     "ng": "ng",
-    "start": "ng serve",
+    "start": "ng serve --host 127.0.0.1 --port 4201",
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
-    "test": "ng test"
+    "test": "ng test",
+    "api": "wrangler dev --port 8787 --local --persist-to .wrangler/state",
+    "db:migrate:local": "wrangler d1 migrations apply randewedding-rsvp --local --persist-to .wrangler/state",
+    "db:migrate:remote": "wrangler d1 migrations apply randewedding-rsvp --remote",
+    "dev": "npm run db:migrate:local && npx --yes concurrently -k -n api,web -c cyan,magenta \"npm run api\" \"npm start\"",
+    "deploy": "npm run build && wrangler deploy"
   },
   "private": true,
   "engines": {
@@ -31,6 +36,7 @@
     "jsdom": "^28.0.0",
     "prettier": "^3.8.1",
     "typescript": "~5.9.2",
-    "vitest": "^4.0.8"
+    "vitest": "^4.0.8",
+    "wrangler": "^4.157.0"
   }
 }
