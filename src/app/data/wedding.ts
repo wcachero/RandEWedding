@@ -248,7 +248,7 @@ export const WEDDING: Wedding = {
   },
   rsvp: {
     note: 'Every seat is reserved with love and intention. Kindly confirm your attendance below.',
-    deadline: 'November 15, 2026',
+    deadline: 'November 20, 2026',
     contacts: [
       { name: 'Rowelyn', phone: '0917 555 0101' },
       { name: 'Edward', phone: '0918 555 0102' },
