@@ -261,12 +261,12 @@ export const WEDDING: Wedding = {
   },
   entourage: {
     parentsOfGroom: [
-      'Mr. Hiro Meow',
-      'Mrs. Hana Meow',
+      'Mr. Eugenio C. Pandiño',
+      'Mrs. Maria Luisita B. Pandiño',
     ],
     parentsOfBride: [
-      'Mr. Kenji Meow',
-      'Mrs. Kiko Meow',
+      'Mr. William M. Cachero',
+      'Mrs. Rosie R. Cachero',
     ],
     principalSponsors: [
       { gentlemen: 'Mr. Luna Meow', ladies: 'Mrs. Lila Meow' },
@@ -282,13 +282,13 @@ export const WEDDING: Wedding = {
       { role: 'Veil', pair: 'Mr. Vito Meow & Ms. Vita Meow' },
     ],
     bearers: [
-      { role: 'Ring Bearer', name: 'Mini Meow' },
-      { role: 'Coin Bearer', name: 'Mochi Meow' },
-      { role: 'Bible Bearer', name: 'Bean Meow' },
+      { role: 'Bible Bearer', name: 'Adam Rey C. Lorenzo' },
+      { role: 'Ring Bearer', name: 'Alwyn Rey C. Lorenzo' },
+      { role: 'Coin Bearer', name: 'David Angelo B. Cachero' },
     ],
     flowerGirls: [
-      'Mimi Meow',
-      'Momo Meow',
+      'Ma. Madison B. Cachero',
+      'Arya Xiela C. Pasague',
     ],
   },
   socials: [
