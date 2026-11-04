@@ -48,6 +48,9 @@ export interface DressLook {
   readonly image: string;
   /** Full-width plate. Pair looks sit two across. */
   readonly wide?: boolean;
+  /** Optional external reference (e.g. similar dress shopping link). */
+  readonly referenceUrl?: string;
+  readonly referenceLabel?: string;
 }
 
 export interface Wedding {
@@ -93,7 +96,11 @@ export interface Wedding {
     readonly note: string;
     /** Soft deadline shown on the invitation (e.g. November 15, 2026). */
     readonly deadline: string;
-    readonly contacts: readonly { readonly name: string; readonly phone: string }[];
+    readonly contacts: readonly {
+      readonly name: string;
+      readonly label: string;
+      readonly url: string;
+    }[];
     readonly reservedNote: string;
     /** Warning modal copy after the guest taps Send RSVP. */
     readonly submitWarning: string;
@@ -165,7 +172,7 @@ export const WEDDING: Wedding = {
   monetaryGift: {
     note: 'Your presence is the gift we treasure most. If you wish to bless us further, you may send a monetary gift through the details below.',
     bankName: 'BDO Unibank',
-    accountName: 'Edward Cachero / Rowelyn Cachero',
+    accountName: 'Rowelyn Cachero',
     accountNumber: '0042 7812 3456',
     gcashName: 'Rowelyn Cachero',
     gcashNumber: '0917 555 0101',
@@ -225,7 +232,15 @@ export const WEDDING: Wedding = {
       { kicker: '', title: 'Groomsmen', image: 'images/attire/groomsmen.png', wide: true },
       { kicker: '', title: 'Bridesmaids', image: 'images/attire/bridesmaids.png', wide: true },
       { kicker: '', title: 'Junior Groomsmen', image: 'images/attire/groomsmen-kids.png', wide: true },
-      { kicker: '', title: 'Flower Girls', image: 'images/attire/flower-girls.png', wide: true },
+      {
+        kicker: '',
+        title: 'Flower Girls',
+        image: 'images/attire/flower-girls.png',
+        wide: true,
+        referenceUrl:
+          'https://www.lazada.com.ph/products/3-10-years-kids-christmas-party-dresses-for-girls-appliques-flower-elegant-wedding-dress-with-bow-children-birthday-prom-gown-i4409241929-s24807809565.html',
+        referenceLabel: 'View dress reference',
+      },
     ],
     swatches: [
       { name: 'Emerald Green', color: 'var(--swatch-emerald)' },
@@ -239,8 +254,8 @@ export const WEDDING: Wedding = {
     note: 'Every seat is reserved with love and intention. Kindly confirm your attendance below.',
     deadline: 'November 20, 2026',
     contacts: [
-      { name: 'Rowelyn', phone: '0917 555 0101' },
-      { name: 'Edward', phone: '0918 555 0102' },
+      { name: 'Rowelyn', label: 'Messenger', url: 'https://m.me/rowelyn.cachero' },
+      { name: 'Edward', label: 'Messenger', url: 'https://m.me/edward.pandino' },
     ],
     reservedNote:
       'Only guests with confirmed RSVPs will be accommodated at the celebration. We respectfully ask that you refer to the number of reserved seats indicated in your invitation.',

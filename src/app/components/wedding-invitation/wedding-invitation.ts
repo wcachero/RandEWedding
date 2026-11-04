@@ -551,7 +551,16 @@ export class WeddingInvitation {
     this.rsvpSearch$.next(value);
   }
 
-  protected selectRsvpGuest(hit: GuestSearchHit): void {
+  protected selectRsvpGuest(hit: GuestSearchHit, event?: Event): void {
+    event?.preventDefault();
+    event?.stopPropagation();
+    // Lock scroll before keyboard/layout shifts on mobile.
+    const lockY = typeof window !== 'undefined' ? window.scrollY : 0;
+    const restoreScroll = (): void => {
+      if (typeof window === 'undefined') return;
+      window.scrollTo({ top: lockY, left: 0, behavior: 'auto' });
+    };
+
     this.rsvpSelectedId.set(hit.id);
     this.rsvpSelectedName.set(hit.name);
     this.rsvpQuery.set(hit.name);
@@ -565,6 +574,19 @@ export class WeddingInvitation {
     } else {
       this.rsvpAttend.set(null);
     }
+
+    restoreScroll();
+    queueMicrotask(() => {
+      (document.activeElement as HTMLElement | null)?.blur?.();
+      restoreScroll();
+      requestAnimationFrame(() => {
+        restoreScroll();
+        // One more pass after mobile keyboard animation settles.
+        window.setTimeout(restoreScroll, 120);
+        window.setTimeout(restoreScroll, 320);
+      });
+    });
+
     this.rsvpApi.getGuest(hit.id).subscribe({
       next: ({ guest }) => {
         this.rsvpMessage.set(guest.message || '');
@@ -575,6 +597,7 @@ export class WeddingInvitation {
           guest.companions[i]?.name || '',
         );
         this.rsvpCompanionSlots.set(slots);
+        restoreScroll();
       },
       error: () => undefined,
     });

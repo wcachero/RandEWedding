@@ -4,7 +4,6 @@
      [class.nav--hidden]="navHidden() || overlayOpen()"
      [attr.aria-hidden]="navHidden() || overlayOpen() ? true : null">
   <a class="nav__brand" href="#top" (click)="closeMenu()">
-    <img class="nav__logo" src="images/er-logo.svg" alt="" width="40" height="40" />
     <span class="nav__monogram" aria-hidden="true">
       <span class="nav__monogram-mark">
         <span class="nav__initial">E</span>
@@ -314,6 +313,18 @@
                     [attr.aria-label]="'Enlarge ' + look.title + ' attire'">
               <img class="attire__image" [src]="look.image" [alt]="look.title + ' attire'" loading="lazy" />
             </button>
+            @if (look.referenceUrl) {
+              <p class="attire__ref">
+                <a
+                  class="attire__ref-link"
+                  [href]="look.referenceUrl"
+                  target="_blank"
+                  rel="noopener noreferrer">
+                  {{ look.referenceLabel || 'View dress reference' }}
+                </a>
+                <span class="attire__ref-note">Suggested look for guidance</span>
+              </p>
+            }
           </figure>
         }
       </div>
@@ -569,30 +580,35 @@
               </div>
             } @else {
               <form class="rsvp__card" (submit)="submitRsvp($event)">
-                <label class="rsvp__field rsvp__field--search">
-                  <span class="rsvp__label">Your name</span>
+                <div class="rsvp__field rsvp__field--search">
+                  <label class="rsvp__label" for="rsvp-name">Your name</label>
                   <input
+                    id="rsvp-name"
                     class="rsvp__input"
                     type="text"
                     name="name"
                     autocomplete="off"
+                    enterkeyhint="search"
+                    inputmode="text"
                     maxlength="80"
                     placeholder="Start typing your name"
                     [value]="rsvpQuery()"
+                    [attr.readonly]="rsvpSelectedId() ? true : null"
                     (input)="onRsvpQuery($event)"
-                    (focus)="rsvpSuggestOpen.set(true)"
+                    (focus)="!rsvpSelectedId() && rsvpSuggestOpen.set(true)"
                   />
                   @if (rsvpSearching()) {
                     <p class="rsvp__search-status">Searching…</p>
                   }
-                  @if (rsvpSuggestOpen() && rsvpHits().length) {
+                  @if (rsvpSuggestOpen() && rsvpHits().length && !rsvpSelectedId()) {
                     <ul class="rsvp__suggest" role="listbox">
                       @for (hit of rsvpHits(); track hit.id) {
                         <li>
                           <button
                             type="button"
                             class="rsvp__suggest-item"
-                            (click)="selectRsvpGuest(hit)">
+                            (mousedown)="selectRsvpGuest(hit, $event)"
+                            (click)="selectRsvpGuest(hit, $event)">
                             <span class="rsvp__suggest-name">{{ hit.name }}</span>
                             <span class="rsvp__suggest-meta">
                               @if (hit.responded) {
@@ -610,7 +626,7 @@
                   } @else if (rsvpSuggestOpen() && rsvpQuery().trim().length >= 1 && !rsvpSearching() && !rsvpSelectedId()) {
                     <p class="rsvp__search-status">No matching guest found. Please use the name on your invitation.</p>
                   }
-                </label>
+                </div>
 
                 @if (rsvpSelectedId(); as guestId) {
                   <p class="rsvp__selected">
@@ -685,12 +701,23 @@
       </div>
 
       <p class="rsvp__or" appReveal>— or —</p>
-      <p class="rsvp__assist" appReveal>Need assistance? You may also contact us directly.</p>
+      <p class="rsvp__assist" appReveal>Need assistance? You may contact us on Messenger</p>
       <div class="rsvp__contacts" appReveal>
         @for (c of wedding.rsvp.contacts; track c.name) {
-          <a class="rsvp__contact" [href]="'tel:' + c.phone.split(' ').join('')">
+          <a
+            class="rsvp__contact"
+            [href]="c.url"
+            target="_blank"
+            rel="noopener noreferrer"
+            [attr.aria-label]="'Message ' + c.name + ' on Messenger'">
+            <span class="rsvp__contact-icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24" width="22" height="22" focusable="false">
+                <path
+                  fill="currentColor"
+                  d="M12 2C6.36 2 2 6.13 2 11.7c0 2.91 1.19 5.44 3.14 7.17V22l2.88-1.58c1.22.34 2.52.52 3.98.52 5.64 0 10-4.13 10-9.7S17.64 2 12 2Zm.98 13.05-2.54-2.7-4.96 2.7 5.46-5.8 2.6 2.7 4.9-2.7-5.46 5.8Z" />
+              </svg>
+            </span>
             <span class="rsvp__contact-name">{{ c.name }}</span>
-            <span class="rsvp__contact-phone">{{ c.phone }}</span>
           </a>
         }
       </div>
