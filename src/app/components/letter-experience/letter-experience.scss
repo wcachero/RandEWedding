@@ -554,28 +554,6 @@
   }
 }
 
-/* Hint shown under the footer inviting the pull-up-to-restart gesture. */
-.overscroll-hint {
-  margin: 0;
-  padding: var(--space-6) var(--space-6) var(--space-4);
-  text-align: center;
-  font-family: var(--font-ui);
-  text-transform: uppercase;
-  letter-spacing: 0.16em;
-  font-size: 0.62rem;
-  color: var(--color-text-muted);
-  background: var(--color-bg-deep);
-  max-width: 100%;
-  box-sizing: border-box;
-  overflow-wrap: anywhere;
-}
-
-.scene[data-stage='reading'] .overscroll-hint {
-  color: #0e3d32;
-  background: linear-gradient(180deg, #f3e6c4 0%, #e8d5a0 58%, #d4b45c 100%);
-  border-top: 1px solid rgba(201, 162, 39, 0.45);
-}
-
 .scene[data-stage='reading'] .tabbar {
   .tabbar__item {
     color: #f3e6c4;

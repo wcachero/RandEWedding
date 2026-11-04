@@ -171,12 +171,7 @@ export const WEDDING: Wedding = {
     gcashNumber: '0917 555 0101',
     qrPayload: 'MOCK-GIFT|BDO|004278123456|Edward & Rowie Wedding',
   },
-  hashtags: [
-    '#EDWARDmazingDayWithROWIE',
-    '#RandEWedding',
-    '#EdwardAndRowie',
-    '#EdwardRowie2026',
-  ],
+  hashtags: ['#EDWARDmazingDayWithROWIE'],
   schedule: [
     {
       time: '9:30 AM',
@@ -238,7 +233,7 @@ export const WEDDING: Wedding = {
       { name: 'Gold', color: 'var(--swatch-gold)' },
       { name: 'Dark Brown', color: 'var(--swatch-brown)' },
     ],
-    note: 'Emerald, beige, gold, and dark brown. The wedding party wears one shared look each — champagne for the men, emerald for the women.',
+    note: 'Emerald, beige, gold, and dark brown. Gentlemen in champagne, ladies in emerald — one shared look for each role.',
   },
   rsvp: {
     note: 'Every seat is reserved with love and intention. Kindly confirm your attendance below.',
@@ -263,10 +258,12 @@ export const WEDDING: Wedding = {
       'Mrs. Rosie R. Cachero',
     ],
     principalSponsors: [
-      { gentlemen: 'Mr. Luna Meow', ladies: 'Mrs. Lila Meow' },
-      { gentlemen: 'Mr. Nori Meow', ladies: 'Mrs. Nami Meow' },
-      { gentlemen: 'Mr. Sora Meow', ladies: 'Mrs. Suki Meow' },
-      { gentlemen: 'Mr. Taro Meow', ladies: 'Mrs. Tami Meow' },
+      { gentlemen: 'Mr. Marlon B. Cabance', ladies: 'Ms. Anicia C. Santos' },
+      { gentlemen: 'Mr. Almario M. Sandoval', ladies: 'Mrs. Anicia R. Sandoval' },
+      { gentlemen: 'Mr. Arcadio E. Sarmiento', ladies: 'Mrs. Aurora E. Sarmiento' },
+      { gentlemen: 'Mr. Edgar B. Briones', ladies: 'Mrs. Susan S. Briones' },
+      { gentlemen: 'Mr. Evaristo A. Capuno', ladies: 'Mrs. Rowena B. Capuno' },
+      { gentlemen: 'Mr. Nicasio D. Buenaobra', ladies: 'Mrs. Herminia A. Buenaobra' },
     ],
     bestMan: 'Mr. Mio Meow',
     maidOfHonor: 'Ms. Miho the Meow',

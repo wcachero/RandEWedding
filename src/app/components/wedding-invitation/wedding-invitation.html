@@ -4,12 +4,15 @@
      [class.nav--hidden]="navHidden() || overlayOpen()"
      [attr.aria-hidden]="navHidden() || overlayOpen() ? true : null">
   <a class="nav__brand" href="#top" (click)="closeMenu()">
+    <img class="nav__logo" src="images/er-logo.svg" alt="" width="40" height="40" />
     <span class="nav__monogram" aria-hidden="true">
-      <span class="nav__initial">E</span>
-      <span class="nav__amp">&amp;</span>
-      <span class="nav__initial">R</span>
+      <span class="nav__monogram-mark">
+        <span class="nav__initial">E</span>
+        <span class="nav__amp">&amp;</span>
+        <span class="nav__initial">R</span>
+      </span>
+      <span class="nav__date">{{ wedding.dateShort }}</span>
     </span>
-    <span class="nav__date">{{ wedding.dateShort }}</span>
     <span class="visually-hidden">{{ wedding.groom }} &amp; {{ wedding.bride }} — {{ wedding.dateShort }}</span>
   </a>
 
@@ -51,7 +54,7 @@
 <article class="invite" id="top">
   <!-- Parallax hero -->
   <header class="hero">
-    <div class="hero__bg" [appParallax]="0.07">
+    <div class="hero__bg" [appParallax]="0.24">
       <img class="hero__photo" [src]="wedding.heroPhoto" alt="" />
     </div>
     <div class="hero__scrim"></div>
@@ -170,7 +173,9 @@
     </div>
 
     <article class="place place--ceremony">
-      <img class="place__photo place__photo--ceremony" [src]="ceremony.photo" alt="" />
+      <div class="place__bg" [appParallax]="0.22">
+        <img class="place__photo place__photo--ceremony" [src]="ceremony.photo" alt="" />
+      </div>
       <div class="place__scrim"></div>
       <div class="place__frame" aria-hidden="true"></div>
       <div class="place__content" appReveal>
@@ -188,7 +193,9 @@
     <article class="place place--reception">
       <div class="place__card">
         <div class="place__media">
-          <img class="place__photo place__photo--reception" [src]="reception.photo" alt="" />
+          <div class="place__bg" [appParallax]="0.2">
+            <img class="place__photo place__photo--reception" [src]="reception.photo" alt="" />
+          </div>
           <div class="place__scrim"></div>
         </div>
         <div class="place__content" appReveal>
@@ -211,9 +218,9 @@
       <p class="section__label" appReveal>From the first hour</p>
       <h2 class="section__title" [appReveal]="60">How the Day Unfolds</h2>
 
-      <ol class="day__timeline" appReveal>
-        @for (beat of wedding.schedule; track beat.title) {
-          <li>
+      <ol class="day__timeline">
+        @for (beat of wedding.schedule; track beat.title; let i = $index) {
+          <li [appReveal]="120 + i * 140">
             <span class="day__time">{{ beat.time }}</span>
             <h3 class="day__name">{{ beat.title }}</h3>
             <p class="day__detail">{{ beat.detail }}</p>
@@ -221,10 +228,10 @@
         }
       </ol>
 
-      <p class="section__label day__travel-label" appReveal>Getting there</p>
+      <p class="section__label day__travel-label" [appReveal]="80">Getting there</p>
       <div class="day__travel">
-        @for (place of [ceremony, reception]; track place.venue) {
-          <article class="day__card" appReveal>
+        @for (place of [ceremony, reception]; track place.venue; let i = $index) {
+          <article class="day__card" [appReveal]="140 + i * 180">
             <p class="day__card-kicker">{{ place.kicker }}</p>
             <h3 class="day__card-title">{{ place.venue }}</h3>
             <p class="day__card-line"><span>Landmark</span>{{ place.landmark }}</p>
@@ -298,7 +305,6 @@
         </figure>
       </div>
 
-      <p class="attire__party-label" appReveal>The Wedding Party</p>
       <div class="attire__party">
         @for (look of wedding.dressCode.party; track look.image) {
           <figure class="attire__look" [class.attire__look--wide]="look.wide" appReveal>
@@ -323,7 +329,7 @@
       <h2 class="section__title" [appReveal]="60">The Entourage</h2>
 
       <div class="court">
-        <div class="court__split" appReveal>
+        <div class="court__split" [appReveal]="100">
           <div class="court__col">
             <p class="court__role">Parents of the Groom</p>
             @for (name of wedding.entourage.parentsOfGroom; track name) {
@@ -338,17 +344,17 @@
           </div>
         </div>
 
-        <h3 class="court__banner">Principal Sponsors</h3>
+        <h3 class="court__banner" [appReveal]="140">Principal Sponsors</h3>
         <ul class="court__couples">
-          @for (pair of wedding.entourage.principalSponsors; track pair.gentlemen) {
-            <li>
+          @for (pair of wedding.entourage.principalSponsors; track pair.gentlemen; let i = $index) {
+            <li [appReveal]="180 + i * 110">
               <span>{{ pair.gentlemen }}</span>
               <span>{{ pair.ladies }}</span>
             </li>
           }
         </ul>
 
-        <div class="court__split" appReveal>
+        <div class="court__split" [appReveal]="160">
           <div class="court__col">
             <p class="court__role">Best Man</p>
             <p class="court__name">{{ wedding.entourage.bestMan }}</p>
@@ -360,8 +366,8 @@
         </div>
 
         <div class="court__roles court__roles--trio">
-          @for (s of wedding.entourage.secondarySponsors; track s.role) {
-            <div class="court__col">
+          @for (s of wedding.entourage.secondarySponsors; track s.role; let i = $index) {
+            <div class="court__col" [appReveal]="140 + i * 120">
               <p class="court__role">{{ s.role }}</p>
               @for (person of s.pair.split(' & '); track person) {
                 <p class="court__name">{{ person }}</p>
@@ -370,10 +376,10 @@
           }
         </div>
 
-        <h3 class="court__banner">Bearers</h3>
+        <h3 class="court__banner" [appReveal]="120">Bearers</h3>
         <div class="court__roles">
-          @for (b of wedding.entourage.bearers; track b.role) {
-            <div class="court__col">
+          @for (b of wedding.entourage.bearers; track b.role; let i = $index) {
+            <div class="court__col" [appReveal]="160 + i * 120">
               <p class="court__role">{{ b.role }}</p>
               <p class="court__name">{{ b.name }}</p>
             </div>
@@ -381,10 +387,10 @@
         </div>
 
         @if (wedding.entourage.flowerGirls.length) {
-          <h3 class="court__banner">Flower Girls</h3>
+          <h3 class="court__banner" [appReveal]="120">Flower Girls</h3>
           <div class="court__roles">
-            @for (name of wedding.entourage.flowerGirls; track name) {
-              <div class="court__col">
+            @for (name of wedding.entourage.flowerGirls; track name; let i = $index) {
+              <div class="court__col" [appReveal]="160 + i * 120">
                 <p class="court__name">{{ name }}</p>
               </div>
             }
@@ -396,12 +402,12 @@
 
   <!-- Second portrait hero -->
   <section class="save" aria-label="Edward and Rowie">
-    <div class="save__bg" [appParallax]="0.18">
+    <div class="save__bg" [appParallax]="0.26">
       <img class="save__photo" [src]="wedding.saveTheDatePhoto" alt="" />
     </div>
     <div class="save__scrim"></div>
     <div class="save__frame" aria-hidden="true"></div>
-    <div class="save__content" appReveal>
+    <div class="save__content" [appReveal]="120">
       <p class="save__who">{{ wedding.groom }} &amp; {{ wedding.bride }}</p>
       <p class="save__script">Together</p>
       <span class="save__rule" aria-hidden="true"></span>
@@ -715,19 +721,13 @@
       <div class="share__tags" appReveal>
         <p class="share__tags-label">Share your photos with</p>
         <p class="share__tag-primary">{{ wedding.hashtags[0] }}</p>
-        <ul class="share__tag-list">
-          @for (tag of wedding.hashtags; track tag) {
-            <li>
-              <button
-                type="button"
-                class="share__tag"
-                (click)="copyHashtag(tag)"
-                [attr.aria-label]="'Copy ' + tag">
-                {{ hashtagCopied() === tag ? 'Copied' : tag }}
-              </button>
-            </li>
-          }
-        </ul>
+        <button
+          type="button"
+          class="share__tag"
+          (click)="copyHashtag(wedding.hashtags[0])"
+          [attr.aria-label]="'Copy ' + wedding.hashtags[0]">
+          {{ hashtagCopied() === wedding.hashtags[0] ? 'Copied' : 'Copy hashtag' }}
+        </button>
       </div>
       <div class="share__grid" appReveal>
         <!-- QR column -->

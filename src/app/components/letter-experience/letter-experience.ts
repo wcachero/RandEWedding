@@ -84,8 +84,6 @@ const STAGE_ORDER: readonly Stage[] = ['sealed', 'open', 'reading'];
       @if (stage() === 'reading') {
         <app-site-footer class="scene__footer" />
 
-        <p class="overscroll-hint" aria-hidden="true">Keep pulling up to return to the beginning &#8635;</p>
-
         <nav class="tabbar" aria-label="Quick navigation">
           <a class="tabbar__item" href="#top">
             <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true">
