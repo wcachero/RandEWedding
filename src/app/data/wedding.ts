@@ -254,7 +254,7 @@ export const WEDDING: Wedding = {
     note: 'Every seat is reserved with love and intention. Kindly confirm your attendance below.',
     deadline: 'November 20, 2026',
     contacts: [
-      { name: 'Rowelyn', label: 'Messenger', url: 'https://m.me/rowelyn.cachero' },
+      { name: 'Rowie', label: 'Messenger', url: 'https://m.me/rowelyn.cachero' },
       { name: 'Edward', label: 'Messenger', url: 'https://m.me/edward.pandino' },
     ],
     reservedNote:
@@ -286,31 +286,26 @@ export const WEDDING: Wedding = {
     secondarySponsors: [
       {
         role: 'Candle',
-        first: 'Ms. Annalyn R. Cachero',
-        second: 'Mr. Kelvin Zendrix A. Punzalan',
+        first: 'Ms. Mileah Victoria P. Dela Rea',
+        second: 'Mr. Timothy Clark P. De Castro',
       },
       {
         role: 'Veil',
-        first: 'Ms. Jennifer C. Salarioza',
-        second: 'Mr. John Paul P. Aguilar',
+        first: 'Ms. Mary Joy R. Cachero',
+        second: 'Mr. Jheo Aldhi P. Derequito',
       },
       {
         role: 'Cord',
-        first: 'Ms. Mary Joy L. Develos',
-        second: 'Mr. Marc Joseph C. Cabance',
+        first: 'Ms. Louise Jasmin A. Tacla',
+        second: 'Mr. Marcreiner Louise P. Dela Rea',
       },
     ],
-    bridalParty: [
-      {
-        groomsman: 'Mr. Timothy Clark P. De Castro',
-        bridesmaid: 'Ms. Mileah Victoria P. Dela Rea',
-      },
-    ],
+    bridalParty: [],
     // Invitation print order: Ring → Coin → Bible
     bearers: [
-      { role: 'Ring Bearer', name: 'Alwyn Rey C. Lorenzo' },
+      { role: 'Ring Bearer', name: 'Alwyn Ray C. Lorenzo' },
       { role: 'Coin Bearer', name: 'David Angelo B. Cachero' },
-      { role: 'Bible Bearer', name: 'Adam Rey C. Lorenzo' },
+      { role: 'Bible Bearer', name: 'Adam Ray C. Lorenzo' },
     ],
     flowerGirls: [
       'Ma. Madison B. Cachero',
