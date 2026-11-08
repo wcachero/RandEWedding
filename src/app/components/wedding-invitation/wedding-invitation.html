@@ -54,7 +54,17 @@
   <!-- Parallax hero -->
   <header class="hero">
     <div class="hero__bg" [appParallax]="0.24">
-      <img class="hero__photo" [src]="wedding.heroPhoto" alt="" />
+      <picture>
+        @if (wedding.heroPhotoWebp) {
+          <source type="image/webp" [srcset]="wedding.heroPhotoWebp" />
+        }
+        <img
+          class="hero__photo"
+          [src]="wedding.heroPhoto"
+          alt=""
+          decoding="async"
+          fetchpriority="high" />
+      </picture>
     </div>
     <div class="hero__scrim"></div>
     <div class="hero__frame" aria-hidden="true"></div>
@@ -383,8 +393,10 @@
               <p class="court__role">{{ s.role }}</p>
               <span>{{ s.primary.left }}</span>
               <span>{{ s.primary.right }}</span>
-              <span>{{ s.secondary.left }}</span>
-              <span>{{ s.secondary.right }}</span>
+              @if (s.secondary; as second) {
+                <span>{{ second.left }}</span>
+                <span>{{ second.right }}</span>
+              }
             </li>
           }
         </ul>
@@ -546,6 +558,7 @@
     <div class="container">
       <p class="script-accent" appReveal>R S V P</p>
       <p class="rsvp__lead" [appReveal]="80">{{ wedding.rsvp.note }}</p>
+      <p class="rsvp__adults" [appReveal]="90">{{ wedding.rsvp.adultsOnlyNote }}</p>
       <p class="rsvp__deadline" [appReveal]="100">
         <span class="rsvp__deadline-label">Kindly reply on or before</span>
         <span class="rsvp__deadline-date">{{ wedding.rsvp.deadline }}</span>
@@ -615,6 +628,8 @@
                     <p class="rsvp__search-status">No matching guest found. Please use the name on your invitation.</p>
                   }
                 </div>
+
+                <p class="rsvp__named">{{ wedding.rsvp.namedGuestsNote }}</p>
 
                 @if (rsvpSelectedId(); as guestId) {
                   <div class="rsvp__reply" id="rsvp-reply">

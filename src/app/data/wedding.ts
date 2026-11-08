@@ -63,7 +63,11 @@ export interface Wedding {
   readonly dateLong: { readonly month: string; readonly monthShort: string; readonly day: string; readonly year: string; readonly weekday: string };
   readonly ceremonyTime: string;
   readonly heroPhoto: string;
+  /** Optional WebP twin of heroPhoto for faster social/mobile loads. */
+  readonly heroPhotoWebp?: string;
   readonly envelopePhoto: string;
+  /** Optional WebP twin of envelopePhoto for faster first paint. */
+  readonly envelopePhotoWebp?: string;
   readonly saveTheDatePhoto: string;
   readonly gallery: readonly string[];
   readonly ceremony: WeddingEvent;
@@ -98,6 +102,10 @@ export interface Wedding {
       readonly url: string;
     }[];
     readonly reservedNote: string;
+    /** Adult-only celebration note shown near RSVP. */
+    readonly adultsOnlyNote: string;
+    /** Named-guests-only note shown near RSVP. */
+    readonly namedGuestsNote: string;
     /** Warning modal copy after the guest taps Send RSVP. */
     readonly submitWarning: string;
   };
@@ -111,8 +119,8 @@ export interface Wedding {
       readonly role: string;
       /** Primary pair (top row, two columns). */
       readonly primary: { readonly left: string; readonly right: string };
-      /** Second pair (bottom row, two columns). */
-      readonly secondary: { readonly left: string; readonly right: string };
+      /** Optional second pair (bottom row, two columns). */
+      readonly secondary?: { readonly left: string; readonly right: string };
     }[];
     readonly bridalParty: readonly { readonly groomsman: string; readonly bridesmaid: string }[];
     readonly bearers: readonly { readonly role: string; readonly name: string }[];
@@ -132,7 +140,9 @@ export const WEDDING: Wedding = {
   dateLong: { month: 'December', monthShort: 'Dec', day: '05', year: '2026', weekday: 'Saturday' },
   ceremonyTime: 'Ceremony',
   heroPhoto: 'images/hero.jpg',
+  heroPhotoWebp: 'images/hero.webp',
   envelopePhoto: 'images/envelope.jpg',
+  envelopePhotoWebp: 'images/envelope.webp',
   saveTheDatePhoto: 'images/moments/08.jpg',
   gallery: [
     'images/moments/01.jpg',
@@ -261,6 +271,10 @@ export const WEDDING: Wedding = {
     ],
     reservedNote:
       'Only guests with confirmed RSVPs will be accommodated at the celebration. We respectfully ask that you refer to the number of reserved seats indicated in your invitation.',
+    adultsOnlyNote:
+      'While we love your little ones, we have chosen an adult-only guest list to allow all our guests to relax and celebrate. We hope you understand!',
+    namedGuestsNote:
+      'We are keeping our celebration small and intimate, so we can only accommodate the guests named directly on each invitation. Thank you for understanding!',
     /** Shown in the modal after the guest taps Send RSVP. */
     submitWarning:
       'Please note that we can only accommodate guests who have confirmed through this RSVP. Seating is reserved accordingly, and we kindly ask that only confirmed guests attend.',
@@ -275,7 +289,7 @@ export const WEDDING: Wedding = {
       'Mrs. Rosie R. Cachero',
     ],
     principalSponsors: [
-      { gentlemen: 'Mr. Marlon B. Cabance', ladies: 'Ms. Anicia C. Santos' },
+      { gentlemen: 'Mr. Marlon B. Cabance', ladies: 'Mrs. Anicia C. Santos' },
       { gentlemen: 'Mr. Almario M. Sandoval', ladies: 'Mrs. Anicia R. Sandoval' },
       { gentlemen: 'Mr. Arcadio E. Sarmiento', ladies: 'Mrs. Aurora E. Sarmiento' },
       { gentlemen: 'Mr. Edgar B. Briones', ladies: 'Mrs. Susan S. Briones' },
@@ -283,7 +297,7 @@ export const WEDDING: Wedding = {
       { gentlemen: 'Mr. Nicasio D. Buenaobra', ladies: 'Mrs. Herminia A. Buenaobra' },
     ],
     bestMan: 'Mr. Allen A. Mangubat',
-    maidOfHonor: 'Ms. Analyn M. Matibag',
+    maidOfHonor: 'Mrs. Analyn M. Matibag',
     // Invitation print order: Candle → Veil → Cord
     secondarySponsors: [
       {
@@ -291,10 +305,6 @@ export const WEDDING: Wedding = {
         primary: {
           left: 'Annalyn R. Cachero',
           right: 'Kelvin Zendrix A. Punzalan',
-        },
-        secondary: {
-          left: 'Mileah Victoria P. Dela Rea',
-          right: 'Timothy Clark P. De Castro',
         },
       },
       {
@@ -320,7 +330,12 @@ export const WEDDING: Wedding = {
         },
       },
     ],
-    bridalParty: [],
+    bridalParty: [
+      {
+        groomsman: 'Timothy Clark P. De Castro',
+        bridesmaid: 'Mileah Victoria P. Dela Rea',
+      },
+    ],
     // Invitation print order: Ring → Coin → Bible
     bearers: [
       { role: 'Ring Bearer', name: 'Alwyn Ray C. Lorenzo' },

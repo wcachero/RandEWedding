@@ -1572,7 +1572,9 @@ export class WeddingInvitation {
         return rowY + 22;
       };
       yy = drawPair(s.primary.left, s.primary.right, yy);
-      yy = drawPair(s.secondary.left, s.secondary.right, yy);
+      if (s.secondary) {
+        yy = drawPair(s.secondary.left, s.secondary.right, yy);
+      }
       secBottom = Math.max(secBottom, yy);
     });
     y = secBottom + 18;

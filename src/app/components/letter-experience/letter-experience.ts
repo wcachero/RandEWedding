@@ -35,7 +35,17 @@ const STAGE_ORDER: readonly Stage[] = ['sealed', 'open', 'reading'];
     <div class="scene" [attr.data-stage]="stage()">
       @if (stage() !== 'reading') {
         <div class="scene__stage-bg" aria-hidden="true">
-          <img class="scene__stage-bg-photo" [src]="envelopePhoto" alt="" />
+          <picture>
+            @if (envelopePhotoWebp) {
+              <source type="image/webp" [srcset]="envelopePhotoWebp" />
+            }
+            <img
+              class="scene__stage-bg-photo"
+              [src]="envelopePhoto"
+              alt=""
+              decoding="async"
+              fetchpriority="high" />
+          </picture>
           <div class="scene__stage-bg-scrim"></div>
         </div>
       }
@@ -129,6 +139,7 @@ const STAGE_ORDER: readonly Stage[] = ['sealed', 'open', 'reading'];
 })
 export class LetterExperience {
   protected readonly envelopePhoto = WEDDING.envelopePhoto;
+  protected readonly envelopePhotoWebp = WEDDING.envelopePhotoWebp;
   protected readonly inviteDate = `${WEDDING.dateLong.month} ${WEDDING.dateLong.day}, ${WEDDING.dateLong.year}`;
   protected readonly guestName = signal('');
   private readonly audio = inject(AudioService);
