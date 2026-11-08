@@ -276,7 +276,7 @@ export const WEDDING: Wedding = {
     maidOfHonor: 'Ms. Analyn M. Matibag',
     secondarySponsors: [
       { role: 'Candle', pair: 'Ms. Annalyn R. Cachero & Mr. Kelvin Zendrix A. Punzalan' },
-      { role: 'Cord', pair: 'Ms. Mileah Victoria P. Dela Rea & Mr. Timothy Clark P. De Castro' },
+      { role: 'Cord', pair: 'Ms. Mary Joy L. Develos & Mr. Marc Joseph C. Cabance' },
       { role: 'Veil', pair: 'Ms. Jennifer C. Salarioza & Mr. John Paul P. Aguilar' },
     ],
     bearers: [
