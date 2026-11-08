@@ -2734,7 +2734,12 @@
     touch-action: manipulation;
     transition: background 0.2s ease, color 0.2s ease, border-color 0.2s ease;
 
-    &:hover { background: #fff; }
+    &:hover {
+      background: #e8f0ea;
+      color: #0e3d32;
+      border-color: #c9a227;
+    }
+
     &:focus-visible {
       outline: 2px solid #c9a227;
       outline-offset: 2px;
@@ -2746,6 +2751,12 @@
     background: #0e3d32;
     border-color: #c9a227;
     color: #fbfaf6;
+
+    &:hover {
+      background: #145c48;
+      color: #fbfaf6;
+      border-color: #e8d5a0;
+    }
   }
 
   &__seat {
