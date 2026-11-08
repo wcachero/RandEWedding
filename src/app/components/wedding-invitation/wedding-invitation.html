@@ -3,7 +3,7 @@
      [class.nav--open]="menuOpen()"
      [class.nav--hidden]="navHidden() || overlayOpen()"
      [attr.aria-hidden]="navHidden() || overlayOpen() ? true : null">
-  <a class="nav__brand" href="#top" (click)="closeMenu()">
+  <a class="nav__brand" href="#top" (click)="goToSection('top', $event)">
     <span class="nav__monogram" aria-hidden="true">
       <span class="nav__monogram-mark">
         <span class="nav__initial">E</span>
@@ -21,13 +21,13 @@
   </button>
 
   <ul class="nav__links">
-    <li><a href="#details" (click)="closeMenu()" [class.is-active]="activeSection() === 'details'" [attr.aria-current]="activeSection() === 'details' ? 'true' : null">Details</a></li>
-    <li><a href="#venue" (click)="closeMenu()" [class.is-active]="activeSection() === 'venue'" [attr.aria-current]="activeSection() === 'venue' ? 'true' : null">Venue</a></li>
-    <li><a href="#attire" (click)="closeMenu()" [class.is-active]="activeSection() === 'attire'" [attr.aria-current]="activeSection() === 'attire' ? 'true' : null">Attire</a></li>
-    <li><a href="#entourage" (click)="closeMenu()" [class.is-active]="activeSection() === 'entourage'" [attr.aria-current]="activeSection() === 'entourage' ? 'true' : null">Entourage</a></li>
-    <li><a href="#moments" (click)="closeMenu()" [class.is-active]="activeSection() === 'moments'" [attr.aria-current]="activeSection() === 'moments' ? 'true' : null">Moments</a></li>
-    <li><a href="#gifts" (click)="closeMenu()" [class.is-active]="activeSection() === 'gifts'" [attr.aria-current]="activeSection() === 'gifts' ? 'true' : null">Gifts</a></li>
-    <li><a href="#rsvp" (click)="closeMenu()" [class.is-active]="activeSection() === 'rsvp'" [attr.aria-current]="activeSection() === 'rsvp' ? 'true' : null">RSVP</a></li>
+    <li><a href="#details" (click)="goToSection('details', $event)" [class.is-active]="activeSection() === 'details'" [attr.aria-current]="activeSection() === 'details' ? 'true' : null">Details</a></li>
+    <li><a href="#venue" (click)="goToSection('venue', $event)" [class.is-active]="activeSection() === 'venue'" [attr.aria-current]="activeSection() === 'venue' ? 'true' : null">Venue</a></li>
+    <li><a href="#attire" (click)="goToSection('attire', $event)" [class.is-active]="activeSection() === 'attire'" [attr.aria-current]="activeSection() === 'attire' ? 'true' : null">Attire</a></li>
+    <li><a href="#entourage" (click)="goToSection('entourage', $event)" [class.is-active]="activeSection() === 'entourage'" [attr.aria-current]="activeSection() === 'entourage' ? 'true' : null">Entourage</a></li>
+    <li><a href="#moments" (click)="goToSection('moments', $event)" [class.is-active]="activeSection() === 'moments'" [attr.aria-current]="activeSection() === 'moments' ? 'true' : null">Moments</a></li>
+    <li><a href="#gifts" (click)="goToSection('gifts', $event)" [class.is-active]="activeSection() === 'gifts'" [attr.aria-current]="activeSection() === 'gifts' ? 'true' : null">Gifts</a></li>
+    <li><a href="#rsvp" (click)="goToSection('rsvp', $event)" [class.is-active]="activeSection() === 'rsvp'" [attr.aria-current]="activeSection() === 'rsvp' ? 'true' : null">RSVP</a></li>
     <li>
       <button
         type="button"
@@ -381,8 +381,8 @@
           @for (s of wedding.entourage.secondarySponsors; track s.role; let i = $index) {
             <li [appReveal]="140 + i * 120">
               <p class="court__role">{{ s.role }}</p>
-              <span>{{ s.first }}</span>
-              <span>{{ s.second }}</span>
+              <p class="court__name">{{ s.first }}</p>
+              <p class="court__name">{{ s.second }}</p>
             </li>
           }
         </ul>

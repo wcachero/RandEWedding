@@ -347,6 +347,26 @@ export class WeddingInvitation {
     this.menuOpen.set(false);
   }
 
+  /** Nav / in-page anchors — explicit scroll so hash links work after the mobile menu closes. */
+  protected goToSection(sectionId: string, event?: Event): void {
+    event?.preventDefault();
+    this.closeMenu();
+    this.navHidden.set(false);
+    const scroll = (): void => {
+      const el = document.getElementById(sectionId);
+      if (!el) return;
+      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      try {
+        history.replaceState(null, '', `#${sectionId}`);
+      } catch {
+        /* ignore */
+      }
+    };
+    // Let the mobile drawer finish collapsing before measuring scroll targets.
+    queueMicrotask(scroll);
+    window.setTimeout(scroll, 120);
+  }
+
   protected downloadFromMenu(): void {
     this.closeMenu();
     void this.downloadInvitationImage();

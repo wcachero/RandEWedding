@@ -286,18 +286,18 @@ export const WEDDING: Wedding = {
     secondarySponsors: [
       {
         role: 'Candle',
-        first: 'Ms. Mileah Victoria P. Dela Rea',
-        second: 'Mr. Timothy Clark P. De Castro',
+        first: 'Mileah Victoria P. Dela Rea',
+        second: 'Timothy Clark P. De Castro',
       },
       {
         role: 'Veil',
-        first: 'Ms. Mary Joy R. Cachero',
-        second: 'Mr. Jheo Aldhi P. Derequito',
+        first: 'Mary Joy R. Cachero',
+        second: 'Jheo Aldhi P. Derequito',
       },
       {
         role: 'Cord',
-        first: 'Ms. Louise Jasmin A. Tacla',
-        second: 'Mr. Marcreiner Louise P. Dela Rea',
+        first: 'Louise Jasmin A. Tacla',
+        second: 'Marcreiner Louise P. Dela Rea',
       },
     ],
     bridalParty: [],

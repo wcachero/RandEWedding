@@ -2050,9 +2050,14 @@
   background:
     radial-gradient(ellipse 80% 42% at 50% 0%, rgba(201, 162, 39, 0.2), transparent 68%),
     #0e3d32;
+  scroll-margin-top: 72px;
 
   .section__label { color: #e8d5a0; }
   .section__title { color: #fbf6ec; }
+
+  @media (max-width: 680px) {
+    scroll-margin-top: 64px;
+  }
 }
 
 .court {
@@ -2265,17 +2270,25 @@
     }
 
     &--rites {
-      gap: 1.35rem;
+      gap: 1.55rem;
 
       li {
-        row-gap: 0.35rem;
+        display: grid;
+        grid-template-columns: 1fr;
+        justify-items: center;
+        row-gap: 0.2rem;
+        font-style: normal;
       }
 
       .court__role {
-        grid-column: 1 / -1;
-        margin: 0 0 0.15rem;
+        margin: 0 0 0.35rem;
         text-align: center;
-        font-style: normal;
+      }
+
+      .court__name {
+        width: 100%;
+        margin: 0;
+        text-align: center;
       }
     }
   }
