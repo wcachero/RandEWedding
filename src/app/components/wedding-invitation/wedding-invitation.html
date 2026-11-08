@@ -629,6 +629,7 @@
                 </div>
 
                 @if (rsvpSelectedId(); as guestId) {
+                  <div class="rsvp__reply" id="rsvp-reply">
                   <p class="rsvp__selected">
                     Responding as <strong>{{ rsvpSelectedName() }}</strong>
                     <button type="button" class="rsvp__change" (click)="clearRsvpSelection()">Change</button>
@@ -693,6 +694,7 @@
                     [disabled]="!rsvpAttend() || rsvpSubmitting()">
                     {{ rsvpSubmitting() ? 'Sending…' : 'Send RSVP' }}
                   </button>
+                  </div>
                 }
               </form>
             }

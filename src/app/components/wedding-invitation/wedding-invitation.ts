@@ -554,12 +554,6 @@ export class WeddingInvitation {
   protected selectRsvpGuest(hit: GuestSearchHit, event?: Event): void {
     event?.preventDefault();
     event?.stopPropagation();
-    // Lock scroll before keyboard/layout shifts on mobile.
-    const lockY = typeof window !== 'undefined' ? window.scrollY : 0;
-    const restoreScroll = (): void => {
-      if (typeof window === 'undefined') return;
-      window.scrollTo({ top: lockY, left: 0, behavior: 'auto' });
-    };
 
     this.rsvpSelectedId.set(hit.id);
     this.rsvpSelectedName.set(hit.name);
@@ -575,16 +569,11 @@ export class WeddingInvitation {
       this.rsvpAttend.set(null);
     }
 
-    restoreScroll();
     queueMicrotask(() => {
       (document.activeElement as HTMLElement | null)?.blur?.();
-      restoreScroll();
-      requestAnimationFrame(() => {
-        restoreScroll();
-        // One more pass after mobile keyboard animation settles.
-        window.setTimeout(restoreScroll, 120);
-        window.setTimeout(restoreScroll, 320);
-      });
+      this.focusRsvpReply();
+      window.setTimeout(() => this.focusRsvpReply(), 160);
+      window.setTimeout(() => this.focusRsvpReply(), 360);
     });
 
     this.rsvpApi.getGuest(hit.id).subscribe({
@@ -597,9 +586,19 @@ export class WeddingInvitation {
           guest.companions[i]?.name || '',
         );
         this.rsvpCompanionSlots.set(slots);
-        restoreScroll();
+        this.focusRsvpReply();
       },
       error: () => undefined,
+    });
+  }
+
+  /** Keep the RSVP reply controls in view after a guest is chosen (esp. mobile). */
+  private focusRsvpReply(): void {
+    if (typeof document === 'undefined') return;
+    document.getElementById('rsvp-reply')?.scrollIntoView({
+      behavior: 'smooth',
+      block: 'center',
+      inline: 'nearest',
     });
   }
 

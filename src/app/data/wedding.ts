@@ -280,12 +280,12 @@ export const WEDDING: Wedding = {
       { gentlemen: 'Mr. Evaristo A. Capuno', ladies: 'Mrs. Rowena B. Capuno' },
       { gentlemen: 'Mr. Nicasio D. Buenaobra', ladies: 'Mrs. Herminia A. Buenaobra' },
     ],
-    bestMan: 'Mr. Mio Meow',
-    maidOfHonor: 'Ms. Miho the Meow',
+    bestMan: 'Mr. Allen A. Mangubat',
+    maidOfHonor: 'Ms. Analyn M. Matibag',
     secondarySponsors: [
-      { role: 'Candle', pair: 'Mr. Coco Meow & Ms. Cali Meow' },
-      { role: 'Cord', pair: 'Mr. Pino Meow & Ms. Pika Meow' },
-      { role: 'Veil', pair: 'Mr. Vito Meow & Ms. Vita Meow' },
+      { role: 'Candle', pair: 'Ms. Annalyn R. Cachero & Mr. Kelvin Zendrix A. Punzalan' },
+      { role: 'Cord', pair: 'Ms. Mileah Victoria P. Dela Rea & Mr. Timothy Clark P. De Castro' },
+      { role: 'Veil', pair: 'Ms. Jennifer C. Salarioza & Mr. John Paul P. Aguilar' },
     ],
     bearers: [
       { role: 'Bible Bearer', name: 'Adam Rey C. Lorenzo' },
