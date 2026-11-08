@@ -1496,7 +1496,9 @@ export class WeddingInvitation {
       return yy + 24;
     };
 
-    // Parents — two columns
+    // Invitation print order:
+    // Parents → Principal Sponsors → Best Man / Maid of Honor →
+    // Secondary Sponsors → Bearers → Flower Girls → Little Groom / Little Bride
     let yL = role('Parents of the Groom', leftX, y);
     for (const n of e.parentsOfGroom) {
       yL = name(n, leftX, yL);
@@ -1507,14 +1509,6 @@ export class WeddingInvitation {
     }
     y = Math.max(yL, yR) + 18;
 
-    // Best man / Maid of honor
-    yL = role('Best Man', leftX, y);
-    yL = name(e.bestMan, leftX, yL);
-    yR = role('Maid of Honor', rightX, y);
-    yR = name(e.maidOfHonor, rightX, yR);
-    y = Math.max(yL, yR) + 20;
-
-    // Principal sponsors
     ctx.fillStyle = '#b8943a';
     ctx.font = '600 15px Cinzel, serif';
     ctx.textAlign = 'center';
@@ -1530,21 +1524,46 @@ export class WeddingInvitation {
     }
     y += 14;
 
-    // Secondary sponsors
+    yL = role('Best Man', leftX, y);
+    yL = name(e.bestMan, leftX, yL);
+    yR = role('Maid of Honor', rightX, y);
+    yR = name(e.maidOfHonor, rightX, yR);
+    y = Math.max(yL, yR) + 20;
+
+    ctx.fillStyle = '#b8943a';
+    ctx.font = '600 15px Cinzel, serif';
+    ctx.textAlign = 'center';
+    ctx.fillText('SECONDARY SPONSORS', width / 2, y);
+    y += 26;
     const secondaryCols = e.secondarySponsors;
     const secW = (width - 200) / Math.max(secondaryCols.length, 1);
     let secBottom = y;
     secondaryCols.forEach((s, i) => {
       const x = 100 + secW * i + secW / 2;
       let yy = role(s.role, x, y);
-      for (const n of s.pair.split(' & ')) {
-        yy = name(n, x, yy);
-      }
+      yy = name(s.first, x, yy);
+      yy = name(s.second, x, yy);
       secBottom = Math.max(secBottom, yy);
     });
     y = secBottom + 18;
 
-    // Bearers
+    if (e.bridalParty.length) {
+      ctx.fillStyle = '#b8943a';
+      ctx.font = '600 15px Cinzel, serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('GROOMSMAN & BRIDESMAID', width / 2, y);
+      y += 26;
+      for (const pair of e.bridalParty) {
+        ctx.fillStyle = '#1a322c';
+        ctx.font = '500 19px "Cormorant Garamond", serif';
+        ctx.textAlign = 'center';
+        ctx.fillText(pair.groomsman, leftX, y);
+        ctx.fillText(pair.bridesmaid, rightX, y);
+        y += 24;
+      }
+      y += 12;
+    }
+
     const bearerW = (width - 200) / Math.max(e.bearers.length, 1);
     let bearerBottom = y;
     e.bearers.forEach((b, i) => {
@@ -1555,12 +1574,11 @@ export class WeddingInvitation {
     });
     y = bearerBottom + 16;
 
-    // Flower girls
     if (e.flowerGirls.length) {
       ctx.fillStyle = '#b8943a';
       ctx.font = '600 15px Cinzel, serif';
       ctx.textAlign = 'center';
-      ctx.fillText('FLOWER GIRL', width / 2, y);
+      ctx.fillText('FLOWER GIRLS', width / 2, y);
       y += 24;
       const fgW = (width - 260) / Math.max(e.flowerGirls.length, 1);
       e.flowerGirls.forEach((n, i) => {
@@ -1569,6 +1587,12 @@ export class WeddingInvitation {
       });
       y += 28;
     }
+
+    yL = role('Little Groom', leftX, y);
+    yL = name(e.littleGroom, leftX, yL);
+    yR = role('Little Bride', rightX, y);
+    yR = name(e.littleBride, rightX, yR);
+    y = Math.max(yL, yR) + 16;
 
     ctx.textAlign = 'center';
     return y;

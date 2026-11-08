@@ -365,7 +365,7 @@
           }
         </ul>
 
-        <div class="court__split" [appReveal]="160">
+        <div class="court__split court__split--honor" [appReveal]="160">
           <div class="court__col">
             <p class="court__role">Best Man</p>
             <p class="court__name">{{ wedding.entourage.bestMan }}</p>
@@ -376,16 +376,26 @@
           </div>
         </div>
 
-        <div class="court__roles court__roles--trio">
+        <h3 class="court__banner" [appReveal]="120">Secondary Sponsors</h3>
+        <ul class="court__couples court__couples--rites">
           @for (s of wedding.entourage.secondarySponsors; track s.role; let i = $index) {
-            <div class="court__col" [appReveal]="140 + i * 120">
+            <li [appReveal]="140 + i * 120">
               <p class="court__role">{{ s.role }}</p>
-              @for (person of s.pair.split(' & '); track person) {
-                <p class="court__name">{{ person }}</p>
-              }
-            </div>
+              <span>{{ s.first }}</span>
+              <span>{{ s.second }}</span>
+            </li>
           }
-        </div>
+        </ul>
+
+        <h3 class="court__banner" [appReveal]="120">Groomsman &amp; Bridesmaid</h3>
+        <ul class="court__couples">
+          @for (pair of wedding.entourage.bridalParty; track pair.groomsman; let i = $index) {
+            <li [appReveal]="160 + i * 110">
+              <span>{{ pair.groomsman }}</span>
+              <span>{{ pair.bridesmaid }}</span>
+            </li>
+          }
+        </ul>
 
         <h3 class="court__banner" [appReveal]="120">Bearers</h3>
         <div class="court__roles">
@@ -407,6 +417,17 @@
             }
           </div>
         }
+
+        <div class="court__split court__split--little" [appReveal]="160">
+          <div class="court__col">
+            <p class="court__role">Little Groom</p>
+            <p class="court__name">{{ wedding.entourage.littleGroom }}</p>
+          </div>
+          <div class="court__col">
+            <p class="court__role">Little Bride</p>
+            <p class="court__name">{{ wedding.entourage.littleBride }}</p>
+          </div>
+        </div>
       </div>
     </div>
   </section>

@@ -107,9 +107,16 @@ export interface Wedding {
     readonly principalSponsors: readonly { readonly gentlemen: string; readonly ladies: string }[];
     readonly bestMan: string;
     readonly maidOfHonor: string;
-    readonly secondarySponsors: readonly { readonly role: string; readonly pair: string }[];
+    readonly secondarySponsors: readonly {
+      readonly role: string;
+      readonly first: string;
+      readonly second: string;
+    }[];
+    readonly bridalParty: readonly { readonly groomsman: string; readonly bridesmaid: string }[];
     readonly bearers: readonly { readonly role: string; readonly name: string }[];
     readonly flowerGirls: readonly string[];
+    readonly littleGroom: string;
+    readonly littleBride: string;
   };
   readonly socials: readonly { readonly label: string; readonly url: string; readonly icon: 'facebook' | 'instagram' | 'tiktok' | 'email' }[];
 }
@@ -133,7 +140,6 @@ export const WEDDING: Wedding = {
     'images/moments/05.jpg',
     'images/moments/06.jpg',
     'images/moments/07.jpg',
-    'images/moments/08.jpg',
     'images/moments/09.jpg',
     'images/moments/10.jpg',
     'images/moments/11.jpg',
@@ -223,6 +229,8 @@ export const WEDDING: Wedding = {
       { kicker: '', title: 'Maid of Honor', image: 'images/attire/maid-of-honor.png' },
       { kicker: '', title: 'Groomsmen', image: 'images/attire/groomsmen.png', wide: true },
       { kicker: '', title: 'Bridesmaids', image: 'images/attire/bridesmaids.png', wide: true },
+      { kicker: '', title: 'Little Groom', image: 'images/attire/little-groom.png' },
+      { kicker: '', title: 'Little Bride', image: 'images/attire/little-bride.png' },
       { kicker: '', title: 'Junior Groomsmen', image: 'images/attire/groomsmen-kids.png', wide: true },
       {
         kicker: '',
@@ -274,20 +282,42 @@ export const WEDDING: Wedding = {
     ],
     bestMan: 'Mr. Allen A. Mangubat',
     maidOfHonor: 'Ms. Analyn M. Matibag',
+    // Invitation print order: Candle → Veil → Cord
     secondarySponsors: [
-      { role: 'Candle', pair: 'Ms. Annalyn R. Cachero & Mr. Kelvin Zendrix A. Punzalan' },
-      { role: 'Cord', pair: 'Ms. Mary Joy L. Develos & Mr. Marc Joseph C. Cabance' },
-      { role: 'Veil', pair: 'Ms. Jennifer C. Salarioza & Mr. John Paul P. Aguilar' },
+      {
+        role: 'Candle',
+        first: 'Ms. Annalyn R. Cachero',
+        second: 'Mr. Kelvin Zendrix A. Punzalan',
+      },
+      {
+        role: 'Veil',
+        first: 'Ms. Jennifer C. Salarioza',
+        second: 'Mr. John Paul P. Aguilar',
+      },
+      {
+        role: 'Cord',
+        first: 'Ms. Mary Joy L. Develos',
+        second: 'Mr. Marc Joseph C. Cabance',
+      },
     ],
+    bridalParty: [
+      {
+        groomsman: 'Mr. Timothy Clark P. De Castro',
+        bridesmaid: 'Ms. Mileah Victoria P. Dela Rea',
+      },
+    ],
+    // Invitation print order: Ring → Coin → Bible
     bearers: [
-      { role: 'Bible Bearer', name: 'Adam Rey C. Lorenzo' },
       { role: 'Ring Bearer', name: 'Alwyn Rey C. Lorenzo' },
       { role: 'Coin Bearer', name: 'David Angelo B. Cachero' },
+      { role: 'Bible Bearer', name: 'Adam Rey C. Lorenzo' },
     ],
     flowerGirls: [
       'Ma. Madison B. Cachero',
       'Arya Xiela C. Pasague',
     ],
+    littleGroom: 'Primo A. Austria',
+    littleBride: 'Aliyah Rose C. Lorenzo',
   },
   socials: [
     { label: 'Facebook', url: 'https://facebook.com/wcachero', icon: 'facebook' },
@@ -306,7 +336,6 @@ export const GALLERY_FOCUS: Readonly<Record<string, string>> = {
   'images/moments/05.jpg': '50% 32%',
   'images/moments/06.jpg': '50% 16%',
   'images/moments/07.jpg': '46% 42%',
-  'images/moments/08.jpg': '50% 34%',
   'images/moments/09.jpg': '50% 32%',
   'images/moments/10.jpg': '50% 30%',
   'images/moments/11.jpg': '52% 40%',

@@ -2122,6 +2122,14 @@
     }
 
     &--script { align-items: center; }
+
+    &--honor {
+      margin-top: clamp(2.1rem, 4.5vw, 2.85rem);
+    }
+
+    &--little {
+      margin-top: clamp(2rem, 4vw, 2.6rem);
+    }
   }
 
   &__roles {
@@ -2145,6 +2153,24 @@
         max-width: 16rem;
         min-width: 0;
         grid-column: auto;
+      }
+
+      .court__col--pair {
+        display: grid;
+        grid-template-rows: auto auto auto;
+        justify-items: center;
+        row-gap: 0.2rem;
+
+        .court__role {
+          margin-bottom: 0.35rem;
+        }
+
+        .court__name {
+          display: block;
+          width: 100%;
+          margin: 0;
+          text-align: center;
+        }
       }
 
       @media (min-width: 760px) {
@@ -2235,6 +2261,21 @@
       > span {
         min-width: 0;
         text-align: center;
+      }
+    }
+
+    &--rites {
+      gap: 1.35rem;
+
+      li {
+        row-gap: 0.35rem;
+      }
+
+      .court__role {
+        grid-column: 1 / -1;
+        margin: 0 0 0.15rem;
+        text-align: center;
+        font-style: normal;
       }
     }
   }
