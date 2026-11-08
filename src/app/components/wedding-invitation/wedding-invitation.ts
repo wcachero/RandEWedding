@@ -79,6 +79,7 @@ export class WeddingInvitation {
   protected readonly reservedSeats = signal<number | null>(null);
   protected readonly hashtagCopied = signal('');
   protected readonly giftQrDownloading = signal(false);
+  protected readonly giftQrOpen = signal(false);
 
   /** Current time, ticked every second to drive the countdown. */
   private readonly now = signal(Date.now());
@@ -305,6 +306,24 @@ export class WeddingInvitation {
 
   @HostListener('document:keydown', ['$event'])
   protected onDocumentKey(event: KeyboardEvent): void {
+    if (event.key === 'Escape') {
+      if (this.rsvpDeadlineOpen()) {
+        this.dismissRsvpDeadline();
+        return;
+      }
+      if (this.giftQrOpen()) {
+        this.closeGiftQr();
+        return;
+      }
+      if (this.qrOpen()) {
+        this.closeQr();
+        return;
+      }
+      if (this.lightboxPhoto()) {
+        this.closeLightbox();
+        return;
+      }
+    }
     if (!this.lightboxPhoto()) {
       return;
     }
@@ -312,8 +331,6 @@ export class WeddingInvitation {
       this.lightboxPrev();
     } else if (event.key === 'ArrowRight') {
       this.lightboxNext();
-    } else if (event.key === 'Escape') {
-      this.closeLightbox();
     }
   }
 
@@ -500,7 +517,6 @@ export class WeddingInvitation {
     afterNextRender(() => {
       this.setupAutoHideNav();
       this.hydrateGalleryImageStates();
-      this.setupRsvpDeadlineNotice();
 
       const url = `${window.location.origin}/`;
       this.shareUrl.set(url);
@@ -513,6 +529,7 @@ export class WeddingInvitation {
       const guest = readGuestInvite(window.location.search);
       this.guestName.set(guest.name);
       this.reservedSeats.set(guest.seats);
+      this.setupRsvpDeadlineNotice(guest.name);
 
       const save = new URLSearchParams(window.location.search).get('save');
       if ((save === 'invite' || save === 'qr') && !this.isRestrictedInAppBrowser()) {
@@ -551,6 +568,9 @@ export class WeddingInvitation {
     this.rsvpError.set('');
     this.rsvpSent.set(false);
     this.rsvpCompanionSlots.set(Array.from({ length: Math.max(0, hit.companionCount) }, () => ''));
+    if (hit.responded) {
+      this.markRsvpCompleted();
+    }
     if (hit.responded && hit.joyfullyAccept != null) {
       this.rsvpAttend.set(hit.joyfullyAccept ? 'yes' : 'no');
     } else {
@@ -567,6 +587,9 @@ export class WeddingInvitation {
     this.rsvpApi.getGuest(hit.id).subscribe({
       next: ({ guest }) => {
         this.rsvpMessage.set(guest.message || '');
+        if (guest.responded || guest.dateResponded || guest.joyfullyAccept != null) {
+          this.markRsvpCompleted();
+        }
         if (guest.joyfullyAccept != null) {
           this.rsvpAttend.set(guest.joyfullyAccept ? 'yes' : 'no');
         }
@@ -658,6 +681,7 @@ export class WeddingInvitation {
           this.rsvpSubmitting.set(false);
           this.rsvpWarningOpen.set(false);
           this.rsvpSent.set(true);
+          this.markRsvpCompleted();
         },
         error: (err) => {
           this.rsvpSubmitting.set(false);
@@ -672,16 +696,55 @@ export class WeddingInvitation {
     this.rsvpWarningOpen.set(false);
   }
 
-  /** Bottom-of-page RSVP deadline warning — shown once per visit. */
+  /** Bottom-of-page RSVP deadline warning — only for guests who have not RSVP'd. */
   protected readonly rsvpDeadlineOpen = signal(false);
   private static readonly RSVP_NOTICE_KEY = 'gk-rsvp-deadline-seen';
+  private static readonly RSVP_DONE_KEY = 'gk-rsvp-done';
   private rsvpNoticeScrollY = 0;
+  /** When true, dismiss skips restoring scroll (CTA navigates to #rsvp instead). */
+  private rsvpNoticeNavigateToRsvp = false;
   /** True only while this notice is holding overflow. Closing must not move scroll. */
   private rsvpNoticeScrollFrozen = false;
+  private rsvpNoticeObserver: IntersectionObserver | null = null;
 
   protected dismissRsvpDeadline(): void {
+    const stayAt = this.rsvpNoticeScrollY;
+    const goToRsvp = this.rsvpNoticeNavigateToRsvp;
+    this.rsvpNoticeNavigateToRsvp = false;
     this.rsvpDeadlineOpen.set(false);
     this.releaseRsvpNoticeScroll();
+    this.markRsvpNoticeSeen();
+    (document.activeElement as HTMLElement | null)?.blur?.();
+
+    if (goToRsvp) {
+      queueMicrotask(() => this.scrollToRsvpSection());
+      window.setTimeout(() => this.scrollToRsvpSection(), 80);
+      return;
+    }
+
+    // Stay exactly where the notice appeared (usually the bottom of the invite).
+    const restore = (): void => {
+      window.scrollTo({ top: stayAt, left: 0, behavior: 'auto' });
+    };
+    restore();
+    requestAnimationFrame(() => {
+      restore();
+      window.setTimeout(restore, 50);
+      window.setTimeout(restore, 180);
+    });
+  }
+
+  protected goToRsvpFromNotice(event?: Event): void {
+    event?.preventDefault();
+    this.rsvpNoticeNavigateToRsvp = true;
+    this.dismissRsvpDeadline();
+  }
+
+  private scrollToRsvpSection(): void {
+    document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  }
+
+  private markRsvpNoticeSeen(): void {
     try {
       sessionStorage.setItem(WeddingInvitation.RSVP_NOTICE_KEY, '1');
     } catch {
@@ -689,46 +752,102 @@ export class WeddingInvitation {
     }
   }
 
-  protected goToRsvpFromNotice(): void {
-    this.dismissRsvpDeadline();
-    queueMicrotask(() => {
-      document.getElementById('rsvp')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    });
+  private markRsvpCompleted(): void {
+    try {
+      localStorage.setItem(WeddingInvitation.RSVP_DONE_KEY, '1');
+    } catch {
+      /* private mode / blocked storage */
+    }
+    this.rsvpNoticeObserver?.disconnect();
+    this.rsvpNoticeObserver = null;
+    if (this.rsvpDeadlineOpen()) {
+      this.rsvpDeadlineOpen.set(false);
+      this.releaseRsvpNoticeScroll();
+    }
   }
 
-  /** Open the deadline notice the first time the guest reaches the invitation end. */
-  private setupRsvpDeadlineNotice(): void {
-    try {
-      if (sessionStorage.getItem(WeddingInvitation.RSVP_NOTICE_KEY) === '1') {
-        return;
-      }
-    } catch {
-      /* continue without persistence */
+  private hasCompletedRsvp(): boolean {
+    if (this.rsvpSent()) {
+      return true;
     }
+    try {
+      return localStorage.getItem(WeddingInvitation.RSVP_DONE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
 
-    const end = this.host.nativeElement.querySelector('.invite__end') as HTMLElement | null;
-    if (!end || typeof IntersectionObserver === 'undefined') {
+  private hasSeenRsvpNotice(): boolean {
+    try {
+      return sessionStorage.getItem(WeddingInvitation.RSVP_NOTICE_KEY) === '1';
+    } catch {
+      return false;
+    }
+  }
+
+  /** Open the deadline notice once at the invite end — skipped if the guest already RSVP'd. */
+  private setupRsvpDeadlineNotice(inviteGuestName = ''): void {
+    if (this.hasCompletedRsvp() || this.hasSeenRsvpNotice()) {
       return;
     }
 
-    const observer = new IntersectionObserver(
-      (entries) => {
-        if (!entries.some((e) => e.isIntersecting)) {
-          return;
-        }
-        this.rsvpDeadlineOpen.set(true);
-        this.freezeRsvpNoticeScroll();
-        observer.disconnect();
-      },
-      { root: null, threshold: 0.35 },
-    );
-
-    observer.observe(end);
-    this.destroyRef.onDestroy(() => {
-      observer.disconnect();
-      if (this.rsvpDeadlineOpen()) {
-        this.releaseRsvpNoticeScroll();
+    const startObserving = (): void => {
+      if (this.hasCompletedRsvp() || this.hasSeenRsvpNotice()) {
+        return;
       }
+      const end = this.host.nativeElement.querySelector('.invite__end') as HTMLElement | null;
+      if (!end || typeof IntersectionObserver === 'undefined') {
+        return;
+      }
+
+      this.rsvpNoticeObserver?.disconnect();
+      this.rsvpNoticeObserver = new IntersectionObserver(
+        (entries) => {
+          if (!entries.some((e) => e.isIntersecting)) {
+            return;
+          }
+          if (this.hasCompletedRsvp() || this.hasSeenRsvpNotice()) {
+            this.rsvpNoticeObserver?.disconnect();
+            this.rsvpNoticeObserver = null;
+            return;
+          }
+          this.rsvpNoticeScrollY = window.scrollY;
+          this.rsvpDeadlineOpen.set(true);
+          this.freezeRsvpNoticeScroll();
+          this.rsvpNoticeObserver?.disconnect();
+          this.rsvpNoticeObserver = null;
+        },
+        { root: null, threshold: 0.35 },
+      );
+
+      this.rsvpNoticeObserver.observe(end);
+      this.destroyRef.onDestroy(() => {
+        this.rsvpNoticeObserver?.disconnect();
+        this.rsvpNoticeObserver = null;
+        if (this.rsvpDeadlineOpen()) {
+          this.releaseRsvpNoticeScroll();
+        }
+      });
+    };
+
+    const name = inviteGuestName.trim();
+    if (!name) {
+      startObserving();
+      return;
+    }
+
+    this.rsvpApi.searchGuests(name).pipe(
+      catchError(() => of({ guests: [] as GuestSearchHit[] })),
+      takeUntilDestroyed(this.destroyRef),
+    ).subscribe(({ guests }) => {
+      const matched = guests.find(
+        (g) => g.name.trim().toLowerCase() === name.toLowerCase() && g.responded,
+      );
+      if (matched) {
+        this.markRsvpCompleted();
+        return;
+      }
+      startObserving();
     });
   }
 
@@ -856,6 +975,14 @@ export class WeddingInvitation {
     this.qrOpen.set(false);
   }
 
+  protected openGiftQr(): void {
+    this.giftQrOpen.set(true);
+  }
+
+  protected closeGiftQr(): void {
+    this.giftQrOpen.set(false);
+  }
+
   /** True while the themed QR card PNG is being composed for download. */
   protected readonly qrDownloading = signal(false);
 
@@ -874,7 +1001,14 @@ export class WeddingInvitation {
   protected readonly chromeSaveKind = signal<'invite' | 'qr' | null>(null);
   /** True while any full-screen overlay is open so chrome can step aside. */
   protected readonly overlayOpen = computed(
-    () => this.qrOpen() || !!this.lightboxPhoto() || !!this.activeMap() || !!this.chromeSaveKind(),
+    () =>
+      this.qrOpen() ||
+      this.giftQrOpen() ||
+      this.rsvpDeadlineOpen() ||
+      this.rsvpWarningOpen() ||
+      !!this.lightboxPhoto() ||
+      !!this.activeMap() ||
+      !!this.chromeSaveKind(),
   );
   protected readonly chromeSaveReady = signal(false);
   private chromeSaveDataUrl: string | null = null;

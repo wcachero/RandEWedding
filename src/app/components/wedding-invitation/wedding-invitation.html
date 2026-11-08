@@ -486,16 +486,23 @@
       <div class="gifts__grid" appReveal>
         <article class="gifts__card gifts__card--qr">
           <p class="gifts__card-kicker">Scan to send</p>
-          <div class="gifts__qr">
-            <img
-              class="gifts__qr-code"
-              [src]="wedding.monetaryGift.qrImage"
-              alt="GCash QR code for Rowelyn Cachero" />
-          </div>
-          <p class="gifts__gcash">
-            <span class="gifts__gcash-label">GCash</span>
-            <span class="gifts__gcash-name">{{ wedding.monetaryGift.gcashName }}</span>
-          </p>
+          <button
+            type="button"
+            class="gifts__qr-open"
+            (click)="openGiftQr()"
+            aria-label="Enlarge GCash QR">
+            <div class="gifts__qr">
+              <img
+                class="gifts__qr-code"
+                [src]="wedding.monetaryGift.qrImage"
+                alt="GCash QR code for Rowelyn Cachero" />
+            </div>
+            <p class="gifts__gcash">
+              <span class="gifts__gcash-label">GCash</span>
+              <span class="gifts__gcash-name">{{ wedding.monetaryGift.gcashName }}</span>
+              <span class="gifts__qr-hint">Tap to enlarge</span>
+            </p>
+          </button>
           <button
             type="button"
             class="btn gifts__download"
@@ -861,9 +868,9 @@
       <p class="rsvp-notice__body">
         Please confirm your attendance on or before this date so we can reserve your seat with care.
       </p>
-      <button type="button" class="btn rsvp-notice__cta" (click)="goToRsvpFromNotice()">
+      <a class="btn rsvp-notice__cta" href="#rsvp" (click)="goToRsvpFromNotice($event)">
         Go to RSVP
-      </button>
+      </a>
     </div>
   </div>
 }
@@ -951,6 +958,30 @@
         (click)="downloadQr()"
         [disabled]="!qrDataUrl() || qrDownloading()">
         {{ qrDownloading() ? 'Preparing…' : 'Save / Share QR' }}
+      </button>
+    </div>
+  </div>
+}
+
+<!-- GCash QR enlarge -->
+@if (giftQrOpen()) {
+  <div class="qr-modal qr-modal--gift" (click)="closeGiftQr()">
+    <div class="qr-modal__card" (click)="$event.stopPropagation()">
+      <button type="button" class="qr-modal__close" aria-label="Close" (click)="closeGiftQr()">&times;</button>
+      <p class="qr-modal__names">GCash</p>
+      <div class="qr-modal__qr">
+        <img
+          class="qr-modal__code"
+          [src]="wedding.monetaryGift.qrImage"
+          alt="Enlarged GCash QR code for Rowelyn Cachero" />
+      </div>
+      <p class="qr-modal__hint">{{ wedding.monetaryGift.gcashName }}</p>
+      <button
+        type="button"
+        class="btn qr-modal__download"
+        (click)="downloadGiftQr()"
+        [disabled]="giftQrDownloading()">
+        {{ giftQrDownloading() ? 'Preparing…' : 'Download QR' }}
       </button>
     </div>
   </div>

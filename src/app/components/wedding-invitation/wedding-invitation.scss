@@ -2134,19 +2134,26 @@
     }
 
     &--trio {
-      display: flex;
-      flex-wrap: nowrap;
-      justify-content: center;
-      align-items: start;
-      grid-template-columns: none;
+      display: grid;
+      grid-template-columns: 1fr;
+      justify-items: center;
       column-gap: clamp(0.7rem, 3.5vw, 2.75rem);
-      row-gap: 1.35rem;
+      row-gap: 1.55rem;
 
       > .court__col {
-        flex: 1 1 0;
+        width: 100%;
+        max-width: 16rem;
         min-width: 0;
-        max-width: 9.75rem;
         grid-column: auto;
+      }
+
+      @media (min-width: 760px) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        justify-items: stretch;
+
+        > .court__col {
+          max-width: none;
+        }
       }
     }
   }
@@ -2286,6 +2293,19 @@
     text-align: center;
   }
 
+  &__qr-open {
+    display: block;
+    width: 100%;
+    margin: 0 0 1rem;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    color: inherit;
+    font: inherit;
+    cursor: pointer;
+    text-align: center;
+  }
+
   &__qr {
     display: grid;
     place-items: center;
@@ -2294,6 +2314,17 @@
     padding: 0.55rem;
     background: #fbfaf6;
     border: 1px solid rgba(14, 61, 50, 0.18);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  &__qr-open:hover &__qr,
+  &__qr-open:focus-visible &__qr {
+    border-color: #c9a227;
+    box-shadow: 0 0 0 2px rgba(201, 162, 39, 0.28);
+  }
+
+  &__qr-open:focus-visible {
+    outline: none;
   }
 
   &__qr-code {
@@ -2305,7 +2336,6 @@
   &__gcash {
     display: grid;
     gap: 0.2rem;
-    margin-bottom: 1rem;
     text-align: center;
   }
 
@@ -2321,6 +2351,15 @@
     font-family: var(--font-heading);
     font-size: 1.2rem;
     color: #0e3d32;
+  }
+
+  &__qr-hint {
+    margin-top: 0.25rem;
+    font-family: var(--font-ui);
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    font-size: 0.52rem;
+    color: #8d6a18;
   }
 
   &__download {
@@ -3024,6 +3063,19 @@
     border-radius: 18px;
     box-shadow: var(--shadow-md);
     text-align: center;
+  }
+
+  &--gift &__card {
+    width: min(96vw, 420px);
+  }
+
+  &--gift &__qr {
+    width: min(86vw, 340px);
+    aspect-ratio: auto;
+  }
+
+  &--gift &__code {
+    height: auto;
   }
 
   &__close {
