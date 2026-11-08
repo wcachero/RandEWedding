@@ -78,10 +78,7 @@ export class WeddingInvitation {
   protected readonly guestName = signal('');
   protected readonly reservedSeats = signal<number | null>(null);
   protected readonly hashtagCopied = signal('');
-  protected readonly giftQrDataUrl = signal<string | null>(null);
   protected readonly giftQrDownloading = signal(false);
-  protected readonly giftAccountCopied = signal(false);
-  private giftAccountCopiedTimer: ReturnType<typeof setTimeout> | null = null;
 
   /** Current time, ticked every second to drive the countdown. */
   private readonly now = signal(Date.now());
@@ -511,15 +508,6 @@ export class WeddingInvitation {
       this.buildBrandedQrDataUrl(url)
         .then((data) => this.qrDataUrl.set(data))
         .catch(() => this.qrDataUrl.set(null));
-
-      QRCode.toDataURL(this.wedding.monetaryGift.qrPayload, {
-        errorCorrectionLevel: 'M',
-        margin: 1,
-        width: 280,
-        color: { dark: '#0e3d32', light: '#fbfaf6' },
-      })
-        .then((data) => this.giftQrDataUrl.set(data))
-        .catch(() => this.giftQrDataUrl.set(null));
 
       // Opened from Messenger's "Open in Chrome" so a real tap can save the file.
       const guest = readGuestInvite(window.location.search);
@@ -1743,21 +1731,20 @@ export class WeddingInvitation {
     }
   }
 
-  /** Download the monetary-gift QR with bank details. */
+  /** Download the GCash gift QR card. */
   protected async downloadGiftQr(): Promise<void> {
-    const qr = this.giftQrDataUrl();
-    if (!qr || this.giftQrDownloading()) {
+    if (this.giftQrDownloading()) {
       return;
     }
 
     this.giftQrDownloading.set(true);
     try {
-      const dataUrl = await this.buildDownloadableGiftQrCard(qr);
-      const filename = `${this.wedding.groom.toLowerCase()}-${this.wedding.bride.toLowerCase()}-gift-qr.jpg`;
+      const dataUrl = await this.buildDownloadableGiftQrCard(this.wedding.monetaryGift.qrImage);
+      const filename = `${this.wedding.groom.toLowerCase()}-${this.wedding.bride.toLowerCase()}-gcash-qr.jpg`;
       await this.saveOrShareImage(
         dataUrl,
         filename,
-        `${this.wedding.groom} & ${this.wedding.bride} Gift QR`,
+        `${this.wedding.groom} & ${this.wedding.bride} GCash QR`,
       );
     } catch {
       /* keep the gifts section usable if canvas/fonts fail */
@@ -1766,16 +1753,16 @@ export class WeddingInvitation {
     }
   }
 
-  /** Cream card with gift QR, GCash, and bank account details. */
-  private async buildDownloadableGiftQrCard(qrDataUrl: string): Promise<string> {
+  /** Cream card with the GCash QR and account name. */
+  private async buildDownloadableGiftQrCard(qrSrc: string): Promise<string> {
     if (document.fonts?.ready) {
       await document.fonts.ready;
     }
 
-    const qrImg = await this.loadImage(qrDataUrl);
+    const qrImg = await this.loadImage(qrSrc);
     const gift = this.wedding.monetaryGift;
     const width = 1080;
-    const height = 1480;
+    const height = 1280;
     const canvas = document.createElement('canvas');
     canvas.width = width;
     canvas.height = height;
@@ -1814,9 +1801,9 @@ export class WeddingInvitation {
 
     ctx.fillStyle = '#b8943a';
     ctx.font = '600 26px Cinzel, serif';
-    this.fillSpacedText(ctx, 'MONETARY GIFT', width / 2, 310, 8);
+    this.fillSpacedText(ctx, 'GCASH GIFT', width / 2, 310, 8);
 
-    const qrSize = 520;
+    const qrSize = 560;
     const qrX = (width - qrSize) / 2;
     const qrY = 360;
     ctx.fillStyle = '#fbfaf6';
@@ -1830,53 +1817,12 @@ export class WeddingInvitation {
     ctx.fillStyle = '#8d6a18';
     ctx.font = '600 22px Cinzel, serif';
     this.fillSpacedText(ctx, 'GCASH', width / 2, y, 6);
-    y += 42;
+    y += 46;
     ctx.fillStyle = '#0e3d32';
-    ctx.font = '500 34px "Cormorant Garamond", serif';
+    ctx.font = '500 38px "Cormorant Garamond", serif';
     ctx.fillText(gift.gcashName, width / 2, y);
-    y += 40;
-    ctx.fillText(gift.gcashNumber, width / 2, y);
-
-    y += 58;
-    this.drawGoldRule(ctx, width / 2, y, 180);
-    y += 52;
-
-    ctx.fillStyle = '#8d6a18';
-    ctx.font = '600 22px Cinzel, serif';
-    this.fillSpacedText(ctx, 'BANK TRANSFER', width / 2, y, 6);
-    y += 44;
-    ctx.fillStyle = '#0e3d32';
-    ctx.font = '500 32px "Cormorant Garamond", serif';
-    ctx.fillText(gift.bankName, width / 2, y);
-    y += 40;
-    ctx.fillText(gift.accountName, width / 2, y);
-    y += 44;
-    ctx.font = '600 38px "Cormorant Garamond", serif';
-    ctx.fillText(gift.accountNumber, width / 2, y);
-
-    y += 58;
-    ctx.fillStyle = '#4d635b';
-    ctx.font = 'italic 24px "Cormorant Garamond", serif';
-    ctx.fillText('Mock QR · Preview only', width / 2, y);
 
     return canvas.toDataURL('image/jpeg', 0.92);
-  }
-
-  /** Copy the mock bank account number for monetary gifts. */
-  protected async copyGiftAccount(): Promise<void> {
-    const digits = this.wedding.monetaryGift.accountNumber.replace(/\s+/g, '');
-    const ok = await this.copyLink(digits);
-    if (this.giftAccountCopiedTimer) {
-      clearTimeout(this.giftAccountCopiedTimer);
-      this.giftAccountCopiedTimer = null;
-    }
-    this.giftAccountCopied.set(ok);
-    if (ok) {
-      this.giftAccountCopiedTimer = setTimeout(() => {
-        this.giftAccountCopied.set(false);
-        this.giftAccountCopiedTimer = null;
-      }, 1800);
-    }
   }
 
   /** Copy the invitation link and reflect it in the chooser. */

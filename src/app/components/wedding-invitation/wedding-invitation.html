@@ -487,66 +487,22 @@
         <article class="gifts__card gifts__card--qr">
           <p class="gifts__card-kicker">Scan to send</p>
           <div class="gifts__qr">
-            @if (giftQrDataUrl(); as qr) {
-              <img class="gifts__qr-code" [src]="qr" alt="Mock QR code for monetary gifts" />
-            } @else {
-              <span class="gifts__qr-skeleton" aria-hidden="true"></span>
-            }
+            <img
+              class="gifts__qr-code"
+              [src]="wedding.monetaryGift.qrImage"
+              alt="GCash QR code for Rowelyn Cachero" />
           </div>
-          <p class="gifts__qr-caption">Mock QR · Preview only</p>
           <p class="gifts__gcash">
             <span class="gifts__gcash-label">GCash</span>
             <span class="gifts__gcash-name">{{ wedding.monetaryGift.gcashName }}</span>
-            <span class="gifts__gcash-number">{{ wedding.monetaryGift.gcashNumber }}</span>
           </p>
           <button
             type="button"
             class="btn gifts__download"
             (click)="downloadGiftQr()"
-            [disabled]="!giftQrDataUrl() || giftQrDownloading()">
+            [disabled]="giftQrDownloading()">
             {{ giftQrDownloading() ? 'Preparing…' : 'Download QR' }}
           </button>
-        </article>
-
-        <article class="gifts__card gifts__card--bank">
-          <p class="gifts__card-kicker">Bank transfer</p>
-          <dl class="gifts__bank">
-            <div>
-              <dt>Bank</dt>
-              <dd>{{ wedding.monetaryGift.bankName }}</dd>
-            </div>
-            <div>
-              <dt>Account name</dt>
-              <dd>{{ wedding.monetaryGift.accountName }}</dd>
-            </div>
-            <div>
-              <dt>Account number</dt>
-              <dd class="gifts__account-row">
-                <span class="gifts__account">{{ wedding.monetaryGift.accountNumber }}</span>
-                <button
-                  type="button"
-                  class="gifts__copy"
-                  (click)="copyGiftAccount()"
-                  [attr.aria-label]="giftAccountCopied() ? 'Account number copied' : 'Copy account number'"
-                  [attr.title]="giftAccountCopied() ? 'Copied' : 'Copy'">
-                  @if (giftAccountCopied()) {
-                    <span class="gifts__copy-label">Copied</span>
-                  } @else {
-                    <svg class="gifts__copy-icon" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
-                      <path
-                        fill="none"
-                        stroke="currentColor"
-                        stroke-width="1.8"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        d="M8 8.5V6.8A1.8 1.8 0 0 1 9.8 5h7.4A1.8 1.8 0 0 1 19 6.8v7.4a1.8 1.8 0 0 1-1.8 1.8H15.5M6.8 9H14a1.8 1.8 0 0 1 1.8 1.8V19A1.8 1.8 0 0 1 14 20.8H6.8A1.8 1.8 0 0 1 5 19v-8.2A1.8 1.8 0 0 1 6.8 9Z" />
-                    </svg>
-                  }
-                </button>
-              </dd>
-            </div>
-          </dl>
-          <p class="gifts__hint">Tap copy to save the account number</p>
         </article>
       </div>
     </div>

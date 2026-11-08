@@ -73,13 +73,9 @@ export interface Wedding {
   /** Optional monetary gift details shown in the Gifts section. */
   readonly monetaryGift: {
     readonly note: string;
-    readonly bankName: string;
-    readonly accountName: string;
-    readonly accountNumber: string;
     readonly gcashName: string;
-    readonly gcashNumber: string;
-    /** Payload encoded into the mock QR (preview only). */
-    readonly qrPayload: string;
+    /** Public path to the GCash QR image. */
+    readonly qrImage: string;
   };
   readonly hashtags: readonly string[];
   readonly schedule: readonly DayBeat[];
@@ -170,13 +166,9 @@ export const WEDDING: Wedding = {
   gifts:
     'Your presence is the gift we hope for. Should you wish to bless us further, a monetary gift would be warmly received at the reception.',
   monetaryGift: {
-    note: 'Your presence is the gift we treasure most. If you wish to bless us further, you may send a monetary gift through the details below.',
-    bankName: 'BDO Unibank',
-    accountName: 'Rowelyn Cachero',
-    accountNumber: '0042 7812 3456',
+    note: 'Your presence is the gift we treasure most. If you wish to bless us further, you may send a monetary gift through GCash.',
     gcashName: 'Rowelyn Cachero',
-    gcashNumber: '0917 555 0101',
-    qrPayload: 'MOCK-GIFT|BDO|004278123456|Edward & Rowie Wedding',
+    qrImage: 'images/gcash-qr.jpg',
   },
   hashtags: ['#EDWARDmazingDayWithROWIE'],
   schedule: [
