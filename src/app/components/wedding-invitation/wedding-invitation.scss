@@ -1571,7 +1571,7 @@
 
 .attire__groups {
   display: grid;
-  gap: clamp(1.65rem, 3.6vw, 2.4rem);
+  gap: clamp(2.15rem, 4.5vw, 3rem);
   margin-bottom: clamp(1.5rem, 3.2vw, 2.15rem);
 }
 
@@ -1592,6 +1592,7 @@
 
 .attire__group {
   margin: 0;
+  padding-top: clamp(0.35rem, 1.2vw, 0.75rem);
   text-align: center;
 }
 
@@ -1637,7 +1638,7 @@
 }
 
 .attire__party {
-  gap: clamp(1rem, 2.2vw, 1.45rem) clamp(0.7rem, 2vw, 1.25rem);
+  gap: clamp(1.65rem, 3.4vw, 2.35rem) clamp(0.7rem, 2vw, 1.25rem);
   align-items: start;
 }
 
@@ -1705,6 +1706,7 @@
   margin: 0;
   min-width: 0;
   text-align: center;
+  padding-top: clamp(0.35rem, 1.2vw, 0.7rem);
 
   &--wide { grid-column: 1 / -1; }
 
@@ -2274,20 +2276,21 @@
 
       li {
         display: grid;
-        grid-template-columns: 1fr;
-        justify-items: center;
-        row-gap: 0.2rem;
-        font-style: normal;
+        grid-template-columns: 1fr 1fr;
+        column-gap: clamp(0.75rem, 3vw, 1.75rem);
+        row-gap: 0.35rem;
+        align-items: start;
       }
 
       .court__role {
-        margin: 0 0 0.35rem;
+        grid-column: 1 / -1;
+        margin: 0 0 0.2rem;
         text-align: center;
+        font-style: normal;
       }
 
-      .court__name {
-        width: 100%;
-        margin: 0;
+      > span {
+        min-width: 0;
         text-align: center;
       }
     }

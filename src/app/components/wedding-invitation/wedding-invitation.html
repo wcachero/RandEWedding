@@ -381,8 +381,10 @@
           @for (s of wedding.entourage.secondarySponsors; track s.role; let i = $index) {
             <li [appReveal]="140 + i * 120">
               <p class="court__role">{{ s.role }}</p>
-              <p class="court__name">{{ s.first }}</p>
-              <p class="court__name">{{ s.second }}</p>
+              <span>{{ s.primary.left }}</span>
+              <span>{{ s.primary.right }}</span>
+              <span>{{ s.secondary.left }}</span>
+              <span>{{ s.secondary.right }}</span>
             </li>
           }
         </ul>

@@ -1561,8 +1561,18 @@ export class WeddingInvitation {
     secondaryCols.forEach((s, i) => {
       const x = 100 + secW * i + secW / 2;
       let yy = role(s.role, x, y);
-      yy = name(s.first, x, yy);
-      yy = name(s.second, x, yy);
+      // Draw pairs as two-column rows under each rite.
+      const drawPair = (left: string, right: string, rowY: number): number => {
+        ctx.fillStyle = '#1a322c';
+        ctx.font = '500 17px "Cormorant Garamond", serif';
+        ctx.textAlign = 'center';
+        const pairGap = secW * 0.42;
+        ctx.fillText(left, x - pairGap / 2, rowY);
+        ctx.fillText(right, x + pairGap / 2, rowY);
+        return rowY + 22;
+      };
+      yy = drawPair(s.primary.left, s.primary.right, yy);
+      yy = drawPair(s.secondary.left, s.secondary.right, yy);
       secBottom = Math.max(secBottom, yy);
     });
     y = secBottom + 18;

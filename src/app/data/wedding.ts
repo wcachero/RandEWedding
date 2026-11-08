@@ -109,8 +109,10 @@ export interface Wedding {
     readonly maidOfHonor: string;
     readonly secondarySponsors: readonly {
       readonly role: string;
-      readonly first: string;
-      readonly second: string;
+      /** Primary pair (top row, two columns). */
+      readonly primary: { readonly left: string; readonly right: string };
+      /** Second pair (bottom row, two columns). */
+      readonly secondary: { readonly left: string; readonly right: string };
     }[];
     readonly bridalParty: readonly { readonly groomsman: string; readonly bridesmaid: string }[];
     readonly bearers: readonly { readonly role: string; readonly name: string }[];
@@ -286,18 +288,36 @@ export const WEDDING: Wedding = {
     secondarySponsors: [
       {
         role: 'Candle',
-        first: 'Mileah Victoria P. Dela Rea',
-        second: 'Timothy Clark P. De Castro',
+        primary: {
+          left: 'Annalyn R. Cachero',
+          right: 'Kelvin Zendrix A. Punzalan',
+        },
+        secondary: {
+          left: 'Mileah Victoria P. Dela Rea',
+          right: 'Timothy Clark P. De Castro',
+        },
       },
       {
         role: 'Veil',
-        first: 'Mary Joy R. Cachero',
-        second: 'Jheo Aldhi P. Derequito',
+        primary: {
+          left: 'Jennifer C. Salarioza',
+          right: 'John Paul P. Aguilar',
+        },
+        secondary: {
+          left: 'Mary Joy R. Cachero',
+          right: 'Jheo Aldhi P. Derequito',
+        },
       },
       {
         role: 'Cord',
-        first: 'Louise Jasmin A. Tacla',
-        second: 'Marcreiner Louise P. Dela Rea',
+        primary: {
+          left: 'Mary Joy L. Develos',
+          right: 'Marc Joseph C. Cabance',
+        },
+        secondary: {
+          left: 'Louise Jasmin A. Tacla',
+          right: 'Marcreiner Louise P. Dela Rea',
+        },
       },
     ],
     bridalParty: [],
