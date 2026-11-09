@@ -290,7 +290,7 @@ export const WEDDING: Wedding = {
     ],
     principalSponsors: [
       { gentlemen: 'Mr. Marlon B. Cabance', ladies: 'Mrs. Anicia C. Santos' },
-      { gentlemen: 'Mr. Almario M. Sandoval', ladies: 'Mrs. Anicia R. Sandoval' },
+      { gentlemen: 'Mr. Almario E. Sandoval', ladies: 'Mrs. Anicia R. Sandoval' },
       { gentlemen: 'Mr. Arcadio E. Sarmiento', ladies: 'Mrs. Aurora E. Sarmiento' },
       { gentlemen: 'Mr. Edgar B. Briones', ladies: 'Mrs. Susan S. Briones' },
       { gentlemen: 'Mr. Evaristo A. Capuno', ladies: 'Mrs. Rowena B. Capuno' },
@@ -303,30 +303,30 @@ export const WEDDING: Wedding = {
       {
         role: 'Candle',
         primary: {
-          left: 'Annalyn R. Cachero',
-          right: 'Kelvin Zendrix A. Punzalan',
+          left: 'Kelvin Zendrix A. Punzalan',
+          right: 'Annalyn R. Cachero',
         },
       },
       {
         role: 'Veil',
         primary: {
-          left: 'Jennifer C. Salarioza',
-          right: 'John Paul P. Aguilar',
+          left: 'John Paul P. Aguilar',
+          right: 'Jennifer C. Salarioza',
         },
         secondary: {
-          left: 'Mary Joy R. Cachero',
-          right: 'Jheo Aldhi P. Derequito',
+          left: 'Jheo Aldhi P. Derequito',
+          right: 'Mary Joy R. Cachero',
         },
       },
       {
         role: 'Cord',
         primary: {
-          left: 'Mary Joy L. Develos',
-          right: 'Marc Joseph C. Cabance',
+          left: 'Marc Joseph C. Cabance',
+          right: 'Mary Joy L. Develos',
         },
         secondary: {
-          left: 'Louise Jasmin A. Tacla',
-          right: 'Marcreiner Louise P. Dela Rea',
+          left: 'Marcreiner Louise P. Dela Rea',
+          right: 'Louise Jasmin A. Tacla',
         },
       },
     ],
