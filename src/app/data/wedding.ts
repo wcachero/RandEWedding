@@ -154,7 +154,6 @@ export const WEDDING: Wedding = {
     'images/moments/07.jpg',
     'images/moments/09.jpg',
     'images/moments/10.jpg',
-    'images/moments/11.jpg',
     'images/moments/12.jpg',
   ],
   ceremony: {
@@ -368,6 +367,5 @@ export const GALLERY_FOCUS: Readonly<Record<string, string>> = {
   'images/moments/07.jpg': '46% 42%',
   'images/moments/09.jpg': '50% 32%',
   'images/moments/10.jpg': '50% 30%',
-  'images/moments/11.jpg': '52% 40%',
   'images/moments/12.jpg': '50% 34%',
 };
