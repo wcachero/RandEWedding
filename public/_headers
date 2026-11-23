@@ -1,3 +1,8 @@
 /wedding.ics
   Content-Type: text/calendar; charset=utf-8
   Cache-Control: public, max-age=3600
+
+/edward-and-rowie-wedding-invitation.pdf
+  Content-Type: application/pdf
+  Content-Disposition: attachment; filename="edward-and-rowie-wedding-invitation.pdf"
+  Cache-Control: public, max-age=3600

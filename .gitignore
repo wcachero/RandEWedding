@@ -46,3 +46,4 @@ Thumbs.db
 # Local working files. Originals include zips over GitHub's 100 MB limit.
 /.tmp/
 /asset dl/
+/print-invitation/

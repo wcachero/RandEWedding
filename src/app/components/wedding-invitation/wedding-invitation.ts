@@ -1006,13 +1006,19 @@ export class WeddingInvitation {
   /** True while the themed QR card PNG is being composed for download. */
   protected readonly qrDownloading = signal(false);
 
-  /** True while the invitation keepake image is being composed. */
+  private static readonly INVITATION_PDF_URL = 'edward-and-rowie-wedding-invitation.pdf';
+  private static readonly INVITATION_PDF_FILENAME = 'edward-and-rowie-wedding-invitation.pdf';
+
+  /** True while the invitation PDF is being prepared for download/share. */
   protected readonly inviteDownloading = signal(false);
 
   /** Preview shown when in-app browsers (Messenger, etc.) block direct downloads. */
   protected readonly invitePreviewUrl = signal<string | null>(null);
   protected readonly invitePreviewBlobUrl = signal<string | null>(null);
-  protected readonly invitePreviewFilename = signal('wedding-invitation.jpg');
+  protected readonly invitePreviewFilename = signal('edward-and-rowie-wedding-invitation.pdf');
+  protected readonly invitePreviewIsPdf = computed(() =>
+    this.invitePreviewFilename().toLowerCase().endsWith('.pdf'),
+  );
   /** Android Messenger blocks <a download> and long-press save. */
   protected readonly invitePreviewIsMessenger = signal(false);
   /** Set when Messenger rejects the share sheet so we point guests to Chrome. */
@@ -1028,7 +1034,8 @@ export class WeddingInvitation {
       this.rsvpWarningOpen() ||
       !!this.lightboxPhoto() ||
       !!this.activeMap() ||
-      !!this.chromeSaveKind(),
+      !!this.chromeSaveKind() ||
+      !!this.invitePreviewUrl(),
   );
   protected readonly chromeSaveReady = signal(false);
   private chromeSaveDataUrl: string | null = null;
@@ -1039,18 +1046,34 @@ export class WeddingInvitation {
     if (this.inviteDownloading()) {
       return;
     }
+
+    const pdfUrl = WeddingInvitation.INVITATION_PDF_URL;
+    const filename = WeddingInvitation.INVITATION_PDF_FILENAME;
+    const title = `${this.wedding.groom} & ${this.wedding.bride} Wedding Invitation`;
+
+    // Regular desktop & mobile browsers: download the 3-page 5R PDF immediately inside the click gesture.
+    if (!this.isRestrictedInAppBrowser()) {
+      this.triggerDataUrlDownload(pdfUrl, filename);
+      return;
+    }
+
     this.inviteDownloading.set(true);
     try {
-      // Slightly smaller JPEG helps Android Messenger share/download succeed.
-      const dataUrl = await this.buildInvitationKeepsake('image/jpeg', 0.82);
-      const filename = `${this.wedding.groom.toLowerCase()}-${this.wedding.bride.toLowerCase()}-wedding-invitation.jpg`;
-      await this.saveOrShareImage(
-        dataUrl,
-        filename,
-        `${this.wedding.groom} & ${this.wedding.bride} Wedding Invitation`,
-      );
+      if (this.isAndroidMessenger()) {
+        await this.openImagePreview(pdfUrl, filename);
+        return;
+      }
+
+      const shared = await this.tryNativeImageShare(pdfUrl, filename, title, {
+        skipCanShareCheck: true,
+      });
+      if (shared) {
+        return;
+      }
+
+      await this.openImagePreview(pdfUrl, filename);
     } catch {
-      /* keep the page usable if canvas/fonts fail */
+      this.triggerDataUrlDownload(pdfUrl, filename);
     } finally {
       this.inviteDownloading.set(false);
     }
@@ -1133,8 +1156,8 @@ export class WeddingInvitation {
         this.chromeSaveDataUrl = await this.buildDownloadableQrCard(qr);
         this.chromeSaveFilename = `${this.wedding.groom.toLowerCase()}-${this.wedding.bride.toLowerCase()}-wedding-invitation-qr.jpg`;
       } else {
-        this.chromeSaveDataUrl = await this.buildInvitationKeepsake('image/jpeg', 0.82);
-        this.chromeSaveFilename = `${this.wedding.groom.toLowerCase()}-${this.wedding.bride.toLowerCase()}-wedding-invitation.jpg`;
+        this.chromeSaveDataUrl = WeddingInvitation.INVITATION_PDF_URL;
+        this.chromeSaveFilename = WeddingInvitation.INVITATION_PDF_FILENAME;
       }
       this.chromeSaveReady.set(true);
     } catch {
@@ -1260,452 +1283,15 @@ export class WeddingInvitation {
   private async dataUrlToFile(dataUrl: string, filename: string): Promise<File> {
     const res = await fetch(dataUrl);
     const blob = await res.blob();
+    const lower = filename.toLowerCase();
     const type =
       blob.type ||
-      (filename.toLowerCase().endsWith('.jpg') || filename.toLowerCase().endsWith('.jpeg')
-        ? 'image/jpeg'
-        : 'image/png');
+      (lower.endsWith('.pdf')
+        ? 'application/pdf'
+        : lower.endsWith('.jpg') || lower.endsWith('.jpeg')
+          ? 'image/jpeg'
+          : 'image/png');
     return new File([blob], filename, { type });
-  }
-
-  /** Classic wedding invitation artwork including details + entourage. */
-  private async buildInvitationKeepsake(
-    mimeType: 'image/png' | 'image/jpeg' = 'image/jpeg',
-    quality = 0.88,
-  ): Promise<string> {
-    if (document.fonts?.ready) {
-      await document.fonts.ready;
-    }
-
-    const width = 1080;
-    const height = 3200;
-    const canvas = document.createElement('canvas');
-    canvas.width = width;
-    canvas.height = height;
-    const ctx = canvas.getContext('2d');
-    if (!ctx) {
-      throw new Error('Canvas unavailable');
-    }
-
-    const bg = ctx.createLinearGradient(0, 0, 0, height);
-    bg.addColorStop(0, '#f4ead8');
-    bg.addColorStop(0.35, '#fbf6ec');
-    bg.addColorStop(1, '#ead9c4');
-    ctx.fillStyle = bg;
-    ctx.fillRect(0, 0, width, height);
-
-    const glow = ctx.createRadialGradient(width / 2, 380, 20, width / 2, 520, width * 0.55);
-    glow.addColorStop(0, 'rgba(14, 61, 50, 0.26)');
-    glow.addColorStop(1, 'rgba(14, 61, 50, 0)');
-    ctx.fillStyle = glow;
-    ctx.fillRect(0, 0, width, height);
-
-    const inset = 40;
-    ctx.strokeStyle = 'rgba(201, 162, 39, 0.95)';
-    ctx.lineWidth = 3;
-    ctx.strokeRect(inset, inset, width - inset * 2, height - inset * 2);
-    ctx.strokeStyle = 'rgba(201, 162, 39, 0.55)';
-    ctx.lineWidth = 1.5;
-    ctx.strokeRect(inset + 14, inset + 14, width - (inset + 14) * 2, height - (inset + 14) * 2);
-
-    // Full corner florals (drawn large so sprays are not clipped)
-    try {
-      const [floralTr, floralBl] = await Promise.all([
-        this.loadImage('images/entourage-floral-tr.png'),
-        this.loadImage('images/entourage-floral-bl.png'),
-      ]);
-      const floralW = 280;
-      ctx.drawImage(
-        floralTr,
-        width - floralW - 8,
-        8,
-        floralW,
-        floralW * (floralTr.height / floralTr.width),
-      );
-      const blH = floralW * (floralBl.height / floralBl.width);
-      ctx.drawImage(floralBl, 8, height - blH - 8, floralW, blH);
-    } catch {
-      /* florals unavailable */
-    }
-
-    ctx.textAlign = 'center';
-    let y = 150;
-
-    ctx.fillStyle = '#b8943a';
-    ctx.font = '600 20px Cinzel, serif';
-    this.fillSpacedText(ctx, 'TOGETHER WITH THEIR FAMILIES', width / 2, y, 5);
-    // Bottom padding under the kicker before the names
-    y += 110;
-
-    ctx.fillStyle = '#0e3d32';
-    ctx.font = '400 82px "Great Vibes", cursive';
-    ctx.fillText(this.wedding.groom, width / 2, y);
-    y += 50;
-    ctx.font = '400 46px "Great Vibes", cursive';
-    ctx.fillStyle = '#c9a227';
-    ctx.fillText('&', width / 2, y);
-    y += 56;
-    ctx.fillStyle = '#0e3d32';
-    ctx.font = '400 82px "Great Vibes", cursive';
-    ctx.fillText(this.wedding.bride, width / 2, y);
-    y += 36;
-
-    this.drawGoldRule(ctx, width / 2, y, 220);
-    y += 42;
-
-    ctx.fillStyle = '#0e3d32';
-    ctx.font = 'italic 500 26px "Cormorant Garamond", serif';
-    ctx.fillText('joyfully invite you to celebrate their wedding', width / 2, y);
-    y += 48;
-
-    const { weekday, monthShort, day, year } = this.wedding.dateLong;
-    ctx.fillStyle = '#b8943a';
-    ctx.font = '600 20px Cinzel, serif';
-    this.fillSpacedText(ctx, weekday.toUpperCase(), width / 2, y, 6);
-    y += 42;
-
-    ctx.fillStyle = '#1a322c';
-    ctx.font = '600 48px "Cormorant Garamond", serif';
-    ctx.fillText(`${day} ${monthShort} ${year}`, width / 2, y);
-    y += 40;
-
-    ctx.fillStyle = '#4d635b';
-    ctx.font = 'italic 500 28px "Cormorant Garamond", serif';
-    ctx.fillText(this.wedding.ceremony.time, width / 2, y);
-    y += 44;
-
-    this.drawGoldRule(ctx, width / 2, y, 150);
-    y += 40;
-
-    ctx.fillStyle = '#b8943a';
-    ctx.font = '600 18px Cinzel, serif';
-    this.fillSpacedText(ctx, 'CEREMONY', width / 2, y, 5);
-    y += 30;
-    ctx.fillStyle = '#1a322c';
-    ctx.font = '600 28px "Cormorant Garamond", serif';
-    y = this.fillWrappedText(ctx, this.wedding.ceremony.venue, width / 2, y, width - 200, 32);
-    y += 2;
-    ctx.fillStyle = '#4d635b';
-    ctx.font = '400 22px "Cormorant Garamond", serif';
-    y = this.fillWrappedText(ctx, this.wedding.ceremony.address, width / 2, y, width - 220, 28);
-    y += 28;
-
-    ctx.fillStyle = '#b8943a';
-    ctx.font = '600 18px Cinzel, serif';
-    this.fillSpacedText(ctx, 'RECEPTION', width / 2, y, 5);
-    y += 30;
-    ctx.fillStyle = '#1a322c';
-    ctx.font = '600 26px "Cormorant Garamond", serif';
-    y = this.fillWrappedText(ctx, this.wedding.reception.venue, width / 2, y, width - 200, 30);
-    y += 2;
-    ctx.fillStyle = '#4d635b';
-    ctx.font = '400 22px "Cormorant Garamond", serif';
-    y = this.fillWrappedText(ctx, this.wedding.reception.address, width / 2, y, width - 220, 28);
-    y += 6;
-    ctx.font = 'italic 400 20px "Cormorant Garamond", serif';
-    y = this.fillWrappedText(ctx, this.wedding.reception.time, width / 2, y, width - 220, 26);
-    y += 28;
-
-    this.drawGoldRule(ctx, width / 2, y, 130);
-    y += 36;
-
-    ctx.fillStyle = '#b8943a';
-    ctx.font = '600 18px Cinzel, serif';
-    this.fillSpacedText(ctx, 'ATTIRE', width / 2, y, 5);
-    y += 30;
-    ctx.fillStyle = '#1a322c';
-    ctx.font = '500 26px "Cormorant Garamond", serif';
-    ctx.fillText(this.wedding.dressCode.title, width / 2, y);
-    y += 36;
-    y = this.drawAttirePalette(ctx, width / 2, y, this.wedding.dressCode.swatches);
-    y += 28;
-
-    ctx.fillStyle = '#b8943a';
-    ctx.font = '600 18px Cinzel, serif';
-    ctx.fillText(`RSVP by ${this.wedding.rsvp.deadline}`, width / 2, y);
-    y += 36;
-
-    this.drawGoldRule(ctx, width / 2, y, 180);
-    y += 44;
-
-    // Entourage
-    ctx.fillStyle = '#b8943a';
-    ctx.font = '600 20px Cinzel, serif';
-    this.fillSpacedText(ctx, 'THE ENTOURAGE', width / 2, y, 6);
-    y += 40;
-    y = this.drawInviteEntourage(ctx, width, y);
-    y += 28;
-
-    const qr = this.qrDataUrl();
-    if (qr) {
-      try {
-        const qrImg = await this.loadImage(qr);
-        const qrSize = 120;
-        const qrX = (width - qrSize) / 2;
-        const qrY = Math.min(y + 4, height - qrSize - 90);
-        ctx.fillStyle = '#ffffff';
-        ctx.fillRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 16);
-        ctx.strokeStyle = 'rgba(201, 162, 39, 0.55)';
-        ctx.lineWidth = 1.5;
-        ctx.strokeRect(qrX - 8, qrY - 8, qrSize + 16, qrSize + 16);
-        ctx.drawImage(qrImg, qrX, qrY, qrSize, qrSize);
-        y = qrY + qrSize + 28;
-      } catch {
-        y += 12;
-      }
-    }
-
-    ctx.fillStyle = '#b8943a';
-    ctx.font = '600 20px Cinzel, serif';
-    ctx.fillText(this.wedding.monogram, width / 2, Math.min(y + 2, height - 70));
-
-    // Crop unused bottom canvas so the download is not overly tall
-    const usedH = Math.min(height, Math.ceil(Math.max(y + 60, 1800)));
-    if (usedH < height) {
-      const cropped = document.createElement('canvas');
-      cropped.width = width;
-      cropped.height = usedH;
-      const cctx = cropped.getContext('2d');
-      if (cctx) {
-        cctx.drawImage(canvas, 0, 0, width, usedH, 0, 0, width, usedH);
-        // redraw bottom floral on cropped canvas edge
-        try {
-          const floralBl = await this.loadImage('images/entourage-floral-bl.png');
-          const floralW = 280;
-          const blH = floralW * (floralBl.height / floralBl.width);
-          cctx.drawImage(floralBl, 8, usedH - blH - 8, floralW, blH);
-          // restore gold frame bottom edge over floral slightly
-          cctx.strokeStyle = 'rgba(201, 162, 39, 0.95)';
-          cctx.lineWidth = 3;
-          cctx.strokeRect(inset, inset, width - inset * 2, usedH - inset * 2);
-        } catch {
-          /* ignore */
-        }
-        return mimeType === 'image/jpeg'
-          ? cropped.toDataURL(mimeType, quality)
-          : cropped.toDataURL(mimeType);
-      }
-    }
-
-    return mimeType === 'image/jpeg'
-      ? canvas.toDataURL(mimeType, quality)
-      : canvas.toDataURL(mimeType);
-  }
-
-  /** Compact entourage block for the downloadable invitation image. */
-  private drawInviteEntourage(ctx: CanvasRenderingContext2D, width: number, startY: number): number {
-    const e = this.wedding.entourage;
-    let y = startY;
-    const colGap = 40;
-    const colW = (width - 220 - colGap) / 2;
-    const leftX = 110 + colW / 2;
-    const rightX = width - 110 - colW / 2;
-
-    const role = (label: string, x: number, yy: number): number => {
-      ctx.fillStyle = '#b8943a';
-      ctx.font = '600 15px Cinzel, serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(label.toUpperCase(), x, yy);
-      return yy + 22;
-    };
-    const name = (text: string, x: number, yy: number): number => {
-      ctx.fillStyle = '#1a322c';
-      ctx.font = '500 20px "Cormorant Garamond", serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(text, x, yy);
-      return yy + 24;
-    };
-
-    // Invitation print order:
-    // Parents → Principal Sponsors → Best Man / Maid of Honor →
-    // Secondary Sponsors → Bearers → Flower Girls → Little Groom / Little Bride
-    let yL = role('Parents of the Groom', leftX, y);
-    for (const n of e.parentsOfGroom) {
-      yL = name(n, leftX, yL);
-    }
-    let yR = role('Parents of the Bride', rightX, y);
-    for (const n of e.parentsOfBride) {
-      yR = name(n, rightX, yR);
-    }
-    y = Math.max(yL, yR) + 18;
-
-    ctx.fillStyle = '#b8943a';
-    ctx.font = '600 15px Cinzel, serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('PRINCIPAL SPONSORS', width / 2, y);
-    y += 26;
-    for (const pair of e.principalSponsors) {
-      ctx.fillStyle = '#1a322c';
-      ctx.font = '500 19px "Cormorant Garamond", serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(pair.gentlemen, leftX, y);
-      ctx.fillText(pair.ladies, rightX, y);
-      y += 24;
-    }
-    y += 14;
-
-    yL = role('Best Man', leftX, y);
-    yL = name(e.bestMan, leftX, yL);
-    yR = role('Maid of Honor', rightX, y);
-    yR = name(e.maidOfHonor, rightX, yR);
-    y = Math.max(yL, yR) + 20;
-
-    ctx.fillStyle = '#b8943a';
-    ctx.font = '600 15px Cinzel, serif';
-    ctx.textAlign = 'center';
-    ctx.fillText('SECONDARY SPONSORS', width / 2, y);
-    y += 26;
-    const secondaryCols = e.secondarySponsors;
-    const secW = (width - 200) / Math.max(secondaryCols.length, 1);
-    let secBottom = y;
-    secondaryCols.forEach((s, i) => {
-      const x = 100 + secW * i + secW / 2;
-      let yy = role(s.role, x, y);
-      // Draw pairs as two-column rows under each rite.
-      const drawPair = (left: string, right: string, rowY: number): number => {
-        ctx.fillStyle = '#1a322c';
-        ctx.font = '500 17px "Cormorant Garamond", serif';
-        ctx.textAlign = 'center';
-        const pairGap = secW * 0.42;
-        ctx.fillText(left, x - pairGap / 2, rowY);
-        ctx.fillText(right, x + pairGap / 2, rowY);
-        return rowY + 22;
-      };
-      yy = drawPair(s.primary.left, s.primary.right, yy);
-      if (s.secondary) {
-        yy = drawPair(s.secondary.left, s.secondary.right, yy);
-      }
-      secBottom = Math.max(secBottom, yy);
-    });
-    y = secBottom + 18;
-
-    if (e.bridalParty.length) {
-      ctx.fillStyle = '#b8943a';
-      ctx.font = '600 15px Cinzel, serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('GROOMSMAN & BRIDESMAID', width / 2, y);
-      y += 26;
-      for (const pair of e.bridalParty) {
-        ctx.fillStyle = '#1a322c';
-        ctx.font = '500 19px "Cormorant Garamond", serif';
-        ctx.textAlign = 'center';
-        ctx.fillText(pair.groomsman, leftX, y);
-        ctx.fillText(pair.bridesmaid, rightX, y);
-        y += 24;
-      }
-      y += 12;
-    }
-
-    const bearerW = (width - 200) / Math.max(e.bearers.length, 1);
-    let bearerBottom = y;
-    e.bearers.forEach((b, i) => {
-      const x = 100 + bearerW * i + bearerW / 2;
-      let yy = role(b.role, x, y);
-      yy = name(b.name, x, yy);
-      bearerBottom = Math.max(bearerBottom, yy);
-    });
-    y = bearerBottom + 16;
-
-    if (e.flowerGirls.length) {
-      ctx.fillStyle = '#b8943a';
-      ctx.font = '600 15px Cinzel, serif';
-      ctx.textAlign = 'center';
-      ctx.fillText('FLOWER GIRLS', width / 2, y);
-      y += 24;
-      const fgW = (width - 260) / Math.max(e.flowerGirls.length, 1);
-      e.flowerGirls.forEach((n, i) => {
-        const x = 130 + fgW * i + fgW / 2;
-        name(n, x, y);
-      });
-      y += 28;
-    }
-
-    yL = role('Little Groom', leftX, y);
-    yL = name(e.littleGroom, leftX, yL);
-    yR = role('Little Bride', rightX, y);
-    yR = name(e.littleBride, rightX, yR);
-    y = Math.max(yL, yR) + 16;
-
-    ctx.textAlign = 'center';
-    return y;
-  }
-
-  /** Resolve dress swatch CSS variables to hex for canvas drawing. */
-  private resolveSwatchColor(color: string): string {
-    const map: Record<string, string> = {
-      'var(--swatch-emerald)': '#115e4a',
-      'var(--swatch-beige)': '#d7c4a8',
-      'var(--swatch-gold)': '#c9a227',
-      'var(--swatch-brown)': '#4a2f1c',
-      'var(--swatch-soft-beige)': '#ead9c4',
-      'var(--swatch-champagne)': '#f3e6c4',
-    };
-    return map[color] ?? color;
-  }
-
-  private drawAttirePalette(
-    ctx: CanvasRenderingContext2D,
-    cx: number,
-    y: number,
-    swatches: readonly { readonly name: string; readonly color: string }[],
-  ): number {
-    const count = swatches.length;
-    if (!count) {
-      return y;
-    }
-
-    const circleR = 22;
-    const gap = 96;
-    const totalW = (count - 1) * gap;
-    const startX = cx - totalW / 2;
-    const prevAlign = ctx.textAlign;
-
-    swatches.forEach((swatch, i) => {
-      const x = startX + i * gap;
-      ctx.beginPath();
-      ctx.arc(x, y, circleR, 0, Math.PI * 2);
-      ctx.fillStyle = this.resolveSwatchColor(swatch.color);
-      ctx.fill();
-      ctx.strokeStyle = 'rgba(141, 106, 24, 0.35)';
-      ctx.lineWidth = 1.5;
-      ctx.stroke();
-
-      ctx.fillStyle = '#4d635b';
-      ctx.font = '500 13px Cinzel, serif';
-      ctx.textAlign = 'center';
-      ctx.fillText(swatch.name, x, y + circleR + 22);
-    });
-
-    ctx.textAlign = prevAlign;
-    return y + circleR + 34;
-  }
-
-  private fillWrappedText(
-    ctx: CanvasRenderingContext2D,
-    text: string,
-    x: number,
-    y: number,
-    maxWidth: number,
-    lineHeight: number,
-  ): number {
-    const words = text.split(/\s+/);
-    let line = '';
-    let cursorY = y;
-    for (const word of words) {
-      const next = line ? `${line} ${word}` : word;
-      if (ctx.measureText(next).width > maxWidth && line) {
-        ctx.fillText(line, x, cursorY);
-        cursorY += lineHeight;
-        line = word;
-      } else {
-        line = next;
-      }
-    }
-    if (line) {
-      ctx.fillText(line, x, cursorY);
-      cursorY += lineHeight;
-    }
-    return cursorY;
   }
 
   /** Build a themed invitation card (header + QR) and download it as PNG. */

@@ -793,13 +793,13 @@
 
       <div class="share__download" appReveal>
         <p class="share__download-label">Download Invitation</p>
-        <p class="share__download-hint">Save or share a keepsake card (works in Messenger too)</p>
+        <p class="share__download-hint">Save our wedding invitation (PDF)</p>
         <button
           type="button"
           class="btn share__download-btn"
           (click)="downloadInvitationImage()"
           [disabled]="inviteDownloading()">
-          {{ inviteDownloading() ? 'Preparing…' : 'Save / Share Image' }}
+          {{ inviteDownloading() ? 'Preparing…' : 'Download Invitation (PDF)' }}
         </button>
       </div>
     </div>
@@ -809,16 +809,25 @@
   <div class="invite__end" aria-hidden="true"></div>
 </article>
 
-<!-- Invitation image preview — fallback when Messenger / in-app browsers block downloads -->
+<!-- Invitation save preview — fallback when Messenger / in-app browsers block downloads -->
 @if (invitePreviewUrl(); as preview) {
   <div class="invite-preview" (click)="closeInvitePreview()" role="dialog" aria-modal="true"
        aria-labelledby="invite-preview-title">
     <div class="invite-preview__card" (click)="$event.stopPropagation()">
       <button type="button" class="invite-preview__close" aria-label="Close"
               (click)="closeInvitePreview()">&times;</button>
-      <h3 class="invite-preview__title" id="invite-preview-title">Save image</h3>
+      <h3 class="invite-preview__title" id="invite-preview-title">
+        {{ invitePreviewIsPdf() ? 'Save invitation (PDF)' : 'Save image' }}
+      </h3>
       <p class="invite-preview__hint">
-        @if (invitePreviewIsMessenger()) {
+        @if (invitePreviewIsPdf()) {
+          @if (invitePreviewIsMessenger()) {
+            Tap <strong>Save / Share PDF</strong> or <strong>Download PDF</strong>.
+            If Messenger blocks it, tap <strong>Open in Chrome</strong> to download directly.
+          } @else {
+            Tap <strong>Download PDF</strong> or <strong>Save / Share PDF</strong> below.
+          }
+        } @else if (invitePreviewIsMessenger()) {
           Tap <strong>Save image</strong> and choose Photos, Gallery, or Drive.
           If Messenger blocks it, tap <strong>Open in Chrome</strong> and save once there.
         } @else {
@@ -826,22 +835,33 @@
         }
       </p>
       @if (inviteSaveBlocked()) {
-        <p class="invite-preview__hint">This app blocked the save. Open in Chrome, then tap Save image.</p>
+        <p class="invite-preview__hint">
+          This app blocked the save. Open in Chrome, then tap {{ invitePreviewIsPdf() ? 'Download PDF' : 'Save image' }}.
+        </p>
       }
       <div class="invite-preview__frame">
-        <img class="invite-preview__img" [src]="preview" alt="Wedding invitation card" />
+        @if (invitePreviewIsPdf()) {
+          <div class="invite-preview__pdf">
+            <p class="invite-preview__pdf-kicker">3-Page 5R Physical Invitation</p>
+            <p class="invite-preview__pdf-names">{{ wedding.groom }} &amp; {{ wedding.bride }}</p>
+            <p class="invite-preview__pdf-meta">Cover &middot; Wedding Details &middot; The Entourage</p>
+            <span class="invite-preview__pdf-badge">PDF Document</span>
+          </div>
+        } @else {
+          <img class="invite-preview__img" [src]="preview" alt="Wedding invitation card" />
+        }
       </div>
       <div class="invite-preview__actions">
         <button type="button" class="btn invite-preview__share" (click)="saveInvitePreview()">
-          Save image
+          {{ invitePreviewIsPdf() ? 'Save / Share PDF' : 'Save image' }}
         </button>
         <a
           class="btn invite-preview__download"
-          [href]="invitePreviewBlobUrl() || preview"
+          [href]="invitePreviewIsPdf() ? preview : (invitePreviewBlobUrl() || preview)"
           [attr.download]="invitePreviewFilename()"
           target="_blank"
           rel="noopener">
-          Download
+          {{ invitePreviewIsPdf() ? 'Download PDF' : 'Download' }}
         </a>
         @if (invitePreviewIsMessenger()) {
           <button type="button" class="btn invite-preview__download" (click)="openSaveInChrome()">
@@ -857,15 +877,17 @@
   <div class="invite-preview" role="dialog" aria-modal="true" aria-labelledby="chrome-save-title">
     <div class="invite-preview__card">
       <h3 class="invite-preview__title" id="chrome-save-title">
-        {{ kind === 'qr' ? 'Save QR code' : 'Save invitation' }}
+        {{ kind === 'qr' ? 'Save QR code' : 'Download invitation (PDF)' }}
       </h3>
-      <p class="invite-preview__hint">Tap below to save the image to your phone.</p>
+      <p class="invite-preview__hint">
+        {{ kind === 'qr' ? 'Tap below to save the image to your phone.' : 'Tap below to download the 3-page invitation PDF.' }}
+      </p>
       <button
         type="button"
         class="btn invite-preview__share"
         (click)="confirmChromeSave()"
         [disabled]="!chromeSaveReady()">
-        {{ chromeSaveReady() ? 'Save image' : 'Preparing…' }}
+        {{ chromeSaveReady() ? (kind === 'qr' ? 'Save image' : 'Download PDF') : 'Preparing…' }}
       </button>
     </div>
   </div>
