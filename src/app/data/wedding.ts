@@ -263,7 +263,7 @@ export const WEDDING: Wedding = {
   },
   rsvp: {
     note: 'Every seat is reserved with love and intention. Kindly confirm your attendance below.',
-    deadline: 'November 20, 2026',
+    deadline: 'November 30, 2026',
     contacts: [
       { name: 'Rowie', label: 'Messenger', url: 'https://m.me/rowelyn.cachero' },
       { name: 'Edward', label: 'Messenger', url: 'https://m.me/edward.pandino' },
